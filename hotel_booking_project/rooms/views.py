@@ -4,9 +4,13 @@ from .forms import BookRoomForm
 
 # Create your views here.
 
+def home(request):
+    return render(request, "rooms/templates/base.html")
+
+
 def room_list(request):
     rooms = Room.objects.all()
-    return render(request, 'rooms/list.html', {'rooms': rooms})
+    return render(request, 'rooms/templates/list.html', {'rooms': rooms})
 
 def book_room(request, room_id):
     room = Room.objects.get(id=room_id)
@@ -17,4 +21,4 @@ def book_room(request, room_id):
             return redirect('success_page')
     else:
         form = BookRoomForm()
-    return render(request, 'rooms/book.html', {'form': form})
+    return render(request, 'rooms/templates/book.html', {'form': form})
