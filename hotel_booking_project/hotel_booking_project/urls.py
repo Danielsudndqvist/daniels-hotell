@@ -18,5 +18,9 @@ from django.contrib import admin
 from django.urls import path
 
 urlpatterns = [
+    path('', views.HomePageView.as_view(), name='home'),
+    path('rooms/', room_list, name='room-list'),
+    path('rooms/<int:room_id>/', book_room, name='book-room'),
     path('admin/', admin.site.urls),
+    
 ]
