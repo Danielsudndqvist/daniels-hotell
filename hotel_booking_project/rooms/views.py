@@ -1,24 +1,12 @@
 from django.shortcuts import render, redirect
 from .models import Room
-from .forms import BookRoomForm
+from django.views.generic.base import TemplateView
 
-# Create your views here.
-
-def home(request):
-    return render(request, "rooms/templates/base.html")
-
+def get_base(request):
+    return render(request, 'base.html',)
 
 def room_list(request):
-    rooms = Room.objects.all()
-    return render(request, 'rooms/templates/list.html', {'rooms': rooms})
+    return render(request, 'list.html',)
 
-def book_room(request, room_id):
-    room = Room.objects.get(id=room_id)
-    if request.method == "POST":
-        form = BookRoomForm(request.POST)
-        if form.is_valid():
-            # Process the booking here
-            return redirect('success_page')
-    else:
-        form = BookRoomForm()
-    return render(request, 'rooms/templates/book.html', {'form': form})
+def book_room(request,):
+    return render(request, 'book.html',)
