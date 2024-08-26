@@ -1,18 +1,41 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Booking site</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-    <p>Book</p>
-    {% block content %}
-    {% endblock %}
+{% extends 'base.html' %}
 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Book Your Stay</h1>
+    <p class="lead mb-4">Please fill out the form below to book your room.</p>
+
+    <form action="{% url 'submit_booking' %}" method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="name" class="form-label">Name:</label>
+            <input type="text" class="form-control" id="name" required>
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">Email:</label>
+            <input type="email" class="form-control" id="email" required>
+        </div>
+        <div class="mb-3">
+            <label for="phone" class="form-label">Phone:</label>
+            <input type="tel" class="form-control" id="phone" required>
+        </div>
+        <div class="mb-3">
+            <label for="arrivalDate" class="form-label">Arrival Date:</label>
+            <input type="date" class="form-control" id="arrivalDate" required>
+        </div>
+        <div class="mb-3">
+            <label for="departureDate" class="form-label">Departure Date:</label>
+            <input type="date" class="form-control" id="departureDate" required>
+        </div>
+        <div class="mb-3">
+            <label for="roomType" class="form-label">Room Type:</label>
+            <select class="form-select" id="roomType" required>
+                <option value="">Select a room type...</option>
+                <option value="deluxe">Deluxe Room</option>
+                <option value="standard">Standard Room</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit Booking</button>
+    </form>
+</div>
+{% endblock %}
