@@ -1,131 +1,57 @@
-![CI logo](https://codeinstitute.s3.amazonaws.com/fullstack/ci_logo_small.png)
 
-Welcome Daniel Sundqvist,
+LO1	Use an Agile methodology to plan and design a Full-Stack Web application using an MVC framework and related contemporary technologies.
+LO2	Implement a data model, application features and business logic to manage, query and manipulate data to meet given needs in a particular real-world domain.
+LO3	Identify and apply authorisation, authentication and permission features in a Full-Stack web application solution.
+LO4	Create manual and/or automated tests for a Full-Stack Web application using an MVC framework and related contemporary technologies
+LO5	Use a distributed version control system and a repository hosting service to document, develop and maintain a Full-Stack Web application using an MVC framework and related contemporary technologies.
+LO6	Deploy a Full-Stack Web application using an MVC framework and related contemporary technologies to a cloud-based platform
+LO7	Understand and use object-based software concepts
+LO1 Use an Agile methodology to plan and design a Full-Stack Web application using an MVC framework and related contemporary technologies
 
-This is the Code Institute student template for Gitpod. We have preinstalled all of the tools you need to get started. It's perfectly ok to use this template as the basis for your project submissions.
+1.1	Design a Front-End for a data-driven web application that meets accessibility guidelines, follows the principles of UX design, meets its given purpose and provides a set of user interactions.
+1.2	Implement custom HTML and CSS code to create a responsive Full-Stack application consisting of one or more HTML pages with relevant responses to user actions and a set of data manipulation functions
+1.3	Build a database-backed MVC web application that allows users to store and manipulate data records about a particular domain.
+1.4	Design a database structure relevant for your domain, consisting of a minimum of one custom model.
+1.5	Use an Agile tool to manage the planning and implementation of all significant functionality
+1.6	Document and implement all User Stories and map them to the project within an Agile tool
+1.7	Write Python code that is consistent in style and conforms to the PEP8 style guide and validated HTML and CSS code.
+1.8	Include sufficient custom Python logic to demonstrate your proficiency in the language
+1.9	Include functions with compound statements such as if conditions and/or loops in your Python code
+1.10	Write code that meets minimum standards for readability (comments, indentation, consistent and meaningful naming conventions).
+1.11	Name files consistently and descriptively, without spaces or capitalisation to allow for cross-platform compatibility.
+1.12	Document and implement all User Stories within the Agile tool and map them to the project goals
+1.13	Document the UX design work undertaken for this project, including any wireframes, mockups, diagrams, etc.,created as part of the design process and its reasoning. Include diagrams created as part of the design process and demonstrate that these have been followed through to implementation
+LO2 Implement a data model, application features and business logic to manage, query and manipulate data to meet given needs in a particular real-world domain.
 
-You can safely delete this README.md file or change it for your own project. Please do read it at least once, though! It contains some important information about Gitpod and the extensions we use. Some of this information has been updated since the video content was created. The last update to this file was: **June 18, 2024**
+2.1	Develop the model into a usable database where data is stored in a consistent and well-organised manner.
+2.2	Create functionality for users to create, locate, display, edit and delete records
+2.3	All changes to the data should be notified to relevant user
+2.4	Implement at least one form, with validation, that allows users to create and edit models in the backend
+LO3 Identify and apply authorisation, authentication and permission features in a Full-Stack web application solution
 
-## Gitpod Reminders
+3.1	Apply role-based login and registration functionality
+3.2	The current login state is reflected to the user
+3.3	Users should not be permitted to access restricted content or functionality prior to role-based login.
+LO4 Create manual and/or automated tests for a Full-Stack Web application using an MVC framework and related contemporary technologies
 
-To run a frontend (HTML, CSS, Javascript only) application in Gitpod, in the terminal, type:
+4.1	Design and implement manual and/or automated Python test procedures to assess functionality,
+usability, responsiveness and data management within the entire web application
 
-`python3 -m http.server`
+4.2	Design and implement manual and/or automated JavaScript test procedures to assess functionality,
+usability, responsiveness and data management within the entire web application
 
-A blue button should appear to click: _Make Public_,
+4.3	Document all implemented testing in the README.
+LO5 Use a distributed version control system and a repository hosting service to document, develop and maintain a Full-Stack Web application using an MVC framework and related contemporary technologies
 
-Another blue button should appear to click: _Open Browser_.
+5.1	Use Git & GitHub for version control of a Full-Stack web application up to deployment, using commit messages to document the development process.
+5.2	Commit final code that is free of any passwords or security-sensitive information to the repository and the hosting platform
 
-To run a backend Python file, type `python3 app.py` if your Python file is named `app.py`, of course.
+LO6 Deploy a Full-Stack Web application using an MVC framework and related contemporary technologies to a cloud-based platform
 
-A blue button should appear to click: _Make Public_,
+6.1	Deploy a final version of the Full-Stack application code to a cloud-based hosting platform and test to ensure it matches the development version
+6.2	Ensure that the final deployed code is free of commented out code and has no broken internal links
+6.3	Document the deployment process in a README file in English
+6.4	Ensure the security of the deployed version, making sure to not include any passwords in the git repository, that all secret keys are hidden in environment variables or in files that are in .gitignore, and that DEBUG mode is turned off
+LO7 Understand and use object-based software concepts
 
-Another blue button should appear to click: _Open Browser_.
-
-By Default, Gitpod gives you superuser security privileges. Therefore, you do not need to use the `sudo` (superuser do) command in the bash terminal in any of the lessons.
-
-To log into the Heroku toolbelt CLI:
-
-1. Log in to your Heroku account and go to *Account Settings* in the menu under your avatar.
-2. Scroll down to the *API Key* and click *Reveal*
-3. Copy the key
-4. In Gitpod, from the terminal, run `heroku_config`
-5. Paste in your API key when asked
-
-You can now use the `heroku` CLI program - try running `heroku apps` to confirm it works. This API key is unique and private to you, so do not share it. If you accidentally make it public, you can create a new one with _Regenerate API Key_.
-
-### Connecting your Mongo database
-
-- **Connect to Mongo CLI on a IDE**
-- navigate to your MongoDB Clusters Sandbox
-- click **"Connect"** button
-- select **"Connect with the MongoDB shell"**
-- select **"I have the mongo shell installed"**
-- choose **mongosh (2.0 or later)** for : **"Select your mongo shell version"**
-- choose option: **"Run your connection string in your command line"**
-- in the terminal, paste the copied code `mongo "mongodb+srv://<CLUSTER-NAME>.mongodb.net/<DBname>" --apiVersion 1 --username <USERNAME>`
-  - replace all `<angle-bracket>` keys with your own data
-- enter password _(will not echo **\*\*\*\*** on screen)_
-
-------
-
-## Release History
-
-We continually tweak and adjust this template to help give you the best experience. Here is the version history:
-
-**June 18, 2024,** Add Mongo back into template
-
-**June 14, 2024,** Temporarily remove Mongo until the key issue is resolved
-
-**May 28 2024:** Fix Mongo and Links installs
-
-**April 26 2024:** Update node version to 16
-
-**September 20 2023:** Update Python version to 3.9.17.
-
-**September 1 2021:** Remove `PGHOSTADDR` environment variable.
-
-**July 19 2021:** Remove `font_fix` script now that the terminal font issue is fixed.
-
-**July 2 2021:** Remove extensions that are not available in Open VSX.
-
-**June 30 2021:** Combined the P4 and P5 templates into one file, added the uptime script. See the FAQ at the end of this file.
-
-**June 10 2021:** Added: `font_fix` script and alias to fix the Terminal font issue
-
-**May 10 2021:** Added `heroku_config` script to allow Heroku API key to be stored as an environment variable.
-
-**April 7 2021:** Upgraded the template for VS Code instead of Theia.
-
-**October 21 2020:** Versions of the HTMLHint, Prettier, Bootstrap4 CDN and Auto Close extensions updated. The Python extension needs to stay the same version for now.
-
-**October 08 2020:** Additional large Gitpod files (`core.mongo*` and `core.python*`) are now hidden in the Explorer, and have been added to the `.gitignore` by default.
-
-**September 22 2020:** Gitpod occasionally creates large `core.Microsoft` files. These are now hidden in the Explorer. A `.gitignore` file has been created to make sure these files will not be committed, along with other common files.
-
-**April 16 2020:** The template now automatically installs MySQL instead of relying on the Gitpod MySQL image. The message about a Python linter not being installed has been dealt with, and the set-up files are now hidden in the Gitpod file explorer.
-
-**April 13 2020:** Added the _Prettier_ code beautifier extension instead of the code formatter built-in to Gitpod.
-
-**February 2020:** The initialisation files now _do not_ auto-delete. They will remain in your project. You can safely ignore them. They just make sure that your workspace is configured correctly each time you open it. It will also prevent the Gitpod configuration popup from appearing.
-
-**December 2019:** Added Eventyret's Bootstrap 4 extension. Type `!bscdn` in a HTML file to add the Bootstrap boilerplate. Check out the <a href="https://github.com/Eventyret/vscode-bcdn" target="_blank">README.md file at the official repo</a> for more options.
-
-------
-
-## FAQ about the uptime script
-
-**Why have you added this script?**
-
-It will help us to calculate how many running workspaces there are at any one time, which greatly helps us with cost and capacity planning. It will help us decide on the future direction of our cloud-based IDE strategy.
-
-**How will this affect me?**
-
-For everyday usage of Gitpod, it doesn’t have any effect at all. The script only captures the following data:
-
-- An ID that is randomly generated each time the workspace is started.
-- The current date and time
-- The workspace status of “started” or “running”, which is sent every 5 minutes.
-
-It is not possible for us or anyone else to trace the random ID back to an individual, and no personal data is being captured. It will not slow down the workspace or affect your work.
-
-**So….?**
-
-We want to tell you this so that we are being completely transparent about the data we collect and what we do with it.
-
-**Can I opt out?**
-
-Yes, you can. Since no personally identifiable information is being captured, we'd appreciate it if you let the script run; however if you are unhappy with the idea, simply run the following commands from the terminal window after creating the workspace, and this will remove the uptime script:
-
-```
-pkill uptime.sh
-rm .vscode/uptime.sh
-```
-
-**Anything more?**
-
-Yes! We'd strongly encourage you to look at the source code of the `uptime.sh` file so that you know what it's doing. As future software developers, it will be great practice to see how these shell scripts work.
-
----
-
-Happy coding!
+7.1	Design a custom data model that fits the purpose of the project

@@ -5,21 +5,27 @@
     <h1 class="mb-4">Booking Confirmation</h1>
     <p class="lead mb-4">Your booking has been successfully processed.</p>
 
-    <div class="row">
-        <div class="col-md-6">
-            <h3>Your Details</h3>
-            <p><strong>Name:</strong> {{ booking.name }}</p>
-            <p><strong>Email:</strong> {{ booking.email }}</p>
-            <p><strong>Phone:</strong> {{ booking.phone }}</p>
-        </div>
-        <div class="col-md-6">
-            <h3>Your Reservation</h3>
-            <p><strong>Room Type:</strong> {{ booking.room_type }}</p>
-            <p><strong>Arrival Date:</strong> {{ booking.arrival_date }}</p>
-            <p><strong>Departure Date:</strong> {{ booking.departure_date }}</p>
-            <p><strong>Total Cost:</strong> ${{{ booking.total_cost|floatformat:2 }}} per night</p>
-        </div>
-    </div>
+    {% if booking|length > 0 %}
+        {% for b in booking %}
+            <div class="row">
+                <div class="col-md-6">
+                    <h3>Your Details</h3>
+                    <p><strong>Name:</strong> {{ b.name }}</p>
+                    <p><strong>Email:</strong> {{ b.email }}</p>
+                    <p><strong>Phone:</strong> {{ b.phone }}</p>
+                </div>
+                <div class="col-md-6">
+                    <h3>Your Reservation</h3>
+                    <p><strong>Room Type:</strong> {{ b.room_type }}</p>
+                    <p><strong>Arrival Date:</strong> {{ b.arrival_date }}</p>
+                    <p><strong>Departure Date:</strong> {{ b.departure_date }}</p>
+                    <p><strong>Total Cost:</strong> ${{ b.total_cost|floatformat:2 }} per night</p>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No bookings found.</p>
+    {% endif %}
 
     <div class="mt-5">
         <p>We hope you enjoy your stay with us!</p>
