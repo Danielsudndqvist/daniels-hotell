@@ -1,3 +1,11 @@
+https://www.youtube.com/watch?v=AVwaJxPhOA4&list=PL_KegS2ON4s5gn-d_Qpqi04bYLw3APRc5&index=3
+
+
+
+
+
+
+
 
 LO1	Use an Agile methodology to plan and design a Full-Stack Web application using an MVC framework and related contemporary technologies.
 LO2	Implement a data model, application features and business logic to manage, query and manipulate data to meet given needs in a particular real-world domain.
