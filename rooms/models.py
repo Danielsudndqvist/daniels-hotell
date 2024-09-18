@@ -39,9 +39,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
 
-
 class Profile(models.Model):
-    user = models.OneToOneField('CustomUser', on_delete=models.CASCADE)
+    user = models.OneToOneField(CustomUser, on_delete=models.SET_NULL, null=True, blank=True)
     phone_number = models.CharField(max_length=15, blank=True, null=True)
     address = models.TextField(blank=True, null=True)
     profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
@@ -52,7 +51,6 @@ class Profile(models.Model):
 
     def __str__(self):
         return f"{self.user.username}'s Profile"
-
 
 class Room(models.Model):
     ROOM_TYPES = [
@@ -68,7 +66,6 @@ class Room(models.Model):
     def __str__(self):
         return self.name
 
-
 class Booking(models.Model):
     STATUS_CHOICES = [
         ('pending', 'Pending'),
@@ -76,7 +73,10 @@ class Booking(models.Model):
         ('cancelled', 'Cancelled'),
     ]
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True)
     guest_name = models.CharField(max_length=100)
+    email = models.EmailField()
+    phone = models.CharField(max_length=20)
     check_in_date = models.DateField()
     check_out_date = models.DateField()
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -84,5 +84,8 @@ class Booking(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def calculate_total_price(self):
+        return self.room.price * (self.check_out_date - self.check_in_date).days
+
     def __str__(self):
-        return f"{self.room.name} - {self.check_in_date}"
+        return f"{self.guest_name} - {self.room.name} - {self.check_in_date}"

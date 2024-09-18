@@ -1,43 +1,39 @@
-from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib import admin
-from django.contrib.auth.models import Group
-from .models import CustomUser, Profile
+from django.contrib.auth.admin import UserAdmin
+from .models import CustomUser, Profile, Room, Booking
 
-class CustomUserAdmin(BaseUserAdmin):
-    model = CustomUser
+@admin.register(CustomUser)
+class CustomUserAdmin(UserAdmin):
     list_display = ('email', 'username', 'is_staff', 'is_active')
-    list_filter = ('is_staff', 'is_active') 
-    search_fields = ('email', 'username')
-    filter_horizontal = ()
-    ordering = ('email',)
-
+    list_filter = ('is_staff', 'is_active')
     fieldsets = (
-        (None, {'fields': ('username', 'email', 'password')}),
-        ('Personal info', {'fields': ('first_name', 'last_name')}),
-        ('Permissions', {'fields': ('is_staff', 'is_active')}),
-        ('Important dates', {'fields': ('last_login', 'date_joined')}),
+        (None, {'fields': ('email', 'username', 'password')}),
+        ('Personal Info', {'fields': ('first_name', 'last_name')}),
+        ('Permissions', {'fields': ('is_staff', 'is_active', 'is_superuser')}),
+        ('Important dates', {'fields': ('last_login',)}),
     )
-
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('username', 'email', 'password1', 'password2'),
-        }),
+            'fields': ('email', 'username', 'password1', 'password2', 'is_staff', 'is_active')}
+        ),
     )
+    search_fields = ('email', 'username')
+    ordering = ('email',)
 
-    def get_profile(self, obj):
-        if hasattr(obj, 'profile'):
-            return obj.profile.profile_picture.url if obj.profile.profile_picture else ''
-        return ''
+@admin.register(Profile)
+class ProfileAdmin(admin.ModelAdmin):
+    list_display = ('user', 'phone_number', 'address', 'date_of_birth')
+    search_fields = ('user__username',)
 
-    get_profile.short_description = 'Profile Picture URL'
+@admin.register(Room)
+class RoomAdmin(admin.ModelAdmin):
+    list_display = ('name', 'room_type', 'price', 'available')
+    list_filter = ('room_type', 'available')
+    search_fields = ('name',)
 
-    def save_model(self, request, obj, form, change):
-        super().save_model(request, obj, form, change)
-
-        if hasattr(obj, 'profile'):
-            obj.profile.save()
-
-admin.site.register(CustomUser, CustomUserAdmin)
-admin.site.register(Profile)
-admin.site.unregister(Group)
+@admin.register(Booking)
+class BookingAdmin(admin.ModelAdmin):
+    list_display = ('room', 'guest_name', 'check_in_date', 'check_out_date', 'total_price', 'status')
+    list_filter = ('status', 'room')
+    search_fields = ('guest_name', 'room__name')

@@ -2,40 +2,51 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h1 class="mb-4">Book Your Stay</h1>
-    <p class="lead mb-4">Please fill out the form below to book your room.</p>
+    <h1 class="mb-4">Book Your Room</h1>
 
-    <form action="{% url 'submit_booking' %}" method="post">
+    <form method="post">
         {% csrf_token %}
-        <div class="mb-3">
-            <label for="name" class="form-label">Name:</label>
-            <input type="text" class="form-control" id="name" required>
+        <div class="row mb-3">
+            <label for="guest_name" class="col-sm-2 col-form-label">Guest Name:</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="guest_name" name="guest_name" required>
+            </div>
         </div>
-        <div class="mb-3">
-            <label for="email" class="form-label">Email:</label>
-            <input type="email" class="form-control" id="email" required>
+
+        <div class="row mb-3">
+            <label for="email" class="col-sm-2 col-form-label">Email:</label>
+            <div class="col-sm-10">
+                <input type="email" class="form-control" id="email" name="email" required>
+            </div>
         </div>
-        <div class="mb-3">
-            <label for="phone" class="form-label">Phone:</label>
-            <input type="tel" class="form-control" id="phone" required>
+
+        <div class="row mb-3">
+            <label for="phone" class="col-sm-2 col-form-label">Phone:</label>
+            <div class="col-sm-10">
+                <input type="tel" class="form-control" id="phone" name="phone" required>
+            </div>
         </div>
-        <div class="mb-3">
-            <label for="arrivalDate" class="form-label">Arrival Date:</label>
-            <input type="date" class="form-control" id="arrivalDate" required>
+
+        <div class="row mb-3">
+            <label for="check_in_date" class="col-sm-2 col-form-label">Check-in Date:</label>
+            <div class="col-sm-10">
+                <input type="date" class="form-control" id="check_in_date" name="check_in_date" required>
+            </div>
         </div>
-        <div class="mb-3">
-            <label for="departureDate" class="form-label">Departure Date:</label>
-            <input type="date" class="form-control" id="departureDate" required>
+
+        <div class="row mb-3">
+            <label for="check_out_date" class="col-sm-2 col-form-label">Check-out Date:</label>
+            <div class="col-sm-10">
+                <input type="date" class="form-control" id="check_out_date" name="check_out_date" required>
+            </div>
         </div>
-        <div class="mb-3">
-            <label for="roomType" class="form-label">Room Type:</label>
-            <select class="form-select" id="roomType" required>
-                <option value="">Select a room type...</option>
-                <option value="deluxe">Deluxe Room</option>
-                <option value="standard">Standard Room</option>
-            </select>
+
+        <div class="row mb-3">
+            <label class="col-sm-2"></label>
+            <div class="col-sm-10">
+                <button type="submit" class="btn btn-primary">Book Now</button>
+            </div>
         </div>
-        <button type="submit" class="btn btn-primary">Submit Booking</button>
     </form>
 </div>
 {% endblock %}

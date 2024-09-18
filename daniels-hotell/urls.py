@@ -20,8 +20,9 @@ from rooms import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.get_base, name='home'),
+    path('', views.base_page, name='home'),
     path('rooms/', views.room_list, name='rooms'),
-    path('book/', views.book_room, name='book'),
-    path('submit-booking/', views.submit_booking, name='submit_booking'),
+    path('select-room/', views.select_room, name='select_room'),
+    path('book/<int:room_id>/', views.book_room, name='book_room'),
+    path('booking-confirmation/<int:booking_id>/', views.booking_confirmation, name='booking_confirmation'),
 ]
