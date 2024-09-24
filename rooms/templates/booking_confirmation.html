@@ -6,13 +6,13 @@
     <div class="card mb-4">
         <div class="card-body">
             <h5 class="card-title">Booking Details</h5>
-            <p><strong>Name:</strong> {{ guest_name }}</p>
-            <p><strong>Email:</strong> {{ email }}</p>
-            <p><strong>Phone:</strong> {{ phone }}</p>
-            <p><strong>Check-in Date:</strong> {{ check_in_date }}</p>
-            <p><strong>Check-out Date:</strong> {{ check_out_date }}</p>
-            <p><strong>Room:</strong> {{ room.name }} ({{ room.get_room_type_display }}) - ${{ room.price }} per night</p>
-            <p><strong>Total Price:</strong> ${{ total_price }}</p>
+            <p>Guest Name: {{ booking.guest_name }}</p>
+            <p>Email: {{ booking.email }}</p>
+            <p>Phone: {{ booking.phone }}</p>
+            <p>Check-in Date: {{ booking.check_in_date }}</p>
+            <p>Check-out Date: {{ booking.check_out_date }}</p>
+            <p>Room: {{ booking.room.name }}</p>
+            <p>Total Price: {{ booking.total_price }}</p>
         </div>
     </div>
     <p>Thank you for your booking!</p>

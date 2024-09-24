@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Select a Room{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Select a Room</h1>
+    <div class="row">
+        {% for room in rooms %}
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    {% if room.image and room.image.url %}
+                        <img src="{{ room.image.url }}" class="card-img-top" alt="{{ room.name }}">
+                    {% else %}
+                        <img src="https://via.placeholder.com/300x200?text=No+Image" class="card-img-top" alt="{{ room.name }}">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ room.name }}</h5>
+                        <p class="card-text">{{ room.description|truncatewords:20 }}</p>
+                        <p class="card-text"><strong>Type:</strong> {{ room.get_room_type_display }}</p>
+                        <p class="card-text"><strong>Price:</strong> ${{ room.price }}/night</p>
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'book_room' room.id %}" class="btn btn-primary">Book Now</a>
+                            <button class="btn btn-outline-secondary more-info-btn" data-room-id="{{ room.id }}">More Info</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <p>No rooms available at the moment.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Modal for room details -->
+<div class="modal fade" id="roomInfoModal" tabindex="-1" aria-labelledby="roomInfoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="roomInfoModalLabel">Room Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="roomCarousel" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-inner" id="roomCarouselInner">
+                        <!-- Images will be inserted here by JavaScript -->
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#roomCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#roomCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+                <div id="roomInfoContent" class="mt-3">
+                    <!-- Room details will be inserted here by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/script.js' %}"></script>
+{% endblock %}

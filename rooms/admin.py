@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser, Profile, Room, Booking
+from .models import CustomUser, Profile, Room, Booking, RoomImage, Amenity
 
 @admin.register(CustomUser)
 class CustomUserAdmin(UserAdmin):
@@ -24,16 +24,34 @@ class CustomUserAdmin(UserAdmin):
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ('user', 'phone_number', 'address', 'date_of_birth')
-    search_fields = ('user__username',)
+    search_fields = ('user__username', 'user__email', 'phone_number')
+
+class RoomImageInline(admin.TabularInline):
+    model = RoomImage
+    extra = 1
 
 @admin.register(Room)
 class RoomAdmin(admin.ModelAdmin):
-    list_display = ('name', 'room_type', 'price', 'available')
+    list_display = ('name', 'room_type', 'price', 'available', 'max_occupancy', 'size')
     list_filter = ('room_type', 'available')
-    search_fields = ('name',)
+    search_fields = ('name', 'description')
+    inlines = [RoomImageInline]
+    filter_horizontal = ('amenities',)
+
+@admin.register(RoomImage)
+class RoomImageAdmin(admin.ModelAdmin):
+    list_display = ('room', 'caption', 'image')
+    list_filter = ('room',)
+    search_fields = ('room__name', 'caption')
 
 @admin.register(Booking)
 class BookingAdmin(admin.ModelAdmin):
     list_display = ('room', 'guest_name', 'check_in_date', 'check_out_date', 'total_price', 'status')
-    list_filter = ('status', 'room')
-    search_fields = ('guest_name', 'room__name')
+    list_filter = ('status', 'room', 'check_in_date', 'check_out_date')
+    search_fields = ('guest_name', 'room__name', 'email')
+    date_hierarchy = 'check_in_date'
+
+@admin.register(Amenity)
+class AmenityAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+    search_fields = ('name',)

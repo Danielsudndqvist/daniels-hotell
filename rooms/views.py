@@ -1,87 +1,132 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
-from .models import Room, Booking
+from django.contrib import messages
 from django.utils.dateparse import parse_date
+from django.db.models import Q
+from django.http import JsonResponse
+from .models import Room, Booking, Amenity
+from .forms import BookingForm
 from django.core.mail import send_mail
 from django.utils import timezone
-from django.contrib.auth.decorators import login_required
 
-def base_page(request):
-    return render(request, 'base.html')
+def home(request):
+    return render(request, 'home.html')
 
 def room_list(request):
     rooms = Room.objects.filter(available=True)
-    return render(request, 'list.html', {'rooms': rooms})
+    return render(request, 'room_list.html', {'rooms': rooms})
 
 def select_room(request):
     rooms = Room.objects.filter(available=True)
     return render(request, 'select_room.html', {'rooms': rooms})
 
-@login_required
 def book_room(request, room_id):
     room = get_object_or_404(Room, id=room_id)
     
     if request.method == 'POST':
-        try:
-            # Extract data from the form
-            guest_name = request.POST['guest_name']
-            email = request.POST['email']
-            phone = request.POST['phone']
-            check_in_date = parse_date(request.POST['check_in_date'])
-            check_out_date = parse_date(request.POST['check_out_date'])
+        form = BookingForm(request.POST)
+        if form.is_valid():
+            booking = form.save(commit=False)
+            booking.room = room
+            booking.total_price = room.price * (booking.check_out_date - booking.check_in_date).days
+            booking.status = 'CONFIRMED'
 
-            # Validate dates
-            if check_in_date >= check_out_date:
-                raise ValueError("Check-in date must be before check-out date")
-
-            # Calculate total price based on room price and duration of stay
-            total_price = room.price * (check_out_date - check_in_date).days
-
-            # Create and save the booking
-            booking = Booking.objects.create(
-                guest_name=guest_name,
-                email=email,
-                phone=phone,
-                check_in_date=check_in_date,
-                check_out_date=check_out_date,
-                room=room,
-                total_price=total_price,
-                status='confirmed'
+            # Check room availability
+            overlapping_bookings = Booking.objects.filter(
+                Q(room=room) &
+                Q(check_in_date__lt=booking.check_out_date) &
+                Q(check_out_date__gt=booking.check_in_date)
             )
-
-            # Send confirmation emails to both admin and guest
-            send_mail(
-                'New Booking Confirmation',
-                f'A new booking has been made for {booking.guest_name} in {room.name}. Check-in date: {check_in_date}, Check-out date: {check_out_date}',
-                'admin@example.com',  # Replace with your admin email
-                ['admin@example.com'],  # Replace with your admin email
-                fail_silently=False,
-            )
-            send_mail(
-                'Booking Confirmation',
-                f'Thank you for your booking, {guest_name}! Your stay at {room.name} from {check_in_date} to {check_out_date} is confirmed.',
-                'your_email@example.com',  # Replace with your email
-                [email],
-                fail_silently=False,
-            )
-
-            # Redirect to the booking confirmation page
-            return redirect(reverse('booking_confirmation', args=[booking.id]))
-        except Exception as e:
-            print(f"Error creating booking: {str(e)}")
-            return render(request, 'book.html', {'room': room, 'error': str(e)})
+            if overlapping_bookings.exists():
+                messages.error(request, "The room is not available for the selected dates")
+            else:
+                booking.save()
+                
+                # Send confirmation emails
+                try:
+                    send_mail(
+                        'Booking Confirmation',
+                        f'Thank you for your booking, {booking.guest_name}! Your stay at {room.name} from {booking.check_in_date} to {booking.check_out_date} is confirmed.',
+                        'your_email@example.com',
+                        [booking.email],
+                        fail_silently=False,
+                    )
+                except Exception as e:
+                    print(f"Failed to send email: {e}")
+                
+                messages.success(request, 'Booking confirmed successfully!')
+                return redirect(reverse('booking_confirmation', args=[booking.id]))
     else:
-        return render(request, 'book.html', {'room': room})
+        form = BookingForm()
+    
+    return render(request, 'book.html', {'room': room, 'form': form})
 
-@login_required
 def booking_confirmation(request, booking_id):
     booking = get_object_or_404(Booking, id=booking_id)
-    return render(request, 'booking_confirmation.html', {
-        'guest_name': booking.guest_name,
-        'email': booking.email,
-        'phone': booking.phone,
-        'check_in_date': booking.check_in_date,
-        'check_out_date': booking.check_out_date,
-        'room': booking.room,
-        'total_price': booking.total_price,
-    })
+    return render(request, 'booking_confirmation.html', {'booking': booking})
+
+def check_availability(request):
+    if request.method == 'GET':
+        check_in = parse_date(request.GET.get('check_in'))
+        check_out = parse_date(request.GET.get('check_out'))
+        
+        if check_in and check_out:
+            available_rooms = Room.objects.filter(available=True).exclude(
+                booking__check_in_date__lt=check_out,
+                booking__check_out_date__gt=check_in
+            )
+            return render(request, 'available_rooms.html', {'rooms': available_rooms, 'check_in': check_in, 'check_out': check_out})
+    
+    return redirect('select_room')
+
+def room_details(request, room_id):
+    room = get_object_or_404(Room, id=room_id)
+    
+    data = {
+        "name": room.name,
+        "description": room.description,
+        "room_type": room.get_room_type_display(),
+        "price": float(room.price),
+        "images": [img.image.url for img in room.images.all()],
+        "amenities": [amenity.name for amenity in room.amenities.all()],
+        "max_occupancy": room.max_occupancy,
+        "size": room.size
+    }
+    
+    return JsonResponse(data)
+
+def search_rooms(request):
+    check_in = request.GET.get('check_in')
+    check_out = request.GET.get('check_out')
+    room_type = request.GET.get('room_type')
+    max_price = request.GET.get('max_price')
+
+    rooms = Room.objects.filter(available=True)
+
+    if check_in and check_out:
+        check_in = parse_date(check_in)
+        check_out = parse_date(check_out)
+        rooms = rooms.exclude(
+            booking__check_in_date__lt=check_out,
+            booking__check_out_date__gt=check_in
+        )
+
+    if room_type:
+        rooms = rooms.filter(room_type=room_type)
+
+    if max_price:
+        rooms = rooms.filter(price__lte=max_price)
+
+    return render(request, 'search_results.html', {'rooms': rooms})
+
+def amenities_list(request):
+    amenities = Amenity.objects.all()
+    return render(request, 'amenities_list.html', {'amenities': amenities})
+
+def user_bookings(request):
+    if request.user.is_authenticated:
+        bookings = Booking.objects.filter(email=request.user.email).order_by('-check_in_date')
+        return render(request, 'user_bookings.html', {'bookings': bookings})
+    else:
+        messages.error(request, "Please log in to view your bookings.")
+        return redirect('login')  # Ensure you have a login URL defined

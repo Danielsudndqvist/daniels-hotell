@@ -4,16 +4,16 @@ import environ
 import dj_database_url
 from django.conf import settings
 
-# Initialize environment variables
+
 env = environ.Env()
 environ.Env.read_env(os.path.join(Path(__file__).resolve().parent, '.env'))
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Basic settings
-SECRET_KEY = os.environ.get('SECRET_KEY', 'your-default-secret-key')  # Use a default for local development
-DEBUG = True  # Set to False in production
+SECRET_KEY = os.environ.get('SECRET_KEY', 'your-default-secret-key')
+DEBUG = True 
 ALLOWED_HOSTS = ['8000-danielsudnd-danielshote-f9o9cx36nv8.ws.codeinstitute-ide.net']
 
 # Application definition
@@ -58,11 +58,16 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'daniels-hotell.wsgi.application'
 
+import dj_database_url
+
+DATABASE_URL = "postgres://ufh1hsk3u2h:oWWzEgIQhjM1@ep-gentle-mountain-a23bxz6h-pooler.eu-central-1.aws.neon.tech/boned_come_essay_908735"
+
 DATABASES = {
-    'default': dj_database_url.config(
-        default='postgres://ufh1hsk3u2h:oWWzEgIQhjM1@ep-gentle-mountain-a23bxz6h-pooler.eu-central-1.aws.neon.tech/boned_come_essay_908735'
-    )
+    'default': dj_database_url.config(default=DATABASE_URL, conn_max_age=600)
 }
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 
 STATIC_URL = '/static/'
@@ -72,7 +77,8 @@ STATICFILES_DIRS = [
 
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / "media"
 
 # CSRF trusted origins
 CSRF_TRUSTED_ORIGINS = [
