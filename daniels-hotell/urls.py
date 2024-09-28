@@ -16,6 +16,7 @@ urlpatterns = [
     path('search/', views.search_rooms, name='search_rooms'),
     path('amenities/', views.amenities_list, name='amenities_list'),
     path('my-bookings/', views.user_bookings, name='user_bookings'),
+    path('room/<int:room_id>/json/', views.room_details_json, name='room_details_json'),
 ]
 
 if settings.DEBUG:

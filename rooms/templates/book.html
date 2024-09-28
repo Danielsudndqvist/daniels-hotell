@@ -2,66 +2,110 @@
 {% load static %}
 
 {% block content %}
-<!-- Main container for the booking form -->
+<!-- Main container for the room info and booking form -->
 <div class="container mt-5">
-    <!-- Title for the booking form -->
-    <h2 class="mb-4">Book {{ room.name }}</h2>
+    <div class="row">
+        <!-- Booking form column -->
+        <div class="col-md-4 order-md-1 mb-4">
+            <div class="booking-form-container">
+                <h2 class="mb-4">Book {{ room.name|default:"this room" }}</h2>
 
-    <!-- Display messages -->
-    {% if messages %}
-    <div class="messages">
-        {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-            {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-        {% endfor %}
-    </div>
-    {% endif %}
-
-    <!-- Display form-wide errors -->
-    {% if form.non_field_errors %}
-    <div class="alert alert-danger" role="alert">
-        {% for error in form.non_field_errors %}
-            {{ error }}
-        {% endfor %}
-    </div>
-    {% endif %}
-
-    <!-- Booking form -->
-    <form method="post" class="needs-validation" novalidate>
-        {% csrf_token %}
-        
-        <!-- Form fields row -->
-        <div class="row g-3">
-            {% for field in form %}
-                <!-- Field column -->
-                <div class="col-md-6">
-                    <!-- Field group -->
-                    <div class="form-group">
-                        <!-- Label for the field -->
-                        <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-                        
-                        <!-- Field input -->
-                        {{ field }}
-                        
-                        <!-- Error feedback -->
-                        {% if field.errors %}
-                            <div class="invalid-feedback d-block">
-                                {{ field.errors|join:", " }}
-                            </div>
-                        {% endif %}
+                <!-- Display messages -->
+                {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
+                    {% endfor %}
                 </div>
-            {% endfor %}
+                {% endif %}
+
+                <!-- Display form-wide errors -->
+                {% if form.non_field_errors %}
+                <div class="alert alert-danger" role="alert">
+                    {% for error in form.non_field_errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Booking form -->
+                <form method="post" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    
+                    {% for field in form %}
+                        <div class="form-group mb-3">
+                            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ field.errors|join:", " }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                    
+                    <button type="submit" class="btn btn-primary mt-3">Book Now</button>
+                </form>
+            </div>
         </div>
-        
-        <!-- Submit button -->
-        <button type="submit" class="btn btn-primary mt-3">Book Now</button>
-    </form>
+
+        <!-- Room images and information column -->
+        <div class="col-md-8 order-md-2">
+            <!-- Image carousel -->
+            <div id="roomImageCarousel" class="carousel slide mb-4" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    {% if room.images.all %}
+                        {% for image in room.images.all %}
+                            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                <img src="{{ image.image.url }}" class="d-block w-100" alt="{{ image.caption|default:room.name }}">
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="carousel-item active">
+                            <img src="{% static 'images/placeholder.jpg' %}" class="d-block w-100" alt="No image available">
+                        </div>
+                    {% endif %}
+                </div>
+                {% if room.images.all|length > 1 %}
+                    <button class="carousel-control-prev" type="button" data-bs-target="#roomImageCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#roomImageCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                {% endif %}
+            </div>
+
+            <!-- Room information -->
+            <h2>{{ room.name|default:"Room Name Not Available" }}</h2>
+            <p>{{ room.description|default:"No description available" }}</p>
+            <ul>
+                <li>Type: {{ room.get_room_type_display|default:"Not specified" }}</li>
+                <li>Price: ${{ room.price|default:"Price not set" }}</li>
+                <li>Max Occupancy: {{ room.max_occupancy|default:"Not specified" }}</li>
+                <li>Size: {{ room.size|default:"0" }} sq ft</li>
+            </ul>
+            <h4>Amenities:</h4>
+            <ul>
+                {% if room.amenities.all %}
+                    {% for amenity in room.amenities.all %}
+                        <li>{{ amenity.name }}</li>
+                    {% endfor %}
+                {% else %}
+                    <li>No amenities listed</li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="{% static 'js/scripts.js' %}"></script>
 {% endblock %}

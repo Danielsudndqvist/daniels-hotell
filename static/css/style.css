@@ -87,3 +87,19 @@
         max-width: 50%;
     }
 }
+
+/* Booking form container styles */
+.booking-form-container {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    padding: 1.5rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+@media (min-width: 768px) {
+    .booking-form-container {
+        position: sticky;
+        top: 2rem;
+    }
+}
