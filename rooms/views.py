@@ -14,7 +14,7 @@ def home(request):
 
 def room_list(request):
     rooms = Room.objects.filter(available=True)
-    return render(request, 'room_list.html', {'rooms': rooms})
+    return render(request, 'select_room.html', {'rooms': rooms})
 
 def select_room(request):
     rooms = Room.objects.filter(available=True)
@@ -40,22 +40,27 @@ def book_room(request, room_id):
             if overlapping_bookings.exists():
                 messages.error(request, "The room is not available for the selected dates")
             else:
-                booking.save()
-                
-                # Send confirmation emails
                 try:
-                    send_mail(
-                        'Booking Confirmation',
-                        f'Thank you for your booking, {booking.guest_name}! Your stay at {room.name} from {booking.check_in_date} to {booking.check_out_date} is confirmed.',
-                        'your_email@example.com',
-                        [booking.email],
-                        fail_silently=False,
-                    )
+                    booking.save()
+                    
+                    # Send confirmation emails
+                    try:
+                        send_mail(
+                            'Booking Confirmation',
+                            f'Thank you for your booking, {booking.guest_name}! Your stay at {room.name} from {booking.check_in_date} to {booking.check_out_date} is confirmed.',
+                            'your_email@example.com',
+                            [booking.email],
+                            fail_silently=False,
+                        )
+                    except Exception as e:
+                        messages.warning(request, f"Booking confirmed, but failed to send email: {e}")
+                    
+                    messages.success(request, 'Booking confirmed successfully!')
+                    return redirect(reverse('booking_confirmation', args=[booking.id]))
                 except Exception as e:
-                    print(f"Failed to send email: {e}")
-                
-                messages.success(request, 'Booking confirmed successfully!')
-                return redirect(reverse('booking_confirmation', args=[booking.id]))
+                    messages.error(request, f"An error occurred while saving the booking: {e}")
+        else:
+            messages.error(request, f"Form is invalid. Errors: {form.errors}")
     else:
         form = BookingForm()
     
@@ -83,6 +88,7 @@ def room_details(request, room_id):
     room = get_object_or_404(Room, id=room_id)
     
     data = {
+        "id": room.id,
         "name": room.name,
         "description": room.description,
         "room_type": room.get_room_type_display(),
@@ -94,6 +100,9 @@ def room_details(request, room_id):
     }
     
     return JsonResponse(data)
+
+def room_details_json(request, room_id):
+    return room_details(request, room_id)
 
 def search_rooms(request):
     check_in = request.GET.get('check_in')
@@ -129,4 +138,4 @@ def user_bookings(request):
         return render(request, 'user_bookings.html', {'bookings': bookings})
     else:
         messages.error(request, "Please log in to view your bookings.")
-        return redirect('login')  # Ensure you have a login URL defined
+        return redirect('login')

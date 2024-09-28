@@ -7,6 +7,27 @@
     <!-- Title for the booking form -->
     <h2 class="mb-4">Book {{ room.name }}</h2>
 
+    <!-- Display messages -->
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Display form-wide errors -->
+    {% if form.non_field_errors %}
+    <div class="alert alert-danger" role="alert">
+        {% for error in form.non_field_errors %}
+            {{ error }}
+        {% endfor %}
+    </div>
+    {% endif %}
+
     <!-- Booking form -->
     <form method="post" class="needs-validation" novalidate>
         {% csrf_token %}
@@ -26,12 +47,8 @@
                         
                         <!-- Error feedback -->
                         {% if field.errors %}
-                            <div class="invalid-feedback">
+                            <div class="invalid-feedback d-block">
                                 {{ field.errors|join:", " }}
-                            </div>
-                        {% else %}
-                            <div class="valid-feedback">
-                                Looks good!
                             </div>
                         {% endif %}
                     </div>
@@ -45,7 +62,6 @@
 </div>
 {% endblock %}
 
-<!-- Additional JavaScript file -->
 {% block extra_js %}
 <script src="{% static 'js/scripts.js' %}"></script>
 {% endblock %}
