@@ -1,0 +1,1 @@
+web: gunicorn daniels-hotell.wsgi
