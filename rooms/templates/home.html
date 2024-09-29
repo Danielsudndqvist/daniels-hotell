@@ -1,21 +1,39 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Welcome to Our Hotel{% endblock %}
+{% block title %}Welcome to Daniel's Hotel{% endblock %}
 
 {% block content %}
+
+<!-- Welcome Content -->
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2 text-center">
+            <h1 class="display-4">Welcome to Daniel's Hotel</h1>
+            <p class="lead">Experience comfort and hospitality at its finest.</p>
+            <hr class="my-4">
+            <p>Welcome to Daniel's Hotel, where warm hospitality meets modern comfort in the heart of the city. Our thoughtfully designed accommodations and attentive service are crafted to ensure a memorable stay. Whether you're here for business or leisure, our dedicated team is committed to making your experience exceptional.</p>
+        </div>
+    </div>
+</div>
 <!-- Hero Image Carousel -->
 <div class="container-fluid px-0">
-    <div id="heroCarousel" class="carousel slide mx-auto" data-bs-ride="carousel">
+    <div id="heroCarousel" class="carousel slide" data-bs-ride="carousel">
         <div class="carousel-inner">
             <div class="carousel-item active">
-                <img src="{% static 'images/hotel-outside.jpg' %}" class="d-block w-100 carousel-img" alt="Hotel Outside">
+                <img src="{% static 'images/hotel-outside.jpg' %}" class="d-block w-100 carousel-img" alt="Hotel Exterior">
             </div>
             <div class="carousel-item">
-                <img src="{% static 'images/hotel-reception.jpg' %}" class="d-block w-100 carousel-img" alt="Hotel Reception">
+                <img src="{% static 'images/hotel-1-1.jpg' %}" class="d-block w-100 carousel-img" alt="Luxurious Suite">
+            </div>
+            <div class="carousel-item">
+                <img src="{% static 'images/hotel-pool.jpg' %}" class="d-block w-100 carousel-img" alt="Hotel Pool">
             </div>
             <div class="carousel-item">
                 <img src="{% static 'images/hotel-lounge.jpg' %}" class="d-block w-100 carousel-img" alt="Hotel Lounge">
+            </div>            
+            <div class="carousel-item"></div>
+                <img src="{% static 'images/hotel-reception.jpg' %}" class="d-block w-100 carousel-img" alt="Hotel Reception">
             </div>
         </div>
         <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
@@ -29,16 +47,46 @@
     </div>
 </div>
 
-<!-- Welcome Content -->
-<div class="container mt-5">
+
+<!-- Amenities Section -->
+<div id="amenities" class="container mt-5">
+    <h2 class="text-center mb-4">Our Amenities</h2>
+    <div class="row">
+        <div class="col-md-4 text-center">
+            <i class="fas fa-utensils fa-3x mb-3 text-primary"></i>
+            <h3>Delightful Dining</h3>
+            <p>Savor our delicious dining options, featuring a blend of local favorites and international dishes.</p>
+        </div>
+        <div class="col-md-4 text-center">
+            <i class="fas fa-dumbbell fa-3x mb-3 text-primary"></i>
+            <h3>Fitness & Relaxation</h3>
+            <p>Stay active in our modern fitness center or unwind in our comfortable relaxation areas.</p>
+        </div>
+        <div class="col-md-4 text-center">
+            <i class="fas fa-map-marker-alt fa-3x mb-3 text-primary"></i>
+            <h3>Ideal Location</h3>
+            <p>Perfectly situated for easy access to local attractions and business districts.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Experience Section -->
+<div id="experience" class="container mt-5">
     <div class="row">
         <div class="col-md-8 offset-md-2 text-center">
-            <h1 class="display-4">Welcome to Our Hotel</h1>
-            <p class="lead">Experience luxury and comfort at our premier hotel.</p>
-            <hr class="my-4">
-            <p>Discover our beautiful rooms and book your stay today!</p>
-            <a class="btn btn-primary btn-lg" href="{% url 'rooms' %}" role="button">View Rooms</a>
-            <a class="btn btn-secondary btn-lg" href="{% url 'select_room' %}" role="button">Book Now</a>
+            <h2>The Daniel's Hotel Experience</h2>
+            <p>At Daniel's Hotel, we pride ourselves on creating a home away from home for our guests. From our friendly staff to our comfortable amenities, every aspect of your stay is designed with your satisfaction in mind. Experience the perfect balance of attentive service and relaxed comfort that makes us a favorite among travelers.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Call to Action Section -->
+<div id="cta" class="container mt-5 mb-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2 text-center">
+            <h2>Book Your Stay Today</h2>
+            <p>Ready for a comfortable and memorable stay? Explore our range of well-appointed rooms, each designed to provide you with a restful retreat. Book your reservation now and discover why Daniel's Hotel is the smart choice for discerning travelers visiting our city.</p>
+            <a class="btn btn-primary btn-lg" href="{% url 'select_room' %}" role="button">Reserve Now</a>
         </div>
     </div>
 </div>

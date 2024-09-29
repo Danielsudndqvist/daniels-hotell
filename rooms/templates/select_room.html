@@ -17,12 +17,10 @@
                     {% endif %}
                     <div class="card-body d-flex flex-column">
                         <h5 class="card-title">{{ room.name }}</h5>
-                        <p class="card-text">{{ room.description|truncatewords:20 }}</p>
                         <p class="card-text"><strong>Type:</strong> {{ room.get_room_type_display }}</p>
                         <p class="card-text"><strong>Price:</strong> ${{ room.price }}/night</p>
                         <div class="mt-auto d-flex justify-content-between">
-                            <a href="{% url 'book_room' room.id %}" class="btn btn-primary">Book Now</a>
-                            <button class="btn btn-outline-secondary more-info-btn" data-room-id="{{ room.id }}">More Info</button>
+                            <a href="{% url 'book_room' room.id %}" class="btn btn-primary">View Room</a>
                         </div>
                     </div>
                 </div>
@@ -37,39 +35,7 @@
     </div>
 </div>
 
-<!-- Modal for room details -->
-<div class="modal fade" id="roomInfoModal" tabindex="-1" aria-labelledby="roomInfoModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="roomInfoModalLabel">Room Details</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div id="roomCarousel" class="carousel slide" data-bs-ride="carousel">
-                    <div class="carousel-inner" id="roomCarouselInner">
-                        <!-- Images will be inserted here by JavaScript -->
-                    </div>
-                    <button class="carousel-control-prev" type="button" data-bs-target="#roomCarousel" data-bs-slide="prev">
-                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Previous</span>
-                    </button>
-                    <button class="carousel-control-next" type="button" data-bs-target="#roomCarousel" data-bs-slide="next">
-                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Next</span>
-                    </button>
-                </div>
-                <div id="roomInfoContent" class="mt-3">
-                    <!-- Room details will be inserted here by JavaScript -->
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <a href="#" id="bookNowBtn" class="btn btn-primary">Book Now</a>
-            </div>
-        </div>
-    </div>
-</div>
+
 {% endblock %}
 
 {% block extra_js %}

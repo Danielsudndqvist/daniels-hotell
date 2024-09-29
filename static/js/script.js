@@ -1,18 +1,7 @@
 document.addEventListener('DOMContentLoaded', function () {
     console.log('DOM fully loaded'); // To check if the script is loading
 
-    // Select all 'More Info' buttons
-    const moreInfoButtons = document.querySelectorAll('.more-info-button');
 
-    // Initialize Bootstrap modal
-    let roomInfoModal = new bootstrap.Modal(document.getElementById('roomInfoModal'));
-    
-    // Check if the modal is initialized
-    if (roomInfoModal) {
-        console.log('Bootstrap modal initialized');
-    } else {
-        console.error('Failed to initialize Bootstrap modal');
-    }
 
     // Add event listeners to each button
     moreInfoButtons.forEach(button => {

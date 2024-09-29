@@ -1,3 +1,12 @@
+.carousel-img {
+    height: 600px;
+    object-fit: cover;
+}
+.feature-icon {
+    font-size: 2rem;
+    color: #007bff;
+}
+
 /* Slideshow styles */
 .slideshow-container {
     max-width: 800px;
@@ -72,14 +81,16 @@
 #heroCarousel {
     width: 100%;
     max-width: 100%;
+    margin: 0 auto;
 }
-
 .carousel-img {
+    height: 600px;
     object-fit: cover;
-    object-position: center;
-    height: 60vh;
-    max-height: 600px;
 }
+.carousel-inner {
+    width: 100%;
+    max-width: 1400px; 
+    margin: 0 auto; 
 
 @media (min-width: 992px) {
     #heroCarousel {
