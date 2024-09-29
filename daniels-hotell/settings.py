@@ -2,19 +2,25 @@ from pathlib import Path
 import os
 import environ
 import dj_database_url
-from django.conf import settings
 
+# Initialize environment variables
+env = environ.Env(
+    DEBUG=(bool, False)
+)
 
-env = environ.Env()
-environ.Env.read_env(os.path.join(Path(__file__).resolve().parent, '.env'))
-
-
+# Set the project base directory
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Basic settings
-SECRET_KEY = os.environ.get('SECRET_KEY', 'your-default-secret-key')
-DEBUG = True 
-ALLOWED_HOSTS = ['8000-danielsudnd-danielshote-f9o9cx36nv8.ws.codeinstitute-ide.net']
+# Take environment variables from .env file
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+
+# Secret key
+SECRET_KEY = env('SECRET_KEY')
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = env('DEBUG')
+
+ALLOWED_HOSTS = ['8000-danielsudnd-danielshote-f9o9cx36nv8.ws.codeinstitute-ide.net', 'your-heroku-app-name.herokuapp.com']
 
 # Application definition
 INSTALLED_APPS = [
@@ -30,6 +36,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Add this for static files on Heroku
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -58,24 +65,23 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'daniels-hotell.wsgi.application'
 
-import dj_database_url
-
-DATABASE_URL = "postgres://ufh1hsk3u2h:oWWzEgIQhjM1@ep-gentle-mountain-a23bxz6h-pooler.eu-central-1.aws.neon.tech/boned_come_essay_908735"
-
+# Database
 DATABASES = {
-    'default': dj_database_url.config(default=DATABASE_URL, conn_max_age=600)
+    'default': dj_database_url.config(
+        default=env('DATABASE_URL'),
+        conn_max_age=600,
+        ssl_require=True,
+    )
 }
 
-
+# Email configuration
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-
+# Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [
-    BASE_DIR / 'static',
-]
-
+STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / "media"
@@ -83,12 +89,14 @@ MEDIA_ROOT = BASE_DIR / "media"
 # CSRF trusted origins
 CSRF_TRUSTED_ORIGINS = [
     "https://*.codeinstitute-ide.net",
-    "https://8000-danielsudndq-djangoblog-ukb6ligfpsq.ws.codeinstitute-ide.net"
+    "https://8000-danielsudndq-djangoblog-ukb6ligfpsq.ws.codeinstitute-ide.net",
+    "https://your-heroku-app-name.herokuapp.com"
 ]
 
-# Password validation
+# User model
 AUTH_USER_MODEL = 'rooms.CustomUser'
 
+# Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -112,4 +120,3 @@ USE_TZ = True
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-

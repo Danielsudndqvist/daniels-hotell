@@ -59,7 +59,7 @@ class Booking(models.Model):
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
     guest_name = models.CharField(max_length=100)
     email = models.EmailField()
-    phone_number = models.CharField(max_length=15, blank=True, null=True)  # New field
+    phone_number = models.CharField(max_length=15, blank=True, null=True)
     check_in_date = models.DateField()
     check_out_date = models.DateField()
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
