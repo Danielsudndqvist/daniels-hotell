@@ -1,5 +1,5 @@
-from pathlib import Path
 import os
+from pathlib import Path
 import environ
 import dj_database_url
 
@@ -8,19 +8,19 @@ env = environ.Env(
     DEBUG=(bool, False)
 )
 
-# Set the project base directory
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Take environment variables from .env file
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
-# Secret key
+# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = ['8000-danielsudnd-danielshote-f9o9cx36nv8.ws.codeinstitute-ide.net', 'your-heroku-app-name.herokuapp.com']
+ALLOWED_HOSTS = ['daniels-hotell.herokuapp.com', 'localhost', '127.0.0.1', '8000-danielsudnd-danielshote-f9o9cx36nv8.ws.codeinstitute-ide.net']
 
 # Application definition
 INSTALLED_APPS = [
@@ -36,7 +36,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # Add this for static files on Heroku
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -50,7 +50,7 @@ ROOT_URLCONF = 'daniels-hotell.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, "templates")],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -68,33 +68,11 @@ WSGI_APPLICATION = 'daniels-hotell.wsgi.application'
 # Database
 DATABASES = {
     'default': dj_database_url.config(
-        default=env('DATABASE_URL'),
+        default=env('DATABASE_URL', default='sqlite:///db.sqlite3'),
         conn_max_age=600,
-        ssl_require=True,
+        ssl_require=not DEBUG,
     )
 }
-
-# Email configuration
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
-# Static files (CSS, JavaScript, Images)
-STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']
-STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / "media"
-
-# CSRF trusted origins
-CSRF_TRUSTED_ORIGINS = [
-    "https://*.codeinstitute-ide.net",
-    "https://8000-danielsudndq-djangoblog-ukb6ligfpsq.ws.codeinstitute-ide.net",
-    "https://your-heroku-app-name.herokuapp.com"
-]
-
-# User model
-AUTH_USER_MODEL = 'rooms.CustomUser'
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -118,5 +96,48 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
+# Static files (CSS, JavaScript, Images)
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Media files
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Custom user model
+AUTH_USER_MODEL = 'rooms.CustomUser'
+
+# CSRF trusted origins
+CSRF_TRUSTED_ORIGINS = [
+    "https://*.herokuapp.com",
+    "https://*.gitpod.io",
+    "https://*.codeinstitute-ide.net",
+]
+
+# Email configuration (update as needed)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# Logging configuration
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'WARNING',
+    },
+}
+
+# Heroku settings
+if 'DYNO' in os.environ:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = True
