@@ -20,7 +20,7 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = ['daniels-hotell.herokuapp.com', 'localhost', '127.0.0.1', '8000-danielsudnd-danielshote-f9o9cx36nv8.ws.codeinstitute-ide.net']
+ALLOWED_HOSTS = ['.herokuapp.com', 'localhost', '127.0.0.1', '8000-danielsudnd-danielshote-f9o9cx36nv8.ws.codeinstitute-ide.net']
 
 # Application definition
 INSTALLED_APPS = [
