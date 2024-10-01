@@ -1,7 +1,6 @@
 import os
 from pathlib import Path
 import environ
-import dj_database_url
 from google.oauth2 import service_account
 
 # Initialize environment variables
@@ -21,7 +20,7 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = ['.herokuapp.com', 'localhost', '127.0.0.1', '8000-danielsudnd-danielshote-f9o9cx36nv8.ws.codeinstitute-ide.net']
+ALLOWED_HOSTS = ['.herokuapp.com', 'localhost', '127.0.0.1']
 
 # Application definition
 INSTALLED_APPS = [
@@ -97,15 +96,8 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# ... (previous settings remain the same)
-
 # Google Cloud Storage settings
-GS_CREDENTIALS = service_account.Credentials.from_service_account_info(
-    env.json('GOOGLE_CREDENTIALS', {})  # Load from environment variable
-)
-
-
-GS_BUCKET_NAME = env('GS_BUCKET_NAME', default='hotel_mediafiles')
+GS_BUCKET_NAME = env('GS_BUCKET_NAME')
 DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
 STATICFILES_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
 
@@ -148,3 +140,6 @@ LOGGING = {
 if 'DYNO' in os.environ:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SECURE_SSL_REDIRECT = True
+
+# Optional: Make uploaded files publicly readable (use with caution)
+# GS_DEFAULT_ACL = 'publicRead'
