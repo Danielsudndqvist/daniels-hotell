@@ -121,19 +121,26 @@ else:
     else:
         GS_CREDENTIALS = None
 
-    DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
-    STATICFILES_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+    if GS_CREDENTIALS:
+        DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+        STATICFILES_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
 
-    GS_BUCKET_NAME = env('GS_BUCKET_NAME')
-    GS_PROJECT_ID = env('GS_PROJECT_ID')
+        GS_BUCKET_NAME = env('GS_BUCKET_NAME')
+        GS_PROJECT_ID = env('GS_PROJECT_ID')
 
-    STATIC_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/static/'
-    MEDIA_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/media/'
+        STATIC_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/static/'
+        MEDIA_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/media/'
 
-    # Additional GCS settings
-    GS_DEFAULT_ACL = 'publicRead'
-    GS_FILE_OVERWRITE = False
-    GS_LOCATION = 'media'  # This will store media files in a 'media' folder in your bucket
+        # Additional GCS settings
+        GS_DEFAULT_ACL = 'publicRead'
+        GS_FILE_OVERWRITE = False
+        GS_LOCATION = 'media'
+    else:
+        # Fallback to local storage if GS_CREDENTIALS are not available
+        STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+        DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+        MEDIA_URL = '/media/'
+        MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
