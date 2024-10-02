@@ -11,5 +11,5 @@ cloudinary_python.txt
 credentials.json
 *.pyc
 __pycache__/.env
-daniels-hotel/settings.py
+daniels-hotell/settings.py
 credentials.json
