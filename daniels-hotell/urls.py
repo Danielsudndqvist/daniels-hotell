@@ -1,8 +1,10 @@
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from rooms import views
+
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -13,6 +15,7 @@ urlpatterns = [
     path('booking-confirmation/<int:booking_id>/', views.booking_confirmation, name='booking_confirmation'),
     path('room/<int:room_id>/details/', views.room_details, name='room_details'),
     path('room/<int:room_id>/json/', views.room_details_json, name='room_details_json'),
+
 ]
 
 # Serve media and static files in debug mode
