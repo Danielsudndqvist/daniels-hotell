@@ -2,6 +2,8 @@ import os
 from pathlib import Path
 import environ
 import dj_database_url
+import json
+from google.oauth2 import service_account
 
 # Initialize environment variables
 env = environ.Env(
@@ -31,7 +33,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rooms',
-    'storages',  # Add this line
+    'storages',
 ]
 
 MIDDLEWARE = [
@@ -112,11 +114,12 @@ if IS_DEVELOPMENT:
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 else:
     # Use Google Cloud Storage for static and media files in production
-    from google.oauth2 import service_account
-
-    GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
-        os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
-    )
+    if 'GOOGLE_CREDENTIALS' in os.environ:
+        GS_CREDENTIALS = service_account.Credentials.from_service_account_info(
+            json.loads(os.environ.get('GOOGLE_CREDENTIALS'))
+        )
+    else:
+        GS_CREDENTIALS = None
 
     DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
     STATICFILES_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
@@ -126,9 +129,6 @@ else:
 
     STATIC_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/static/'
     MEDIA_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/media/'
-
-    # Optional: Set a custom domain if you have one
-    # GS_CUSTOM_ENDPOINT = "https://your-custom-domain.com"
 
     # Additional GCS settings
     GS_DEFAULT_ACL = 'publicRead'
