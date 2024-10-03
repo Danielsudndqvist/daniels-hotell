@@ -136,7 +136,7 @@ else:
         STATIC_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/static/'
 
         # Additional GCS settings
-        GS_DEFAULT_ACL = 'publicRead'
+        GS_DEFAULT_ACL = None
         GS_FILE_OVERWRITE = False
     else:
         # Fallback to local storage if GS_CREDENTIALS are not available

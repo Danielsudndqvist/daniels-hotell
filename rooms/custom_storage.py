@@ -9,6 +9,10 @@ class GoogleCloudMediaFileStorage(GoogleCloudStorage):
     """
     bucket_name = setting('GS_BUCKET_NAME')
 
+    def __init__(self, *args, **kwargs):
+        kwargs['default_acl'] = None  # Ensure no ACL is set on individual objects
+        super().__init__(*args, **kwargs)
+
     def url(self, name):
         """
         Gives correct MEDIA_URL and not google generated url.
