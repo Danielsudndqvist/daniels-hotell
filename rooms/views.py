@@ -8,17 +8,33 @@ from .models import Room, Booking, Amenity
 from .forms import BookingForm
 from django.core.mail import send_mail
 from django.utils import timezone
+from django.conf import settings
+from django.core.files.storage import default_storage
 
 def home(request):
     return render(request, 'home.html')
 
 def room_list(request):
     rooms = Room.objects.filter(available=True)
-    return render(request, 'select_room.html', {'rooms': rooms})
+    context = {
+        'rooms': rooms,
+        'MEDIA_URL': settings.MEDIA_URL,
+        'STATIC_URL': settings.STATIC_URL,
+        'storage_backend': default_storage.__class__.__name__,
+        'GS_BUCKET_NAME': getattr(settings, 'GS_BUCKET_NAME', 'Not Set'),
+    }
+    return render(request, 'select_room.html', context)
 
 def select_room(request):
     rooms = Room.objects.filter(available=True)
-    return render(request, 'select_room.html', {'rooms': rooms})
+    context = {
+        'rooms': rooms,
+        'MEDIA_URL': settings.MEDIA_URL,
+        'STATIC_URL': settings.STATIC_URL,
+        'storage_backend': default_storage.__class__.__name__,
+        'GS_BUCKET_NAME': getattr(settings, 'GS_BUCKET_NAME', 'Not Set'),
+    }
+    return render(request, 'select_room.html', context)
 
 def book_room(request, room_id):
     room = get_object_or_404(Room, id=room_id)
@@ -64,7 +80,15 @@ def book_room(request, room_id):
     else:
         form = BookingForm()
     
-    return render(request, 'book.html', {'room': room, 'form': form})
+    context = {
+        'room': room,
+        'form': form,
+        'MEDIA_URL': settings.MEDIA_URL,
+        'STATIC_URL': settings.STATIC_URL,
+        'storage_backend': default_storage.__class__.__name__,
+        'GS_BUCKET_NAME': getattr(settings, 'GS_BUCKET_NAME', 'Not Set'),
+    }
+    return render(request, 'book.html', context)
 
 def booking_confirmation(request, booking_id):
     booking = get_object_or_404(Booking, id=booking_id)
@@ -126,16 +150,12 @@ def search_rooms(request):
     if max_price:
         rooms = rooms.filter(price__lte=max_price)
 
-    return render(request, 'search_results.html', {'rooms': rooms})
+    context = {
+        'rooms': rooms,
+        'MEDIA_URL': settings.MEDIA_URL,
+        'STATIC_URL': settings.STATIC_URL,
+        'storage_backend': default_storage.__class__.__name__,
+        'GS_BUCKET_NAME': getattr(settings, 'GS_BUCKET_NAME', 'Not Set'),
+    }
+    return render(request, 'search_results.html', context)
 
-def amenities_list(request):
-    amenities = Amenity.objects.all()
-    return render(request, 'amenities_list.html', {'amenities': amenities})
-
-def user_bookings(request):
-    if request.user.is_authenticated:
-        bookings = Booking.objects.filter(email=request.user.email).order_by('-check_in_date')
-        return render(request, 'user_bookings.html', {'bookings': bookings})
-    else:
-        messages.error(request, "Please log in to view your bookings.")
-        return redirect('login')

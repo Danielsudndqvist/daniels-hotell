@@ -11,13 +11,18 @@
             <div class="col-md-4 mb-4">
                 <div class="card h-100">
                     {% if room.images.first %}
-                        <p>Debug: Image URL = {{ room.images.first.image.url }}</p>
                         <img src="{{ room.images.first.image.url }}" class="card-img-top" alt="{{ room.name }}">
                     {% else %}
-                        <p>Debug: No image available for {{ room.name }}</p>
                         <img src="{% static 'images/placeholder.jpg' %}" class="card-img-top" alt="{{ room.name }}">
                     {% endif %}
-                    <!-- Rest of your card content -->
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">{{ room.name }}</h5>
+                        <p class="card-text"><strong>Type:</strong> {{ room.get_room_type_display }}</p>
+                        <p class="card-text"><strong>Price:</strong> ${{ room.price }}/night</p>
+                        <div class="mt-auto d-flex justify-content-between">
+                            <a href="{% url 'book_room' room.id %}" class="btn btn-primary">View Room</a>
+                        </div>
+                    </div>
                 </div>
             </div>
         {% empty %}
@@ -28,15 +33,6 @@
             </div>
         {% endfor %}
     </div>
-</div>
-
-<!-- Debug information -->
-<div class="mt-5">
-    <h2>Debug Information:</h2>
-    <p>MEDIA_URL: {{ MEDIA_URL }}</p>
-    <p>STATIC_URL: {{ STATIC_URL }}</p>
-    <p>Storage Backend: {{ storage_backend }}</p>
-    <p>GS_BUCKET_NAME: {{ GS_BUCKET_NAME }}</p>
 </div>
 {% endblock %}
 

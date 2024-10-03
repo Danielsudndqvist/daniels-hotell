@@ -114,7 +114,11 @@ if IS_DEVELOPMENT:
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 else:
     # Use Google Cloud Storage for static and media files in production
-    if 'GOOGLE_CREDENTIALS' in os.environ:
+    if 'GOOGLE_APPLICATION_CREDENTIALS' in os.environ:
+        GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
+            os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
+        )
+    elif 'GOOGLE_CREDENTIALS' in os.environ:
         GS_CREDENTIALS = service_account.Credentials.from_service_account_info(
             json.loads(os.environ.get('GOOGLE_CREDENTIALS'))
         )
@@ -172,6 +176,10 @@ LOGGING = {
         'level': 'WARNING',
     },
     'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+        },
         'google.auth': {
             'level': 'DEBUG',
         },
