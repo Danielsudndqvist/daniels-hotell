@@ -12,7 +12,14 @@ from django.conf import settings
 from django.core.files.storage import default_storage
 
 def home(request):
-    return render(request, 'home.html')
+    context = {
+        'MEDIA_URL': settings.MEDIA_URL,
+        'STATIC_URL': settings.STATIC_URL,
+        'DEFAULT_FILE_STORAGE': settings.DEFAULT_FILE_STORAGE,
+        'storage_backend': default_storage.__class__.__name__,
+        'GS_BUCKET_NAME': getattr(settings, 'GS_BUCKET_NAME', 'Not Set'),
+    }
+    return render(request, 'home.html', context)
 
 def room_list(request):
     rooms = Room.objects.filter(available=True)
@@ -158,4 +165,3 @@ def search_rooms(request):
         'GS_BUCKET_NAME': getattr(settings, 'GS_BUCKET_NAME', 'Not Set'),
     }
     return render(request, 'search_results.html', context)
-
