@@ -103,6 +103,13 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
+# Google Cloud Storage settings
+GS_PROJECT_ID = 'hotel-mediafiles'
+GS_BUCKET_NAME = 'hotel_media_bucket'
+MEDIA_ROOT = "media/"
+UPLOAD_ROOT = 'media/uploads/'
+MEDIA_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/'
+
 # Determine if we're in development or production
 IS_DEVELOPMENT = env('DJANGO_ENV', default='development') == 'development'
 
@@ -110,8 +117,6 @@ if IS_DEVELOPMENT:
     # Use local storage for static and media files in development
     STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
     DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
-    MEDIA_URL = '/media/'
-    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 else:
     # Use Google Cloud Storage for static and media files in production
     if 'GOOGLE_APPLICATION_CREDENTIALS' in os.environ:
@@ -126,25 +131,17 @@ else:
         GS_CREDENTIALS = None
 
     if GS_CREDENTIALS:
-        DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
         STATICFILES_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
-
-        GS_BUCKET_NAME = env('GS_BUCKET_NAME')
-        GS_PROJECT_ID = env('GS_PROJECT_ID')
-
+        DEFAULT_FILE_STORAGE = 'rooms.custom_storage.GoogleCloudMediaFileStorage'
         STATIC_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/static/'
-        MEDIA_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/media/'
 
         # Additional GCS settings
         GS_DEFAULT_ACL = 'publicRead'
         GS_FILE_OVERWRITE = False
-        GS_LOCATION = 'media'
     else:
         # Fallback to local storage if GS_CREDENTIALS are not available
         STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
         DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
-        MEDIA_URL = '/media/'
-        MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -190,3 +187,6 @@ LOGGING = {
 if 'DYNO' in os.environ:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SECURE_SSL_REDIRECT = True
+
+# Print the value of IS_DEVELOPMENT for debugging
+print(f"IS_DEVELOPMENT: {IS_DEVELOPMENT}")
