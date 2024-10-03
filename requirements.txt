@@ -12,3 +12,4 @@ sqlparse==0.5.1
 whitenoise==6.7.0
 django-storages[google]
 google-auth
+google-cloud-storage
