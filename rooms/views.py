@@ -5,11 +5,26 @@ from django.utils.dateparse import parse_date
 from django.db.models import Q
 from django.http import JsonResponse
 from .models import Room, Booking, Amenity
-from .forms import BookingForm
+from .forms import BookingForm, BookingEditForm, CustomUserCreationForm
 from django.core.mail import send_mail
 from django.utils import timezone
 from django.conf import settings
 from django.core.files.storage import default_storage
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+
+def register(request):
+    if request.method == 'POST':
+        form = CustomUserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            messages.success(request, "Registration successful.")
+            return redirect("home")
+        messages.error(request, "Unsuccessful registration. Invalid information.")
+    else:
+        form = CustomUserCreationForm()
+    return render(request, "register.html", {"form": form})
 
 def home(request):
     context = {
@@ -43,6 +58,7 @@ def select_room(request):
     }
     return render(request, 'select_room.html', context)
 
+@login_required
 def book_room(request, room_id):
     room = get_object_or_404(Room, id=room_id)
     
@@ -51,6 +67,7 @@ def book_room(request, room_id):
         if form.is_valid():
             booking = form.save(commit=False)
             booking.room = room
+            booking.user = request.user
             booking.total_price = room.price * (booking.check_out_date - booking.check_in_date).days
             booking.status = 'CONFIRMED'
 
@@ -165,3 +182,61 @@ def search_rooms(request):
         'GS_BUCKET_NAME': getattr(settings, 'GS_BUCKET_NAME', 'Not Set'),
     }
     return render(request, 'search_results.html', context)
+
+def login_view(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            next_url = request.POST.get('next', 'home')
+            return redirect(next_url)
+        else:
+            messages.error(request, 'Invalid username or password')
+    return render(request, 'login.html')
+
+def logout_view(request):
+    logout(request)
+    return redirect('home')
+
+@login_required
+def user_bookings(request):
+    bookings = Booking.objects.filter(user=request.user).order_by('-check_in_date')
+    return render(request, 'user_bookings.html', {'bookings': bookings})
+
+@login_required
+def edit_booking(request, booking_id):
+    booking = get_object_or_404(Booking, id=booking_id, user=request.user)
+    if request.method == 'POST':
+        form = BookingEditForm(request.POST, instance=booking)
+        if form.is_valid():
+            overlapping_bookings = Booking.objects.filter(
+                Q(room=booking.room) &
+                Q(check_in_date__lt=form.cleaned_data['check_out_date']) &
+                Q(check_out_date__gt=form.cleaned_data['check_in_date'])
+            ).exclude(id=booking.id)
+            
+            if overlapping_bookings.exists():
+                messages.error(request, "The room is not available for the selected dates")
+            else:
+                booking = form.save(commit=False)
+                booking.total_price = booking.room.price * (booking.check_out_date - booking.check_in_date).days
+                booking.save()
+                messages.success(request, 'Your booking has been successfully updated.')
+                return redirect('user_bookings')
+    else:
+        form = BookingEditForm(instance=booking)
+    
+    return render(request, 'edit_booking.html', {'form': form, 'booking': booking})
+
+@login_required
+def cancel_booking(request, booking_id):
+    booking = get_object_or_404(Booking, id=booking_id, user=request.user)
+    if request.method == 'POST':
+        if booking.check_in_date > timezone.now() + timezone.timedelta(days=1):
+            booking.delete()
+            messages.success(request, 'Your booking has been successfully cancelled.')
+        else:
+            messages.error(request, 'Bookings can only be cancelled more than 24 hours before check-in.')
+    return redirect('user_bookings')

@@ -56,6 +56,7 @@ class RoomImage(models.Model):
         return f"Image for {self.room.name}"
 
 class Booking(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
     guest_name = models.CharField(max_length=100)
     email = models.EmailField()

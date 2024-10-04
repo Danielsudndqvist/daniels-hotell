@@ -1,10 +1,40 @@
+/* Custom navbar styles */
+.navbar {
+    background-color: #1a1a1a;
+    padding: 15px 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
+}
+
+.navbar-brand {
+    font-size: 24px;
+    font-weight: bold;
+    color: #fff !important;
+}
+
+.navbar-nav .nav-link {
+    color: #fff !important;
+    font-size: 16px;
+    margin-left: 20px;
+    transition: color 0.3s ease;
+}
+
+.navbar-nav .nav-link:hover,
+.navbar-nav .nav-link.active {
+    color: #ffc107 !important;
+}
+
+.navbar-toggler {
+    border-color: #fff;
+}
+
+.navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(255, 255, 255, 1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+/* Combined carousel-img class */
 .carousel-img {
     height: 600px;
     object-fit: cover;
-}
-.feature-icon {
-    font-size: 2rem;
-    color: #007bff;
 }
 
 /* Slideshow styles */
@@ -18,7 +48,8 @@
     display: none;
 }
 
-.prev, .next {
+.prev,
+.next {
     cursor: pointer;
     position: absolute;
     top: 50%;
@@ -38,8 +69,9 @@
     border-radius: 3px 0 0 3px;
 }
 
-.prev:hover, .next:hover {
-    background-color: rgba(0,0,0,0.8);
+.prev:hover,
+.next:hover {
+    background-color: rgba(0, 0, 0, 0.8);
 }
 
 .text {
@@ -63,7 +95,8 @@
     transition: background-color 0.6s ease;
 }
 
-.active, .dot:hover {
+.active,
+.dot:hover {
     background-color: #717171;
 }
 
@@ -73,8 +106,12 @@
 }
 
 @keyframes fade {
-    from {opacity: .4}
-    to {opacity: 1}
+    from {
+        opacity: .4
+    }
+    to {
+        opacity: 1
+    }
 }
 
 /* Hero Carousel Styles */
@@ -83,15 +120,14 @@
     max-width: 100%;
     margin: 0 auto;
 }
-.carousel-img {
-    height: 600px;
-    object-fit: cover;
-}
+
 .carousel-inner {
     width: 100%;
-    max-width: 1400px; 
-    margin: 0 auto; 
+    max-width: 1400px;
+    margin: 0 auto;
+}
 
+/* Media Query for heroCarousel */
 @media (min-width: 992px) {
     #heroCarousel {
         width: 50%;
