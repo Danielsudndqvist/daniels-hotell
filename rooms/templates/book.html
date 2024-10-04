@@ -8,7 +8,7 @@
     <div class="row">
         <!-- Room images and information column -->
         <div class="col-lg-8 mb-4">
-            <!-- Image carousel -->
+            <!-- Image carousel for room photos -->
             <div id="roomImageCarousel" class="carousel slide mb-4" data-bs-ride="carousel">
                 <div class="carousel-inner">
                     {% if room.images.all %}
@@ -18,11 +18,13 @@
                             </div>
                         {% endfor %}
                     {% else %}
+                        <!-- Placeholder image if no room images are available -->
                         <div class="carousel-item active">
                             <img src="{% static 'images/placeholder.jpg' %}" class="d-block w-100" alt="No image available">
                         </div>
                     {% endif %}
                 </div>
+                <!-- Carousel controls (only shown if there's more than one image) -->
                 {% if room.images.all|length > 1 %}
                     <button class="carousel-control-prev" type="button" data-bs-target="#roomImageCarousel" data-bs-slide="prev">
                         <span class="carousel-control-prev-icon" aria-hidden="true"></span>
@@ -35,10 +37,11 @@
                 {% endif %}
             </div>
 
-            <!-- Room information -->
+            <!-- Room information section -->
             <h1 class="mb-3">{{ room.name|default:"Room Name Not Available" }}</h1>
             <p class="lead">{{ room.description|default:"No description available" }}</p>
             <div class="row mb-4">
+                <!-- Room details -->
                 <div class="col-sm-6">
                     <h4>Details</h4>
                     <ul class="list-unstyled">
@@ -48,6 +51,7 @@
                         <li><strong>Size:</strong> {{ room.size|default:"0" }} sq ft</li>
                     </ul>
                 </div>
+                <!-- Room amenities -->
                 <div class="col-sm-6">
                     <h4>Amenities</h4>
                     <ul class="list-unstyled">
@@ -69,6 +73,7 @@
                 <div class="card-body">
                     <h2 class="card-title mb-4">Book {{ room.name|default:"this room" }}</h2>
 
+                    <!-- Display Django messages (e.g., success or error messages) -->
                     {% if messages %}
                         {% for message in messages %}
                             <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
@@ -78,6 +83,7 @@
                         {% endfor %}
                     {% endif %}
 
+                    <!-- Display form-wide errors -->
                     {% if form.non_field_errors %}
                         <div class="alert alert-danger" role="alert">
                             {% for error in form.non_field_errors %}
@@ -86,6 +92,7 @@
                         </div>
                     {% endif %}
 
+                    <!-- Booking form -->
                     <form method="post" class="needs-validation" novalidate>
                         {% csrf_token %}
                         
@@ -111,5 +118,6 @@
 {% endblock %}
 
 {% block extra_js %}
+<!-- Include any additional JavaScript specific to this page -->
 <script src="{% static 'js/scripts.js' %}"></script>
 {% endblock %}

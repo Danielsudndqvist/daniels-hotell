@@ -5,18 +5,26 @@
 
 {% block content %}
 <div class="container mt-5">
+    <!-- Page header -->
     <h1 class="mb-4">Available Rooms</h1>
     
+    <!-- Check if there are available rooms -->
     {% if rooms %}
+        <!-- Display the rooms in a grid layout -->
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
             {% for room in rooms %}
+                <!-- Individual room card -->
                 <div class="col">
                     <div class="card h-100 shadow-sm">
+                        
+                        <!-- Display the room image if available, otherwise show a placeholder -->
                         {% if room.images.first %}
                             <img src="{{ room.images.first.image.url }}" class="card-img-top" alt="{{ room.name }}">
                         {% else %}
                             <img src="{% static 'images/room-placeholder.jpg' %}" class="card-img-top" alt="Room placeholder">
                         {% endif %}
+                        
+                        <!-- Room details -->
                         <div class="card-body">
                             <h2 class="card-title h5">{{ room.name }}</h2>
                             <p class="card-text">{{ room.description|truncatewords:20 }}</p>
@@ -26,6 +34,8 @@
                                 <li><strong>Max Occupancy:</strong> {{ room.max_occupancy }} guests</li>
                             </ul>
                         </div>
+                        
+                        <!-- Booking button -->
                         <div class="card-footer bg-transparent border-top-0">
                             <a href="{% url 'book_room' room.id %}" class="btn btn-primary w-100">Book Now</a>
                         </div>
@@ -34,6 +44,7 @@
             {% endfor %}
         </div>
     {% else %}
+        <!-- Message displayed when no rooms are available -->
         <div class="alert alert-info" role="alert">
             <i class="fas fa-info-circle me-2"></i> No rooms are available at the moment. Please check back later or contact us for assistance.
         </div>
@@ -42,6 +53,7 @@
 {% endblock %}
 
 {% block extra_css %}
+<!-- Custom styling for room images -->
 <style>
     .card-img-top {
         height: 200px;
@@ -51,5 +63,6 @@
 {% endblock %}
 
 {% block extra_js %}
+<!-- Load custom JavaScript -->
 <script src="{% static 'js/scripts.js' %}"></script>
 {% endblock %}

@@ -7,13 +7,20 @@
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-lg-8">
+            <!-- Main card container for booking confirmation -->
             <div class="card shadow-sm">
                 <div class="card-body">
+                    <!-- Confirmation header -->
                     <h1 class="card-title text-center mb-4">Booking Confirmation</h1>
+                    
+                    <!-- Success message -->
                     <div class="alert alert-success" role="alert">
                         <i class="fas fa-check-circle me-2"></i> Your booking has been confirmed!
                     </div>
+                    
+                    <!-- Booking details section -->
                     <div class="row mb-4">
+                        <!-- Guest information column -->
                         <div class="col-md-6">
                             <h5 class="mb-3">Guest Information</h5>
                             <ul class="list-unstyled">
@@ -22,20 +29,27 @@
                                 <li><strong>Phone:</strong> {{ booking.phone }}</li>
                             </ul>
                         </div>
+                        <!-- Booking details column -->
                         <div class="col-md-6">
                             <h5 class="mb-3">Booking Details</h5>
                             <ul class="list-unstyled">
+                                <!-- Using date filter to format the date -->
                                 <li><strong>Check-in:</strong> {{ booking.check_in_date|date:"F d, Y" }}</li>
                                 <li><strong>Check-out:</strong> {{ booking.check_out_date|date:"F d, Y" }}</li>
                                 <li><strong>Room:</strong> {{ booking.room.name }}</li>
                             </ul>
                         </div>
                     </div>
+                    
+                    <!-- Total price display -->
                     <div class="text-center">
                         <h4 class="mb-3">Total Price</h4>
                         <p class="display-4 text-primary">${{ booking.total_price }}</p>
                     </div>
+                    
                     <hr>
+                    
+                    <!-- Thank you message and return to homepage button -->
                     <div class="text-center mt-4">
                         <p class="lead">Thank you for choosing Daniel's Hotel!</p>
                         <p>We look forward to welcoming you.</p>
@@ -51,5 +65,6 @@
 {% endblock %}
 
 {% block extra_js %}
+<!-- Include any additional JavaScript specific to this page -->
 <script src="{% static 'js/scripts.js' %}"></script>
 {% endblock %}

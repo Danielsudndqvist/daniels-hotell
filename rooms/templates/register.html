@@ -2,12 +2,21 @@
 
 {% block content %}
 <div class="container mt-5">
+    <!-- Registration form header -->
     <h2>Register</h2>
+    
+    <!-- Registration form -->
     <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
+        {% csrf_token %}  <!-- Security token to protect against CSRF attacks -->
+        
+        <!-- Render the form fields -->
+        {{ form.as_p }}  <!-- Renders the form fields in paragraph format -->
+        
+        <!-- Submit button for registration -->
         <button type="submit" class="btn btn-primary">Register</button>
     </form>
+    
+    <!-- Link to login page for users who already have an account -->
     <p class="mt-3">Already have an account? <a href="{% url 'login' %}">Login</a></p>
 </div>
 {% endblock %}
