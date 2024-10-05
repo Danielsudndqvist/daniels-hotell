@@ -142,6 +142,19 @@ https://github.com/users/Danielsudndqvist/projects/3/views/1
    python manage.py runserver
    ```
 
+## Code validation 
+<details>
+<summary>Click to view HTML validation result</summary>
+
+![HTML Validation](https://github.com/user-attachments/assets/88c1bf24-01ec-4377-80b7-dc2e9ff94362)
+</details>
+
+<details>
+<summary>Click to view CSS validation result</summary>
+
+![CSS Validation](https://github.com/user-attachments/assets/551e6f13-ba8a-444b-886f-fd18f9fc5855)
+</details>
+
 ## Deployment to Heroku
 1. Log in (or sign up) to Heroku. (https://www.heroku.com/)
 2. From the dashboard, create a "new app" and follow the instructions.
