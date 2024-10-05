@@ -52,8 +52,6 @@ Key aspects of the project include:
    ![User Dashboard Image](https://github.com/user-attachments/assets/b3a5c826-18ba-4ba2-af6b-8111befd8e2d)
    </details>
 
-... [rest of the content remains the same]
-
 9. **Cloud Integration**:
    - Google Cloud Storage for managing media files in production
 
