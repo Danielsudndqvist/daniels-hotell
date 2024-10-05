@@ -4,6 +4,8 @@ import environ
 import dj_database_url
 import json
 from google.oauth2 import service_account
+import sys
+
 
 # Initialize environment variables
 env = environ.Env(
@@ -77,6 +79,14 @@ DATABASES = {
         ssl_require=not DEBUG,
     )
 }
+
+if 'test' in sys.argv:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': ':memory:',
+        }
+    }
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
