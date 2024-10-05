@@ -64,6 +64,9 @@ This application aims to provide a robust solution for small to medium-sized hot
 - Booking management (view, edit, cancel bookings)
 - Admin interface for hotel management
 
+## User Stories for Daniel's Hotel
+https://github.com/users/Danielsudndqvist/projects/3/views/1
+
 ## Technology Stack
 - Python 3.x
 - Django 4.2.15
