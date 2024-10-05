@@ -30,16 +30,18 @@ Key aspects of the project include:
    - Date-based availability checking
    - Price calculation based on stay duration
    - Booking confirmation with email notifications
- <details>
-    <summary>Click to view room selection image</summary>
-     ![image](https://github.com/user-attachments/assets/2dd66105-9c4a-4639-8934-d6e0b8b0a266)
- <details>
+
+   <details>
+   <summary>Click to view room selection image</summary>
+
+   ![Room Selection Image](https://github.com/user-attachments/assets/2dd66105-9c4a-4639-8934-d6e0b8b0a266)
+   </details>
 
    <details>
    <summary>Click to view Booking System image</summary>
 
    ![Booking System Image](https://github.com/user-attachments/assets/2c300330-0fa9-45a5-8664-db96c1a321d0)
-   <details>
+   </details>
 
 4. **User Dashboard**:
    - View personal bookings
@@ -51,6 +53,23 @@ Key aspects of the project include:
 
    ![User Dashboard Image](https://github.com/user-attachments/assets/b3a5c826-18ba-4ba2-af6b-8111befd8e2d)
    </details>
+
+5. **Admin Interface**:
+   - Comprehensive management of rooms, bookings, and user accounts
+   - Room availability updates
+   - Booking status management
+
+6. **Search and Filter**:
+   - Advanced room search based on dates, room type, and price range
+   - Real-time availability updates
+
+7. **Responsive Design**:
+   - Mobile-friendly interface using Bootstrap
+   - Consistent styling across devices
+
+8. **Security Features**:
+   - CSRF protection
+   - Secure handling of user data and payments
 
 9. **Cloud Integration**:
    - Google Cloud Storage for managing media files in production
@@ -89,38 +108,49 @@ https://github.com/users/Danielsudndqvist/projects/3/views/1
 ## Installation
 
 1. Clone the repository:
-git clone [your-repository-url]
-cd daniels-hotel
+   ```
+   git clone [your-repository-url]
+   cd daniels-hotel
+   ```
 
-3. Install the required packages:
-pip install -r requirements.txt
+2. Install the required packages:
+   ```
+   pip install -r requirements.txt
+   ```
 
-4. Set up your environment variables in a `.env` file:
-SECRET_KEY=your_secret_key
-DEBUG=True
-DATABASE_URL=your_database_url
-GOOGLE_APPLICATION_CREDENTIALS=path/to/your/credentials.json
+3. Set up your environment variables in a `.env` file:
+   ```
+   SECRET_KEY=your_secret_key
+   DEBUG=True
+   DATABASE_URL=your_database_url
+   GOOGLE_APPLICATION_CREDENTIALS=path/to/your/credentials.json
+   ```
 
-5. Run migrations:
-python manage.py migrate
+4. Run migrations:
+   ```
+   python manage.py migrate
+   ```
 
-6. Create a superuser:
-python manage.py createsuperuser
+5. Create a superuser:
+   ```
+   python manage.py createsuperuser
+   ```
 
-7. Run the development server:
-python manage.py runserver
+6. Run the development server:
+   ```
+   python manage.py runserver
+   ```
 
 ## Deployment to Heroku
-Log in (or sign up) to Heroku. ( https://www.heroku.com/ )
-From the dashboard, create a "new app" and follow the instructions.
-When created go to the settings tab and add a Config Var for:
-DATABASE_URL
-SECRET_KEY
-GOOGLE_CREDENTIALS
-GS_BUCKET_NAME
-GS_PROJECT_ID
-Go to the deployment tab.
-Select GitHub as deployment method.
-Connect app to the correct repository.
-Choose to deploy either manully or enable automatic deploys.
-
+1. Log in (or sign up) to Heroku. (https://www.heroku.com/)
+2. From the dashboard, create a "new app" and follow the instructions.
+3. When created go to the settings tab and add Config Vars for:
+   - DATABASE_URL
+   - SECRET_KEY
+   - GOOGLE_CREDENTIALS
+   - GS_BUCKET_NAME
+   - GS_PROJECT_ID
+4. Go to the deployment tab.
+5. Select GitHub as deployment method.
+6. Connect app to the correct repository.
+7. Choose to deploy either manually or enable automatic deploys.
