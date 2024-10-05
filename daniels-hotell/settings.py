@@ -67,8 +67,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'daniels-hotell.wsgi.application'
 
-
 LOGIN_URL = 'login'
+
 # Database
 DATABASES = {
     'default': dj_database_url.config(
@@ -190,5 +190,7 @@ if 'DYNO' in os.environ:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SECURE_SSL_REDIRECT = True
 
-# Print the value of IS_DEVELOPMENT for debugging
+# Print debug information
 print(f"IS_DEVELOPMENT: {IS_DEVELOPMENT}")
+print(f"STATIC_URL: {STATIC_URL}")
+print(f"STATICFILES_DIRS: {STATICFILES_DIRS}")
