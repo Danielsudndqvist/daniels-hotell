@@ -1,4 +1,4 @@
-# Daniel's Hotel - Django Web Application
+https://pp4-daniels-hotel-d50d43bb18a9.herokuapp.com/
 
 # Daniel's Hotel - Django Web Application
 
@@ -19,17 +19,25 @@ Key aspects of the project include:
    - Room categorization (Standard, Deluxe, Suite)
    - Support for room amenities and occupancy limits
    - Image gallery for each room
+   - ![image](https://github.com/user-attachments/assets/83a3824e-7a91-4ecc-b224-008a6edcd56f)
+   - ![image](https://github.com/user-attachments/assets/f4b27904-f4c2-4e94-bc1b-1a1e5cf3fa09)
+
+
 
 3. **Booking System**:
    - Interactive booking process
    - Date-based availability checking
    - Price calculation based on stay duration
    - Booking confirmation with email notifications
+   - ![image](https://github.com/user-attachments/assets/2c300330-0fa9-45a5-8664-db96c1a321d0)
+
 
 4. **User Dashboard**:
    - View personal bookings
    - Edit or cancel existing reservations
    - Booking history
+   - ![image](https://github.com/user-attachments/assets/b3a5c826-18ba-4ba2-af6b-8111befd8e2d)
+
 
 5. **Admin Interface**:
    - Comprehensive management of rooms, bookings, and user accounts
@@ -50,6 +58,8 @@ Key aspects of the project include:
 
 9. **Cloud Integration**:
    - Google Cloud Storage for managing media files in production
+   - ![image](https://github.com/user-attachments/assets/19c10c0e-9a96-4fd8-93ec-f7ce7333bf44)
+
 
 10. **Scalability**:
     - Designed to handle multiple rooms and concurrent bookings
@@ -93,7 +103,6 @@ GOOGLE_APPLICATION_CREDENTIALS=path/to/your/credentials.json
 
 5. Run migrations:
 python manage.py migrate
-
 
 6. Create a superuser:
 python manage.py createsuperuser
