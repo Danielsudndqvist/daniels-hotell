@@ -3,9 +3,7 @@ from django.urls import reverse
 from django.contrib import messages
 from django.utils.dateparse import parse_date
 from django.db.models import Q
-from django.http import JsonResponse
-from .models import Room, Booking, Amenity
-from .forms import BookingForm, BookingEditForm, CustomUserCreationForm
+from django.http import JsonResponse, HttpResponseForbidden
 from django.core.mail import send_mail
 from django.utils import timezone
 from django.conf import settings
@@ -13,257 +11,279 @@ from django.core.files.storage import default_storage
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from datetime import datetime, timedelta
+from .models import Room, Booking, Amenity
+from .forms import BookingForm, BookingEditForm, CustomUserCreationForm
+from django.core.exceptions import ValidationError
+from django.db import transaction
 
-
-# User registration view
 def register(request):
+    if request.user.is_authenticated:
+        messages.info(request, "You are already registered and logged in.")
+        return redirect("home")
+        
     if request.method == 'POST':
-        form = CustomUserCreationForm(request.POST)  # Initialize form with POST data
+        form = CustomUserCreationForm(request.POST)
         if form.is_valid():
-            user = form.save()  # Save the new user
-            login(request, user)  # Log the user in immediately after registration
-            messages.success(request, "Registration successful.")  # Show success message
-            return redirect("home")  # Redirect to the home page
-        messages.error(request, "Unsuccessful registration. Invalid information.")  # Show error message if form is invalid
+            try:
+                with transaction.atomic():
+                    user = form.save()
+                    login(request, user)
+                    messages.success(request, "Registration successful! Welcome to our hotel.")
+                    return redirect("home")
+            except Exception as e:
+                messages.error(request, f"An error occurred during registration. Please try again.")
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field.replace('_', ' ').title()}: {error}")
     else:
-        form = CustomUserCreationForm()  # Create a new empty form
-    return render(request, "register.html", {"form": form})  # Render the registration template with the form
+        form = CustomUserCreationForm()
+    return render(request, "register.html", {"form": form})
 
-# Home page view
 def home(request):
+    featured_rooms = Room.objects.filter(available=True)[:3]  # Add featured rooms
     context = {
         'MEDIA_URL': settings.MEDIA_URL,
         'STATIC_URL': settings.STATIC_URL,
         'DEFAULT_FILE_STORAGE': settings.DEFAULT_FILE_STORAGE,
         'storage_backend': default_storage.__class__.__name__,
         'GS_BUCKET_NAME': getattr(settings, 'GS_BUCKET_NAME', 'Not Set'),
+        'featured_rooms': featured_rooms,
     }
-    return render(request, 'home.html', context)  # Render the home page template
+    return render(request, 'home.html', context)
 
-# Room listing view for available rooms
 def room_list(request):
-    rooms = Room.objects.filter(available=True)  # Get all available rooms
+    rooms = Room.objects.filter(available=True)
+    amenities = Amenity.objects.all()  # Add amenities for filtering
+    
+    # Filter handling
+    room_type = request.GET.get('room_type')
+    max_price = request.GET.get('max_price')
+    selected_amenities = request.GET.getlist('amenities')
+    
+    if room_type:
+        rooms = rooms.filter(room_type=room_type)
+    if max_price:
+        rooms = rooms.filter(price__lte=max_price)
+    if selected_amenities:
+        rooms = rooms.filter(amenities__id__in=selected_amenities).distinct()
+
     context = {
         'rooms': rooms,
+        'amenities': amenities,
         'MEDIA_URL': settings.MEDIA_URL,
         'STATIC_URL': settings.STATIC_URL,
-        'storage_backend': default_storage.__class__.__name__,
-        'GS_BUCKET_NAME': getattr(settings, 'GS_BUCKET_NAME', 'Not Set'),
+        'selected_room_type': room_type,
+        'selected_max_price': max_price,
+        'selected_amenities': selected_amenities,
     }
-    return render(request, 'select_room.html', context)  # Render the room selection template
+    return render(request, 'select_room.html', context)
 
-# Redundant room selection view (similar to room_list)
-def select_room(request):
-    rooms = Room.objects.filter(available=True)  # Get all available rooms
-    context = {
-        'rooms': rooms,
-        'MEDIA_URL': settings.MEDIA_URL,
-        'STATIC_URL': settings.STATIC_URL,
-        'storage_backend': default_storage.__class__.__name__,
-        'GS_BUCKET_NAME': getattr(settings, 'GS_BUCKET_NAME', 'Not Set'),
-    }
-    return render(request, 'select_room.html', context)  # Render the room selection template
-
-@login_required  # Require user to be logged in
+@login_required
 def book_room(request, room_id):
-    room = get_object_or_404(Room, id=room_id)  # Get the room by ID or return a 404 error
+    room = get_object_or_404(Room, id=room_id)
+    
+    if not room.available:
+        messages.error(request, "This room is currently not available for booking.")
+        return redirect('room_list')
     
     if request.method == 'POST':
-        form = BookingForm(request.POST)  # Initialize booking form with POST data
+        form = BookingForm(request.POST)
         if form.is_valid():
-            booking = form.save(commit=False)  # Create booking instance but don't save yet
-            booking.room = room  # Assign the room to the booking
-            booking.user = request.user  # Assign the logged-in user to the booking
-            booking.total_price = room.price * (booking.check_out_date - booking.check_in_date).days  # Calculate total price
-            booking.status = 'CONFIRMED'  # Set initial status
-            
-            # Check for overlapping bookings
-            overlapping_bookings = Booking.objects.filter(
-                Q(room=room) &
-                Q(check_in_date__lt=booking.check_out_date) &
-                Q(check_out_date__gt=booking.check_in_date)
-            )
-            if overlapping_bookings.exists():
-                messages.error(request, "The room is not available for the selected dates")  # Show error if room is not available
-            else:
-                try:
-                    booking.save()  # Save the booking
+            try:
+                with transaction.atomic():
+                    booking = form.save(commit=False)
+                    booking.room = room
+                    booking.user = request.user
+                    booking.total_price = room.price * (booking.check_out_date - booking.check_in_date).days
+                    booking.status = 'CONFIRMED'
+                    
+                    # Check room availability
+                    if not is_room_available(room, booking.check_in_date, booking.check_out_date, None):
+                        raise ValidationError("The room is not available for the selected dates")
+                    
+                    booking.save()
                     
                     # Send confirmation email
                     try:
-                        send_mail(
-                            'Booking Confirmation',
-                            f'Thank you for your booking, {booking.guest_name}! Your stay at {room.name} from {booking.check_in_date} to {booking.check_out_date} is confirmed.',
-                            'rkso6qnt@students.codeinstitute.net',  # Replace with your email
-                            [booking.email],  # Send to the guest's email
-                            fail_silently=False,
-                        )
+                        send_booking_confirmation_email(booking)
                     except Exception as e:
-                        messages.warning(request, f"Booking confirmed, but failed to send email: {e}")  # Warn if email sending fails
+                        messages.warning(request, "Booking confirmed, but we couldn't send the confirmation email.")
                     
-                    messages.success(request, 'Booking confirmed successfully!')  # Show success message
-                    return redirect(reverse('booking_confirmation', args=[booking.id]))  # Redirect to the booking confirmation page
-                except Exception as e:
-                    messages.error(request, f"An error occurred while saving the booking: {e}")  # Show error if saving fails
+                    messages.success(request, 'Your booking has been confirmed successfully!')
+                    return redirect(reverse('booking_confirmation', args=[booking.id]))
+                    
+            except ValidationError as e:
+                messages.error(request, str(e))
+            except Exception as e:
+                messages.error(request, "An error occurred while processing your booking. Please try again.")
         else:
-            messages.error(request, f"Form is invalid. Errors: {form.errors}")  # Show form validation errors
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field.replace('_', ' ').title()}: {error}")
     else:
-        form = BookingForm()  # Create a new empty form
+        initial_data = {
+            'guest_name': request.user.get_full_name() or request.user.username,
+            'email': request.user.email
+        }
+        form = BookingForm(initial=initial_data)
     
     context = {
         'room': room,
         'form': form,
         'MEDIA_URL': settings.MEDIA_URL,
-        'STATIC_URL': settings.STATIC_URL,
-        'storage_backend': default_storage.__class__.__name__,
-        'GS_BUCKET_NAME': getattr(settings, 'GS_BUCKET_NAME', 'Not Set'),
     }
-    return render(request, 'book.html', context)  # Render the booking form template
+    return render(request, 'book.html', context)
 
-# Booking confirmation view
-def booking_confirmation(request, booking_id):
-    booking = get_object_or_404(Booking, id=booking_id)  # Get booking by ID or return 404
-    return render(request, 'booking_confirmation.html', {'booking': booking})  # Render the confirmation template
-
-# Check room availability for selected dates
-def check_availability(request):
-    if request.method == 'GET':
-        check_in = parse_date(request.GET.get('check_in'))  # Parse check-in date
-        check_out = parse_date(request.GET.get('check_out'))  # Parse check-out date
-        
-        if check_in and check_out:
-            # Get available rooms excluding those booked during the specified dates
-            available_rooms = Room.objects.filter(available=True).exclude(
-                booking__check_in_date__lt=check_out,
-                booking__check_out_date__gt=check_in
-            )
-            return render(request, 'available_rooms.html', {'rooms': available_rooms, 'check_in': check_in, 'check_out': check_out})  # Render available rooms template
-    
-    return redirect('select_room')  # Redirect if no valid dates provided
-
-# View for retrieving room details
-def room_details(request, room_id):
-    room = get_object_or_404(Room, id=room_id)  # Get room by ID or return 404
-    
-    data = {
-        "id": room.id,
-        "name": room.name,
-        "description": room.description,
-        "room_type": room.get_room_type_display(),  # Get human-readable room type
-        "price": float(room.price),  # Room price
-        "images": [img.image.url for img in room.images.all()],  # List of image URLs
-        "amenities": [amenity.name for amenity in room.amenities.all()],  # List of amenity names
-        "max_occupancy": room.max_occupancy,  # Maximum occupancy
-        "size": room.size  # Size of the room
-    }
-    
-    return JsonResponse(data)  # Return room details as JSON response
-
-# Redirect to room details view for JSON response (same logic as room_details)
-def room_details_json(request, room_id):
-    return room_details(request, room_id)  # Use room_details function to handle logic
-
-# Search rooms based on criteria
-def search_rooms(request):
-    check_in = request.GET.get('check_in')  # Get check-in date
-    check_out = request.GET.get('check_out')  # Get check-out date
-    room_type = request.GET.get('room_type')  # Get room type
-    max_price = request.GET.get('max_price')  # Get maximum price
-
-    rooms = Room.objects.filter(available=True)  # Start with all available rooms
-
-    # Filter rooms based on check-in and check-out dates
-    if check_in and check_out:
-        check_in = parse_date(check_in)
-        check_out = parse_date(check_out)
-        rooms = rooms.exclude(
-            booking__check_in_date__lt=check_out,
-            booking__check_out_date__gt=check_in
-        )
-
-    # Filter by room type if provided
-    if room_type:
-        rooms = rooms.filter(room_type=room_type)
-
-    # Filter by maximum price if provided
-    if max_price:
-        rooms = rooms.filter(price__lte=max_price)
-
-    context = {
-        'rooms': rooms,
-        'MEDIA_URL': settings.MEDIA_URL,
-        'STATIC_URL': settings.STATIC_URL,
-        'storage_backend': default_storage.__class__.__name__,
-        'GS_BUCKET_NAME': getattr(settings, 'GS_BUCKET_NAME', 'Not Set'),
-    }
-    return render(request, 'search_results.html', context)  # Render search results template
-
-# User login view
-def login_view(request):
-    if request.method == 'POST':
-        username = request.POST['username']  # Get username from POST data
-        password = request.POST['password']  # Get password from POST data
-        user = authenticate(request, username=username, password=password)  # Authenticate user
-        if user is not None:
-            login(request, user)  # Log the user in
-            next_url = request.POST.get('next', 'home')  # Get next URL to redirect to
-            return redirect(next_url)  # Redirect to the next URL
-        else:
-            messages.error(request, 'Invalid username or password')  # Show error if authentication fails
-    return render(request, 'login.html')  # Render login template
-
-# User logout view
-def logout_view(request):
-    logout(request)  # Log the user out
-    return redirect('home')  # Redirect to the home page
-
-@login_required  # Require user to be logged in
+@login_required
 def user_bookings(request):
-    bookings = Booking.objects.filter(user=request.user).order_by('-check_in_date')  # Get bookings for the logged-in user
-    return render(request, 'user_bookings.html', {'bookings': bookings})  # Render user's bookings template
+    upcoming_bookings = Booking.objects.filter(
+        user=request.user,
+        check_in_date__gte=timezone.now().date()
+    ).order_by('check_in_date')
+    
+    past_bookings = Booking.objects.filter(
+        user=request.user,
+        check_in_date__lt=timezone.now().date()
+    ).order_by('-check_in_date')
+    
+    context = {
+        'upcoming_bookings': upcoming_bookings,
+        'past_bookings': past_bookings
+    }
+    return render(request, 'user_bookings.html', context)
 
-@login_required  # Require user to be logged in
+@login_required
 def edit_booking(request, booking_id):
-    booking = get_object_or_404(Booking, id=booking_id, user=request.user)  # Get booking by ID or return 404
+    booking = get_object_or_404(Booking, id=booking_id)
+    
+    # Check if user owns this booking
+    if booking.user != request.user:
+        return HttpResponseForbidden("You don't have permission to edit this booking.")
+    
+    # Check if booking is in the past
+    if booking.check_in_date < timezone.now().date():
+        messages.error(request, "Cannot edit past bookings.")
+        return redirect('user_bookings')
     
     if request.method == 'POST':
-        form = BookingEditForm(request.POST, instance=booking)  # Initialize edit form with booking instance
+        form = BookingEditForm(request.POST, instance=booking)
         if form.is_valid():
-            # Check for overlapping bookings
-            overlapping_bookings = Booking.objects.filter(
-                Q(room=booking.room) &
-                Q(check_in_date__lt=form.cleaned_data['check_out_date']) &
-                Q(check_out_date__gt=form.cleaned_data['check_in_date'])
-            ).exclude(id=booking.id)  # Exclude the current booking
-            
-            if overlapping_bookings.exists():
-                messages.error(request, "The room is not available for the selected dates")  # Show error if room is not available
-            else:
-                booking = form.save(commit=False)  # Save changes to booking but don't commit yet
-                booking.total_price = booking.room.price * (booking.check_out_date - booking.check_in_date).days  # Recalculate total price
-                booking.save()  # Save the booking
-                messages.success(request, 'Your booking has been successfully updated.')  # Show success message
-                return redirect('user_bookings')  # Redirect to user's bookings
+            try:
+                with transaction.atomic():
+                    if not is_room_available(booking.room, 
+                                          form.cleaned_data['check_in_date'],
+                                          form.cleaned_data['check_out_date'],
+                                          booking.id):
+                        raise ValidationError("The room is not available for the selected dates")
+                    
+                    booking = form.save(commit=False)
+                    booking.total_price = booking.room.price * (booking.check_out_date - booking.check_in_date).days
+                    booking.save()
+                    
+                    messages.success(request, 'Your booking has been successfully updated.')
+                    return redirect('user_bookings')
+                    
+            except ValidationError as e:
+                messages.error(request, str(e))
+            except Exception as e:
+                messages.error(request, "An error occurred while updating your booking.")
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field.replace('_', ' ').title()}: {error}")
     else:
-        form = BookingEditForm(instance=booking)  # Create a new form instance with existing booking data
+        form = BookingEditForm(instance=booking)
     
-    return render(request, 'edit_booking.html', {'form': form, 'booking': booking})  # Render the edit booking template
+    return render(request, 'edit_booking.html', {'form': form, 'booking': booking})
 
-
-@login_required  # Require user to be logged in
+@login_required
 def cancel_booking(request, booking_id):
-    booking = get_object_or_404(Booking, id=booking_id, user=request.user)  # Get booking by ID or return 404
+    booking = get_object_or_404(Booking, id=booking_id, user=request.user)
+    
     if request.method == 'POST':
-        # Convert booking check_in_date to datetime if necessary
-        if isinstance(booking.check_in_date, timezone.datetime):
-            check_in_date = booking.check_in_date  # Already a datetime
-        else:
-            check_in_date = timezone.make_aware(datetime.combine(booking.check_in_date, datetime.min.time()))  # Combine date with time
+        try:
+            # Check cancellation policy
+            check_in_datetime = timezone.make_aware(
+                datetime.combine(booking.check_in_date, datetime.min.time())
+            )
+            
+            if check_in_datetime <= timezone.now():
+                messages.error(request, 'Cannot cancel a booking that has already started.')
+            elif check_in_datetime <= timezone.now() + timedelta(days=1):
+                messages.error(request, 'Bookings can only be cancelled more than 24 hours before check-in.')
+            else:
+                booking.delete()
+                messages.success(request, 'Your booking has been successfully cancelled.')
+                
+                # Send cancellation email
+                try:
+                    send_cancellation_email(booking)
+                except Exception:
+                    messages.warning(request, "Booking cancelled, but we couldn't send the cancellation email.")
+                    
+        except Exception as e:
+            messages.error(request, "An error occurred while cancelling your booking.")
+            
+    return redirect('user_bookings')
 
-        # Check if the cancellation is more than 24 hours before check-in
-        if check_in_date > timezone.now() + timezone.timedelta(days=1):
-            booking.delete()  # Delete the booking
-            messages.success(request, 'Your booking has been successfully cancelled.')  # Show success message
-        else:
-            messages.error(request, 'Bookings can only be cancelled more than 24 hours before check-in.')  # Show error if cancellation is too late
-    return redirect('user_bookings')  # Redirect to user's bookings
+# Helper Functions
+def is_room_available(room, check_in_date, check_out_date, exclude_booking_id=None):
+    """Check if a room is available for the given dates."""
+    overlapping_bookings = Booking.objects.filter(
+        room=room,
+        check_in_date__lt=check_out_date,
+        check_out_date__gt=check_in_date
+    )
+    
+    if exclude_booking_id:
+        overlapping_bookings = overlapping_bookings.exclude(id=exclude_booking_id)
+        
+    return not overlapping_bookings.exists()
+
+def send_booking_confirmation_email(booking):
+    """Send booking confirmation email."""
+    subject = 'Booking Confirmation'
+    message = f'''
+    Dear {booking.guest_name},
+    
+    Your booking at {booking.room.name} has been confirmed!
+    
+    Booking Details:
+    Check-in: {booking.check_in_date}
+    Check-out: {booking.check_out_date}
+    Total Price: ${booking.total_price}
+    
+    Thank you for choosing our hotel!
+    '''
+    
+    send_mail(
+        subject,
+        message,
+        settings.DEFAULT_FROM_EMAIL,
+        [booking.email],
+        fail_silently=False,
+    )
+
+def send_cancellation_email(booking):
+    """Send booking cancellation email."""
+    subject = 'Booking Cancellation Confirmation'
+    message = f'''
+    Dear {booking.guest_name},
+    
+    Your booking at {booking.room.name} has been cancelled.
+    
+    Booking Details:
+    Check-in: {booking.check_in_date}
+    Check-out: {booking.check_out_date}
+    
+    We hope to see you another time!
+    '''
+    
+    send_mail(
+        subject,
+        message,
+        settings.DEFAULT_FROM_EMAIL,
+        [booking.email],
+        fail_silently=False,
+    )
