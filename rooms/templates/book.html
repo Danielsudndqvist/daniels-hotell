@@ -6,9 +6,7 @@
 {% block content %}
 <div class="container mt-5">
     <div class="row">
-        <!-- Room images and information column -->
         <div class="col-lg-8 mb-4">
-            <!-- Image carousel for room photos -->
             <div id="roomImageCarousel" class="carousel slide mb-4" data-bs-ride="carousel">
                 <div class="carousel-indicators">
                     {% for image in room.images.all %}
@@ -18,28 +16,21 @@
                     {% endfor %}
                 </div>
 
-                <div class="carousel-inner rounded">
-                    {% if room.images.exists %}
+                <div class="carousel-inner">
+                    {% if room.images.all %}
                         {% for image in room.images.all %}
                             <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                                <img src="{{ image.image.url }}" class="d-block w-100" alt="{{ image.caption|default:room.name }}"
-                                     style="height: 400px; object-fit: cover;">
-                                {% if image.caption %}
-                                    <div class="carousel-caption d-none d-md-block">
-                                        <h5>{{ image.caption }}</h5>
-                                    </div>
-                                {% endif %}
+                                <img src="{{ image.image.url }}" class="d-block w-100 carousel-img" alt="{{ image.caption|default:room.name }}">
                             </div>
                         {% endfor %}
                     {% else %}
                         <div class="carousel-item active">
-                            <img src="{% static 'images/placeholder.jpg' %}" class="d-block w-100" 
-                                 style="height: 400px; object-fit: cover;" alt="No image available">
+                            <img src="{% static 'images/placeholder.jpg' %}" class="d-block w-100 carousel-img" alt="No image available">
                         </div>
                     {% endif %}
                 </div>
 
-                {% if room.images.count > 1 %}
+                {% if room.images.all|length > 1 %}
                     <button class="carousel-control-prev" type="button" data-bs-target="#roomImageCarousel" data-bs-slide="prev">
                         <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                         <span class="visually-hidden">Previous</span>
@@ -51,50 +42,25 @@
                 {% endif %}
             </div>
 
-            <!-- Room information section -->
-            <div class="card p-4 mb-4">
+            <div class="card p-4">
                 <h1 class="mb-3">{{ room.name|default:"Room Name Not Available" }}</h1>
-                
-                <!-- Room status badges -->
-                <div class="mb-3">
-                    <span class="badge bg-primary me-2">{{ room.get_room_type_display }}</span>
-                    <span class="badge bg-success">Available Now</span>
-                </div>
-                
                 <p class="lead">{{ room.description|default:"No description available" }}</p>
-                
                 <div class="row mb-4">
-                    <!-- Room details -->
                     <div class="col-sm-6">
                         <h4>Details</h4>
                         <ul class="list-unstyled">
-                            <li class="mb-2">
-                                <i class="fas fa-bed text-primary me-2"></i>
-                                <strong>Type:</strong> {{ room.get_room_type_display|default:"Not specified" }}
-                            </li>
-                            <li class="mb-2">
-                                <i class="fas fa-dollar-sign text-primary me-2"></i>
-                                <strong>Price:</strong> ${{ room.price|default:"Price not set" }} per night
-                            </li>
-                            <li class="mb-2">
-                                <i class="fas fa-users text-primary me-2"></i>
-                                <strong>Max Occupancy:</strong> {{ room.max_occupancy|default:"Not specified" }} guests
-                            </li>
-                            <li class="mb-2">
-                                <i class="fas fa-ruler-combined text-primary me-2"></i>
-                                <strong>Size:</strong> {{ room.size|default:"0" }} sq ft
-                            </li>
+                            <li class="mb-2"><i class="fas fa-bed text-primary me-2"></i><strong>Type:</strong> {{ room.get_room_type_display|default:"Not specified" }}</li>
+                            <li class="mb-2"><i class="fas fa-dollar-sign text-primary me-2"></i><strong>Price:</strong> ${{ room.price|default:"Price not set" }} per night</li>
+                            <li class="mb-2"><i class="fas fa-users text-primary me-2"></i><strong>Max Occupancy:</strong> {{ room.max_occupancy|default:"Not specified" }} guests</li>
+                            <li class="mb-2"><i class="fas fa-ruler-combined text-primary me-2"></i><strong>Size:</strong> {{ room.size|default:"0" }} sq ft</li>
                         </ul>
                     </div>
-                    <!-- Room amenities -->
                     <div class="col-sm-6">
                         <h4>Amenities</h4>
                         <ul class="list-unstyled">
-                            {% if room.amenities.exists %}
+                            {% if room.amenities.all %}
                                 {% for amenity in room.amenities.all %}
-                                    <li class="mb-2">
-                                        <i class="fas fa-check text-success me-2"></i>{{ amenity.name }}
-                                    </li>
+                                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>{{ amenity.name }}</li>
                                 {% endfor %}
                             {% else %}
                                 <li>No amenities listed</li>
@@ -105,9 +71,8 @@
             </div>
         </div>
 
-        <!-- Booking form column -->
         <div class="col-lg-4">
-            <div class="card booking-form-container sticky-top" style="top: 20px;">
+            <div class="card booking-form-container">
                 <div class="card-body">
                     <h2 class="card-title mb-4">Book {{ room.name|default:"this room" }}</h2>
 
@@ -120,16 +85,22 @@
                         {% endfor %}
                     {% endif %}
 
-                    <form method="post" class="needs-validation" novalidate>
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger" role="alert">
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <form method="post" class="needs-validation" novalidate id="bookingForm">
                         {% csrf_token %}
                         
                         {% for field in form %}
                             <div class="mb-3">
                                 <label for="{{ field.id_for_label }}" class="form-label">
                                     {{ field.label }}
-                                    {% if field.field.required %}
-                                        <span class="text-danger">*</span>
-                                    {% endif %}
+                                    {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
                                 </label>
                                 {{ field }}
                                 {% if field.help_text %}
@@ -143,13 +114,12 @@
                             </div>
                         {% endfor %}
                         
-                        <!-- Price calculation -->
                         <div class="card bg-light mb-3">
                             <div class="card-body">
                                 <h5 class="card-title">Price Details</h5>
                                 <div class="d-flex justify-content-between mb-2">
                                     <span>Base rate per night</span>
-                                    <span>${{ room.price|default:0 }}</span>
+                                    <span>${{ room.price }}</span>
                                 </div>
                                 <div class="d-none justify-content-between mb-2" id="nightsContainer">
                                     <span>Number of nights</span>
@@ -158,7 +128,7 @@
                                 <hr>
                                 <div class="d-flex justify-content-between">
                                     <strong>Total</strong>
-                                    <strong id="totalPrice">${{ room.price|default:0 }}</strong>
+                                    <strong id="totalPrice">${{ room.price }}</strong>
                                 </div>
                             </div>
                         </div>
@@ -170,7 +140,9 @@
         </div>
     </div>
 </div>
+{% endblock %}
 
+{% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const checkInDate = document.querySelector('input[name="check_in_date"]');
@@ -178,13 +150,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const nightsContainer = document.getElementById('nightsContainer');
     const numberOfNights = document.getElementById('numberOfNights');
     const totalPrice = document.getElementById('totalPrice');
-    const basePrice = {{ room.price|default:0 }};
+    const basePrice = {{ room.price }};
 
     function updatePriceBreakdown() {
         if (checkInDate?.value && checkOutDate?.value) {
             const start = new Date(checkInDate.value);
             const end = new Date(checkOutDate.value);
             const nights = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+            
             if (nights > 0) {
                 nightsContainer.classList.remove('d-none');
                 nightsContainer.classList.add('d-flex');
@@ -192,25 +165,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 totalPrice.textContent = '$' + (nights * basePrice).toFixed(2);
             } else {
                 nightsContainer.classList.add('d-none');
+                nightsContainer.classList.remove('d-flex');
                 totalPrice.textContent = '$' + basePrice.toFixed(2);
             }
         }
     }
 
     if (checkInDate && checkOutDate) {
-        checkInDate.addEventListener('change', updatePriceBreakdown);
-        checkOutDate.addEventListener('change', updatePriceBreakdown);
-
         const today = new Date().toISOString().split('T')[0];
         checkInDate.min = today;
-
+        
         checkInDate.addEventListener('change', function() {
             checkOutDate.min = this.value;
-            if (checkOutDate.value < this.value) {
+            if (checkOutDate.value && checkOutDate.value < this.value) {
                 checkOutDate.value = this.value;
             }
             updatePriceBreakdown();
         });
+        
+        checkOutDate.addEventListener('change', updatePriceBreakdown);
     }
 });
 </script>
