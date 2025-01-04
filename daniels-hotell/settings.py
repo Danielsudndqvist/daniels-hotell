@@ -24,7 +24,11 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = ['.herokuapp.com', 'localhost', '127.0.0.1', '8000-danielsudnd-danielshote-f9o9cx36nv8.ws.codeinstitute-ide.net']
+ALLOWED_HOSTS = ['.herokuapp.com', 'localhost', '127.0.0.1', '8000-danielsudnd-danielshote-mstk5nfcsbx.ws.codeinstitute-ide.net']
+
+PYTEST_SETTINGS = {
+    'DJANGO_SETTINGS_MODULE': 'daniels-hotell.settings',
+}
 
 # Application definition
 INSTALLED_APPS = [
