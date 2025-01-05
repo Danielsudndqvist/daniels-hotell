@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('rooms', '0002_amenity_alter_customuser_options_and_more'),
+        ("rooms", "0002_amenity_alter_customuser_options_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='booking',
-            name='phone_number',
+            model_name="booking",
+            name="phone_number",
             field=models.CharField(blank=True, max_length=15, null=True),
         ),
         migrations.AlterField(
-            model_name='customuser',
-            name='email',
+            model_name="customuser",
+            name="email",
             field=models.EmailField(max_length=254, unique=True),
         ),
     ]

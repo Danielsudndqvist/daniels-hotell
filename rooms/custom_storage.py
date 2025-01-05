@@ -1,16 +1,21 @@
+from urllib.parse import urljoin
+
 from django.conf import settings
 from storages.backends.gcloud import GoogleCloudStorage
 from storages.utils import setting
-from urllib.parse import urljoin
+
 
 class GoogleCloudMediaFileStorage(GoogleCloudStorage):
     """
-    Google file storage class which gives a media file path from MEDIA_URL not google generated one.
+     Google file storage class which gives a media
+     file path from MEDIA_URL not google generated one.
     """
-    bucket_name = setting('GS_BUCKET_NAME')
+
+    bucket_name = setting("GS_BUCKET_NAME")
 
     def __init__(self, *args, **kwargs):
-        kwargs['default_acl'] = None  # Ensure no ACL is set on individual objects
+        # Ensure no ACL is set on individual objects
+        kwargs["default_acl"] = None
         super().__init__(*args, **kwargs)
 
     def url(self, name):
