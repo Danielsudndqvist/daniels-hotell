@@ -20,17 +20,19 @@ environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env("DEBUG")
+DEBUG = env("DEBUG", default=False)
 
 ALLOWED_HOSTS = [
     ".herokuapp.com",
     "localhost",
     "127.0.0.1",
     "8000-danielsudnd-danielshote-yxqlj3w7p5e.ws.codeinstitute-ide.net",
+    "daniels-hotel-64602c2a7743.herokuapp.com",
+    ".gitpod.io",
 ]
 
 PYTEST_SETTINGS = {
-    "DJANGO_SETTINGS_MODULE": "daniels-hotell.settings",
+    "DJANGO_SETTINGS_MODULE": "daniels_hotell.settings",
 }
 
 # Application definition
@@ -56,7 +58,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "daniels-hotell.urls"
+ROOT_URLCONF = "daniels_hotell.urls"
 
 TEMPLATES = [
     {
@@ -74,7 +76,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "daniels-hotell.wsgi.application"
+WSGI_APPLICATION = "daniels_hotell.wsgi.application"
 
 LOGIN_URL = "login"
 
@@ -85,6 +87,13 @@ DATABASES = {
         "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
     }
 }
+
+# Database configuration for Heroku
+if "DATABASE_URL" in os.environ:
+    DATABASES["default"] = dj_database_url.config(
+        conn_max_age=600,
+        ssl_require=True,
+    )
 
 if "test" in sys.argv:
     DATABASES = {
@@ -134,11 +143,10 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 
 # Google Cloud Storage settings
 IS_DEVELOPMENT = env("DJANGO_ENV", default="development") == "development"
+GS_BUCKET_NAME = env("GS_BUCKET_NAME", default=None)
 
 if IS_DEVELOPMENT:
-    STATICFILES_STORAGE = (
-        "django.contrib.staticfiles.storage.StaticFilesStorage"
-    )
+    STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
     DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
 else:
     GS_CREDENTIALS = None
@@ -153,18 +161,14 @@ else:
 
     if GS_CREDENTIALS:
         STATICFILES_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
-        DEFAULT_FILE_STORAGE = (
-            "rooms.custom_storage.GoogleCloudMediaFileStorage"
-        )
+        DEFAULT_FILE_STORAGE = "rooms.custom_storage.GoogleCloudMediaFileStorage"
         STATIC_URL = f"https://storage.googleapis.com/{GS_BUCKET_NAME}/static/"
 
         # Additional GCS settings
         GS_DEFAULT_ACL = None
         GS_FILE_OVERWRITE = False
     else:
-        STATICFILES_STORAGE = (
-            "django.contrib.staticfiles.storage.StaticFilesStorage"
-        )
+        STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
         DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
 
 # Default primary key field type
@@ -181,6 +185,17 @@ CSRF_TRUSTED_ORIGINS = [
 
 # Email configuration (update as needed)
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+# Production security settings
+if not DEBUG:
+    SECURE_HSTS_SECONDS = 31536000  # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_BROWSER_XSS_FILTER = True
+    X_FRAME_OPTIONS = "DENY"
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
 
 # Logging configuration
 LOGGING = {
@@ -212,9 +227,10 @@ if "DYNO" in os.environ:
     SECURE_SSL_REDIRECT = True
 
 # Print debug information
-print(f"IS_DEVELOPMENT: {IS_DEVELOPMENT}")
-print(f"STATIC_URL: {STATIC_URL}")
-print(f"STATICFILES_DIRS: {STATICFILES_DIRS}")
+if DEBUG:
+    print(f"IS_DEVELOPMENT: {IS_DEVELOPMENT}")
+    print(f"STATIC_URL: {STATIC_URL}")
+    print(f"STATICFILES_DIRS: {STATICFILES_DIRS}")
 
 # HTML Validator Settings
 HTMLVALIDATOR_ENABLED = True
