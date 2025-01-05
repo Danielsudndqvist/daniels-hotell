@@ -215,3 +215,9 @@ if "DYNO" in os.environ:
 print(f"IS_DEVELOPMENT: {IS_DEVELOPMENT}")
 print(f"STATIC_URL: {STATIC_URL}")
 print(f"STATICFILES_DIRS: {STATICFILES_DIRS}")
+
+# HTML Validator Settings
+HTMLVALIDATOR_ENABLED = True
+HTMLVALIDATOR_OUTPUT = 'stdout'  # Output to console
+HTMLVALIDATOR_FAILFAST = False  # Don't stop on first error
+HTMLVALIDATOR_VNU_URL = 'http://localhost:8888'  # Default VNU server URL

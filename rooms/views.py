@@ -101,17 +101,13 @@ def book_room(request, room_id):
     room = get_object_or_404(Room, id=room_id)
 
     if not room.available:
-        messages.error(
-            request, "This room is currently not available for booking."
-        )
+        messages.error(request, "This room is currently not available for booking.")
         return redirect("room_list")
 
     check_in = request.session.get("check_in")
     check_out = request.session.get("check_out")
     if not check_in or not check_out:
-        messages.error(
-            request, "Please select check-in and check-out dates first."
-        )
+        messages.error(request, "Please select check-in and check-out dates first.")
         return redirect("select_room")
 
     initial_data = {
@@ -127,10 +123,7 @@ def book_room(request, room_id):
             booking = form.save(commit=False)
             booking.room = room
             booking.user = request.user
-            booking.total_price = (
-                room.price *
-                (booking.check_out_date - booking.check_in_date).days
-            )
+            booking.total_price = room.price * (booking.check_out_date - booking.check_in_date).days
             booking.status = "CONFIRMED"
 
             overlapping_bookings = Booking.objects.filter(
@@ -139,17 +132,13 @@ def book_room(request, room_id):
                 Q(check_out_date__gt=booking.check_in_date)
             )
             if overlapping_bookings.exists():
-                messages.error(
-                    request,
-                    "The room is not available for the selected dates"
-                )
+                form.add_error(None, "The room is not available for the selected dates")
             else:
                 try:
                     booking.save()
                     try:
                         email_message = (
-                            f"Thank you for your"
-                            f"booking,{booking.guest_name}! "
+                            f"Thank you for your booking, {booking.guest_name}! "
                             f"Your stay at {room.name} from "
                             f"{booking.check_in_date} to "
                             f"{booking.check_out_date} is confirmed."
@@ -164,24 +153,15 @@ def book_room(request, room_id):
                     except Exception as e:
                         messages.warning(
                             request,
-                            "Booking confirmed, but failed to send email: "
-                            f"{str(e)}"
+                            f"Booking confirmed, but failed to send email: {str(e)}"
                         )
 
                     messages.success(request, "Booking confirmed successfully")
-                    return redirect(
-                        reverse(
-                            "booking_confirmation",
-                            args=[booking.id]
-                        )
-                    )
+                    return redirect(reverse("booking_confirmation", args=[booking.id]))
                 except Exception as e:
-                    messages.error(
-                        request,
-                        f"An error occurred while saving the booking: {str(e)}"
-                    )
-        else:
-            messages.error(request, f"Form is invalid. Errors: {form.errors}")
+                    form.add_error(None, f"An error occurred while saving the booking: {str(e)}")
+        # Remove the messages.error(request, f"Form is invalid. Errors: {form.errors}")
+        # The form will handle displaying field-specific errors on its own
     else:
         form = BookingForm(initial=initial_data)
 

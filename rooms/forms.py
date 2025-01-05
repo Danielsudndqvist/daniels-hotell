@@ -105,10 +105,7 @@ class BookingForm(forms.ModelForm):
 
     phone_regex = RegexValidator(
         regex=r"^\+?1?\d{9,15}$",
-        message=(
-            "Phone number must be entered in the format: '+999999999'. "
-            "Up to 15 digits allowed."
-        )
+        message="Please enter a valid phone number starting with + and country code (e.g., +46701234567)"
     )
 
     phone_number = forms.CharField(
@@ -116,8 +113,9 @@ class BookingForm(forms.ModelForm):
         max_length=17,
         widget=forms.TextInput(attrs={
             "class": "form-control",
-            "placeholder": "Enter phone number (e.g., +1234567890)"
-        })
+            "placeholder": "Enter phone number (e.g., +46701234567)"
+        }),
+        help_text="Format: +[country code][number] (e.g., +46701234567)"
     )
 
     check_in_date = forms.DateField(
@@ -154,6 +152,26 @@ class BookingForm(forms.ModelForm):
             })
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Add help text and error messages
+        self.fields["guest_name"].error_messages = {
+            "required": "Please enter the guest name"
+        }
+        self.fields["email"].error_messages = {
+            "required": "Please enter an email address",
+            "invalid": "Please enter a valid email address"
+        }
+        self.fields["phone_number"].error_messages = {
+            "required": "Please enter a phone number"
+        }
+        self.fields["check_in_date"].error_messages = {
+            "required": "Please select a check-in date"
+        }
+        self.fields["check_out_date"].error_messages = {
+            "required": "Please select a check-out date"
+        }
+
     def clean(self):
         cleaned_data = super().clean()
         check_in_date = cleaned_data.get("check_in_date")
@@ -162,8 +180,7 @@ class BookingForm(forms.ModelForm):
         if check_in_date and check_out_date:
             if check_in_date >= check_out_date:
                 raise ValidationError({
-                    "check_out_date":
-                    f"Check-out date must be after check-in date"
+                    "check_out_date": "Check-out date must be after check-in date"
                 })
 
             if check_in_date < timezone.now().date():
@@ -174,12 +191,10 @@ class BookingForm(forms.ModelForm):
             min_stay = 1
             if (check_out_date - check_in_date).days < min_stay:
                 raise ValidationError({
-                    "check_out_date":
-                    f"Minimum stay is {min_stay} night(s)"
+                    "check_out_date": f"Minimum stay is {min_stay} night(s)"
                 })
 
         return cleaned_data
-
 
 class BookingEditForm(forms.ModelForm):
     """Form for editing existing bookings."""
