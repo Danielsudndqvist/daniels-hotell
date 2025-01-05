@@ -32,7 +32,7 @@ ALLOWED_HOSTS = [
 ]
 
 PYTEST_SETTINGS = {
-    "DJANGO_SETTINGS_MODULE": "daniels_hotell.settings",
+    "DJANGO_SETTINGS_MODULE": "daniels-hotell.settings",
 }
 
 # Application definition
@@ -58,7 +58,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "daniels_hotell.urls"
+ROOT_URLCONF = "daniels-hotell.urls"
 
 TEMPLATES = [
     {
@@ -76,7 +76,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "daniels_hotell.wsgi.application"
+WSGI_APPLICATION = "daniels-hotell.wsgi.application"
 
 LOGIN_URL = "login"
 
