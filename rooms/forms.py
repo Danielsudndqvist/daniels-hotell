@@ -104,8 +104,8 @@ class BookingForm(forms.ModelForm):
     """Form for creating and managing bookings."""
 
     phone_regex = RegexValidator(
-        regex=r"^\+?1?\d{9,15}$",
-        message="Please enter a valid phone number starting with + and country code (e.g., +46701234567)"
+        regex=r'^\+?1?\d{9,15}$', 
+        message="Please enter a valid phone number"
     )
 
     phone_number = forms.CharField(
@@ -115,7 +115,7 @@ class BookingForm(forms.ModelForm):
             "class": "form-control",
             "placeholder": "Enter phone number (e.g., +46701234567)"
         }),
-        help_text="Format: +[country code][number] (e.g., +46701234567)"
+        help_text="Include country code (e.g., +46701234567)"
     )
 
     check_in_date = forms.DateField(
@@ -162,9 +162,10 @@ class BookingForm(forms.ModelForm):
             "required": "Please enter an email address",
             "invalid": "Please enter a valid email address"
         }
-        self.fields["phone_number"].error_messages = {
-            "required": "Please enter a phone number"
-        }
+        self.fields['phone_number'].error_messages.update({
+            'required': 'Phone number is required',
+            'invalid': 'Please enter a valid phone number'
+        })
         self.fields["check_in_date"].error_messages = {
             "required": "Please select a check-in date"
         }
@@ -195,6 +196,7 @@ class BookingForm(forms.ModelForm):
                 })
 
         return cleaned_data
+
 
 class BookingEditForm(forms.ModelForm):
     """Form for editing existing bookings."""
