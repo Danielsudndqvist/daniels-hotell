@@ -85,6 +85,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 # Google Cloud Storage settings
 IS_DEVELOPMENT = env("DJANGO_ENV", default="development") == "development"
 GS_BUCKET_NAME = env("GS_BUCKET_NAME", default=None)
+GS_PROJECT_ID = env("GS_PROJECT_ID", default=None)
 
 if not IS_DEVELOPMENT and GS_BUCKET_NAME:
     GS_CREDENTIALS = None
