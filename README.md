@@ -1,6 +1,7 @@
 # Daniel's Hotel - Django Web Application
 https://pp4-daniels-hotel-d50d43bb18a9.herokuapp.com/
-
+Superuser: hej123@gmail.com
+password: h123
 ## Project Description
 
 Daniel's Hotel is a comprehensive web application built with Django, designed to streamline the hotel room booking process. This system offers a user-friendly interface for both guests and hotel management, providing a seamless experience from room browsing to booking confirmation.
