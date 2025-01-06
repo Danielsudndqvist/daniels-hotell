@@ -1,13 +1,25 @@
-from django.core.management.base import BaseCommand
+import os
+import django
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'daniels-hotell.settings')
+django.setup()
+
 from django.contrib.auth import get_user_model
 
-class Command(BaseCommand):
-    help = 'Creates a superuser'
+User = get_user_model()
 
-    def handle(self, *args, **options):
-        User = get_user_model()
-        if not User.objects.filter(username="admin").exists():
-            User.objects.create_superuser("admin2", "admin2@gmail.com", "admin2")
-            self.stdout.write(self.style.SUCCESS('Superuser created successfully'))
-        else:
-            self.stdout.write(self.style.WARNING('Superuser already exists'))
+username = 'admin10'
+email = 'admin10@example.com'
+password = 'admin10admin'
+
+try:
+    user = User.objects.get(username=username)
+    user.email = email
+    user.set_password(password)
+    user.is_superuser = True
+    user.is_staff = True
+    user.save()
+    print(f'Superuser {username} updated successfully!')
+except User.DoesNotExist:
+    User.objects.create_superuser(username, email, password)
+    print(f'Superuser {username} created successfully!')
