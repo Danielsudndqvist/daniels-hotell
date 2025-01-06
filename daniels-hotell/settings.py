@@ -87,32 +87,35 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 # Google Cloud Storage Configuration
 IS_DEVELOPMENT = env("DJANGO_ENV", default="development") == "development"
 GS_BUCKET_NAME = env("GS_BUCKET_NAME", default=None)
-GS_PROJECT_ID = env("GS_PROJECT_ID", default=None)
 
-# Credentials Management
+# Only configure GCS if not in development and bucket name is set
 if not IS_DEVELOPMENT and GS_BUCKET_NAME:
-    GS_CREDENTIALS = None
-    if "GOOGLE_APPLICATION_CREDENTIALS" in os.environ:
-        GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
-            os.environ["GOOGLE_APPLICATION_CREDENTIALS"]
-        )
-    elif "GOOGLE_CREDENTIALS" in os.environ:
-        try:
+    try:
+        # Credentials handling
+        GS_CREDENTIALS = None
+        if "GOOGLE_APPLICATION_CREDENTIALS" in os.environ:
+            GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
+                os.environ["GOOGLE_APPLICATION_CREDENTIALS"]
+            )
+        elif "GOOGLE_CREDENTIALS" in os.environ:
             GS_CREDENTIALS = service_account.Credentials.from_service_account_info(
                 json.loads(os.environ["GOOGLE_CREDENTIALS"])
             )
-        except (KeyError, json.JSONDecodeError) as e:
-            raise ImproperlyConfigured(f"Invalid Google credentials: {e}")
 
-    # Google Cloud Storage Settings
-    if GS_CREDENTIALS:
-        DEFAULT_FILE_STORAGE = 'rooms.storage.GoogleCloudMediaFileStorage'
-        MEDIA_URL = f"https://storage.googleapis.com/{GS_BUCKET_NAME}/media/"
-        STATICFILES_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
-        STATIC_URL = f"https://storage.googleapis.com/{GS_BUCKET_NAME}/static/"
-        
-        GS_DEFAULT_ACL = None
-        GS_FILE_OVERWRITE = False
+        # Only set storage if credentials are found
+        if GS_CREDENTIALS:
+            DEFAULT_FILE_STORAGE = 'rooms.storage.GoogleCloudMediaFileStorage'
+            MEDIA_URL = f"https://storage.googleapis.com/{GS_BUCKET_NAME}/media/"
+            STATICFILES_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
+            STATIC_URL = f"https://storage.googleapis.com/{GS_BUCKET_NAME}/static/"
+            
+            GS_DEFAULT_ACL = None
+            GS_FILE_OVERWRITE = False
+    except Exception as e:
+        print(f"Google Cloud Storage configuration error: {e}")
+        # Fallback to default storage if GCS setup fails
+        DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+
 
 # Production Security Settings
 if not DEBUG:
@@ -141,7 +144,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # Email Backend
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
-# Logging Configuration
+# In your logging configuration
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -149,24 +152,23 @@ LOGGING = {
         'console': {
             'class': 'logging.StreamHandler',
         },
-        'file': {
-            'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'filename': 'heroku_debug.log',
-        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'DEBUG',
     },
     'loggers': {
-        'storage_diagnostics': {
-            'handlers': ['console', 'file'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
         'django': {
             'handlers': ['console'],
             'level': 'INFO',
         },
+        'storages': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
     },
 }
+
 
 # Template Configuration
 TEMPLATES = [
