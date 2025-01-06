@@ -5,28 +5,25 @@ from pathlib import Path
 
 import dj_database_url
 import environ
+from django.core.exceptions import ImproperlyConfigured
 from google.oauth2 import service_account
-from urllib.parse import urljoin
-from django.conf import settings
 from storages.backends.gcloud import GoogleCloudStorage
 from storages.utils import setting
+from urllib.parse import urljoin
 
-# Initialize environment variables
+
+# Environment and Base Configuration
 env = environ.Env(DEBUG=(bool, False))
-
-# Base directory of the project
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Load environment variables from .env file
+# Load environment variables
 environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
-# Secret key
+# Security Settings
 SECRET_KEY = env("SECRET_KEY")
-
-# Debug mode
 DEBUG = env("DEBUG", default=False)
 
-# Allowed hosts
+# Hosts and Security
 ALLOWED_HOSTS = [
     ".herokuapp.com",
     "localhost",
@@ -36,7 +33,7 @@ ALLOWED_HOSTS = [
     "8000-danielsudnd-danielshote-6uv7tjrhsr1.ws.codeinstitute-ide.net"
 ]
 
-# Installed apps
+# Application Definition
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -60,25 +57,26 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-# URLs and WSGI
+# URLs and WSGI Configuration
 ROOT_URLCONF = "daniels-hotell.urls"
 WSGI_APPLICATION = "daniels-hotell.wsgi.application"
 
-# Database configuration
+# Database Configuration
 DATABASES = {
     "default": dj_database_url.config(
         default=f"sqlite:///{os.path.join(BASE_DIR, 'db.sqlite3')}",
         conn_max_age=600,
     ),
 }
-# Testing database
+
+# Testing Database Configuration
 if "test" in sys.argv:
     DATABASES["default"] = {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": ":memory:",
     }
 
-# Static and media files
+# Static and Media Files
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
@@ -86,11 +84,12 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
-# Google Cloud Storage settings
+# Google Cloud Storage Configuration
 IS_DEVELOPMENT = env("DJANGO_ENV", default="development") == "development"
 GS_BUCKET_NAME = env("GS_BUCKET_NAME", default=None)
 GS_PROJECT_ID = env("GS_PROJECT_ID", default=None)
 
+# Credentials Management
 if not IS_DEVELOPMENT and GS_BUCKET_NAME:
     GS_CREDENTIALS = None
     if "GOOGLE_APPLICATION_CREDENTIALS" in os.environ:
@@ -98,23 +97,26 @@ if not IS_DEVELOPMENT and GS_BUCKET_NAME:
             os.environ["GOOGLE_APPLICATION_CREDENTIALS"]
         )
     elif "GOOGLE_CREDENTIALS" in os.environ:
-        GS_CREDENTIALS = service_account.Credentials.from_service_account_info(
-            json.loads(os.environ["GOOGLE_CREDENTIALS"])
-        )
+        try:
+            GS_CREDENTIALS = service_account.Credentials.from_service_account_info(
+                json.loads(os.environ["GOOGLE_CREDENTIALS"])
+            )
+        except (KeyError, json.JSONDecodeError) as e:
+            raise ImproperlyConfigured(f"Invalid Google credentials: {e}")
 
-if not IS_DEVELOPMENT and GS_BUCKET_NAME:
-    # Google Cloud Storage settings
-    DEFAULT_FILE_STORAGE = 'rooms.storage.GoogleCloudMediaFileStorage'
-    MEDIA_URL = f"https://storage.googleapis.com/{GS_BUCKET_NAME}/media/"
-    STATICFILES_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
-    STATIC_URL = f"https://storage.googleapis.com/{GS_BUCKET_NAME}/static/"
-    
-    GS_DEFAULT_ACL = None
-    GS_FILE_OVERWRITE = False
+    # Google Cloud Storage Settings
+    if GS_CREDENTIALS:
+        DEFAULT_FILE_STORAGE = 'rooms.storage.GoogleCloudMediaFileStorage'
+        MEDIA_URL = f"https://storage.googleapis.com/{GS_BUCKET_NAME}/media/"
+        STATICFILES_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
+        STATIC_URL = f"https://storage.googleapis.com/{GS_BUCKET_NAME}/static/"
+        
+        GS_DEFAULT_ACL = None
+        GS_FILE_OVERWRITE = False
 
-# Security settings for production
+# Production Security Settings
 if not DEBUG:
-    SECURE_HSTS_SECONDS = 31536000  # 1 year
+    SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
     SECURE_BROWSER_XSS_FILTER = True
@@ -123,23 +125,23 @@ if not DEBUG:
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
 
-# Custom user model
+# Custom User Model
 AUTH_USER_MODEL = "rooms.CustomUser"
 
-# CSRF trusted origins
+# CSRF Trusted Origins
 CSRF_TRUSTED_ORIGINS = [
     "https://*.herokuapp.com",
     "https://*.gitpod.io",
     "https://*.ws.codeinstitute-ide.net",
 ]
 
-# Default primary key field type
+# Defaults
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# Email backend
+# Email Backend
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
-# Logging
+# Logging Configuration
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -166,6 +168,7 @@ LOGGING = {
     },
 }
 
+# Template Configuration
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -182,7 +185,7 @@ TEMPLATES = [
     },
 ]
 
-# Heroku-specific settings
+# Heroku-Specific Settings
 if "DYNO" in os.environ:
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     SECURE_SSL_REDIRECT = True
