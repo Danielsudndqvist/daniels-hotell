@@ -78,7 +78,6 @@ def home(request):
 
 
 def room_list(request):
-    log_storage_diagnostics()
     """Display list of available rooms with filtering options."""
     rooms = Room.objects.filter(available=True)
 

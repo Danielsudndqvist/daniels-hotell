@@ -6,6 +6,10 @@ from pathlib import Path
 import dj_database_url
 import environ
 from google.oauth2 import service_account
+from urllib.parse import urljoin
+from django.conf import settings
+from storages.backends.gcloud import GoogleCloudStorage
+from storages.utils import setting
 
 # Initialize environment variables
 env = environ.Env(DEBUG=(bool, False))
@@ -100,7 +104,7 @@ if not IS_DEVELOPMENT and GS_BUCKET_NAME:
 
 if not IS_DEVELOPMENT and GS_BUCKET_NAME:
     # Google Cloud Storage settings
-    DEFAULT_FILE_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
+    DEFAULT_FILE_STORAGE = 'rooms.storage.GoogleCloudMediaFileStorage'
     MEDIA_URL = f"https://storage.googleapis.com/{GS_BUCKET_NAME}/media/"
     STATICFILES_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
     STATIC_URL = f"https://storage.googleapis.com/{GS_BUCKET_NAME}/static/"

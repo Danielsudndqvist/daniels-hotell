@@ -1,0 +1,9 @@
+Starting Storage Diagnostics
+Is Development: True
+Bucket Name: hotel_mediafiles
+Default Storage Backend: FileSystemStorage
+DJANGO_ENV: NOT SET
+GS_BUCKET_NAME: hotel_mediafiles
+GS_PROJECT_ID: hotel-mediafiles
+DEBUG: true
+No Google Cloud Credentials found
