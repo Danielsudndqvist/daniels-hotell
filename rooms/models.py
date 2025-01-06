@@ -74,7 +74,6 @@ class RoomImage(models.Model):
     )
     image = models.ImageField(upload_to="room_images/")
     caption = models.CharField(max_length=100, blank=True)
-    is_primary = models.BooleanField(default=False)
     order = models.IntegerField(default=0)
 
     class Meta:
@@ -91,30 +90,30 @@ class RoomImage(models.Model):
         except Exception:
             return None
 
-    @classmethod
-    def update_primary_image(cls, room_id):
-        """Update primary image for a specific room."""
-        try:
-            room = Room.objects.get(id=room_id)
-            images = list(room.images.all())
+@classmethod
+def update_primary_image(cls, room_id):
+    try:
+        room = Room.objects.get(id=room_id)
+        images = list(room.images.all())
+        
+        if images:
+            # Sort images by order
+            images.sort(key=lambda x: x.order)
             
-            if images:
-                # Sort images by order
-                images.sort(key=lambda x: x.order)
-                
-                # Set first image as primary
-                if not images[0].is_primary:
-                    images[0].is_primary = True
-                    images[0].save()
-                
-                # Set other images as non-primary
-                for img in images[1:]:
-                    img.is_primary = False
-                    img.save()
-            else:
-                print(f"No images found for room {room_id}")
-        except Room.DoesNotExist:
-            print(f"Room with id {room_id} does not exist")
+            # Set first image as primary
+            if images[0].order == 0:
+                images[0].order = 1
+                images[0].save()
+            
+            # Set other images as non-primary (or lower order)
+            for img in images[1:]:
+                img.order += 1
+                img.save()
+        else:
+            print(f"No images found for room {room_id}")
+    except Room.DoesNotExist:
+        print(f"Room with id {room_id} does not exist")
+
 
     def delete(self, *args, **kwargs):
         """Override delete method to handle GCS deletion."""
