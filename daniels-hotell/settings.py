@@ -139,7 +139,10 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
-STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),  # Base static files directory
+    os.path.join(BASE_DIR, 'staticfiles', 'images')  # Specific images directory
+]
 
 # Google Cloud Storage settings
 IS_DEVELOPMENT = env("DJANGO_ENV", default="development") == "development"
@@ -176,6 +179,9 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Custom user model
 AUTH_USER_MODEL = "rooms.CustomUser"
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 CSRF_TRUSTED_ORIGINS = [
     "https://*.herokuapp.com",

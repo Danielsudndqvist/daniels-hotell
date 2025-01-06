@@ -84,10 +84,10 @@
                    </div>
                    
                    {% if room.images.first %}
-                       <img src="{{ room.images.first.image.url }}" class="card-img-top room-card-image" alt="{{ room.name }}">
-                   {% else %}
-                       <img src="{% static 'images/placeholder.jpg' %}" class="card-img-top room-card-image" alt="No image available">
-                   {% endif %}
+                        <img src="{{ room.images.first.image.url }}" class="card-img-top" alt="{{ room.name }}">
+                    {% else %}
+                        <img src="{% static 'images/placeholder.jpg' %}" class="card-img-top" alt="No image available">
+                    {% endif %}
                    
                    <div class="card-body d-flex flex-column">
                        <h5 class="card-title">{{ room.name }}</h5>

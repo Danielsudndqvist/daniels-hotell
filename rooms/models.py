@@ -1,135 +1,143 @@
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.core.exceptions import ValidationError
 
 
-# Custom user model extending Django's AbstractUser
 class CustomUser(AbstractUser):
-    # Email field must be unique
     email = models.EmailField(unique=True)
-
-    # Set email as the username field for authentication
     USERNAME_FIELD = "email"
-    # Specify that username is a required field
     REQUIRED_FIELDS = ["username"]
 
     def __str__(self):
-        # Return the email for string representation
         return self.email
 
 
-# Profile model to store additional information about the user
 class Profile(models.Model):
-    user = models.OneToOneField(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE
-    )  # Link to the CustomUser model
-    phone_number = models.CharField(
-        max_length=15, blank=True, null=True
-    )  # Optional phone number
-    address = models.TextField(blank=True, null=True)  # Optional address field
-    date_of_birth = models.DateField(
-        blank=True, null=True
-    )  # Optional date of birth
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    phone_number = models.CharField(max_length=15, blank=True, null=True)
+    address = models.TextField(blank=True, null=True)
+    date_of_birth = models.DateField(blank=True, null=True)
 
     def __str__(self):
-        # Return the username associated with the profile
         return f"{self.user.username}'s profile"
 
 
-# Model representing various amenities available for rooms
 class Amenity(models.Model):
-    name = models.CharField(max_length=50)  # Name of the amenity
+    name = models.CharField(max_length=50)
+    icon = models.CharField(max_length=50, blank=True, help_text="FontAwesome icon class")
 
     def __str__(self):
-        # Return the amenity name for string representation
         return self.name
 
     class Meta:
-        # Specify the plural name for the model
         verbose_name_plural = "Amenities"
 
 
-# Model representing a room in the hotel
 class Room(models.Model):
-    name = models.CharField(max_length=100)  # Room name
-    description = models.TextField()  # Description of the room
-    # Choices for room types
+    name = models.CharField(max_length=100)
+    description = models.TextField()
     ROOM_TYPES = [
         ("STD", "Standard"),
         ("DLX", "Deluxe"),
         ("SUI", "Suite"),
     ]
-    room_type = models.CharField(
-        max_length=3, choices=ROOM_TYPES
-    )  # Room type selection
-    price = models.DecimalField(
-        max_digits=10, decimal_places=2
-    )  # Room price per night
-    available = models.BooleanField(
-        default=True
-    )  # Availability status of the room
-    amenities = models.ManyToManyField(
-        Amenity, blank=True
-    )  # Relationship to amenities (many-to-many)
-    max_occupancy = models.IntegerField(default=2)  # Maximum number of guests
-    size = models.IntegerField(
-        help_text="Size in square feet", default=0
-    )  # Size of the room in square feet
+    room_type = models.CharField(max_length=3, choices=ROOM_TYPES)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    available = models.BooleanField(default=True)
+    amenities = models.ManyToManyField(Amenity, blank=True)
+    max_occupancy = models.IntegerField(default=2)
+    size = models.IntegerField(help_text="Size in square feet", default=0)
+
+    def clean(self):
+        if self.price < 0:
+            raise ValidationError("Price cannot be negative")
+        if self.max_occupancy < 1:
+            raise ValidationError("Maximum occupancy must be at least 1")
+        if self.size < 0:
+            raise ValidationError("Room size cannot be negative")
 
     def __str__(self):
-        # Return the room name for string representation
         return self.name
 
+    @property
+    def primary_image(self):
+        return self.images.first()
 
-# Model for storing images associated with rooms
+
 class RoomImage(models.Model):
-    room = models.ForeignKey(
-        Room, related_name="images", on_delete=models.CASCADE
-    )  # Link to the Room model
-    image = models.ImageField(
-        upload_to="room_images/"
-    )  # Image field for room images
-    caption = models.CharField(
-        max_length=100, blank=True
-    )  # Optional caption for the image
+    room = models.ForeignKey(Room, related_name="images", on_delete=models.CASCADE)
+    image = models.ImageField(upload_to="room_images/")
+    caption = models.CharField(max_length=100, blank=True)
+    is_primary = models.BooleanField(default=False)
+    order = models.IntegerField(default=0)
+
+    class Meta:
+        ordering = ['order', 'id']
 
     def __str__(self):
-        # Return a description of the image related to the room
         return f"Image for {self.room.name}"
 
+    @property
+    def image_url(self):
+        try:
+            return self.image.url
+        except:
+            return None
 
-# Model representing a booking made by a user
+    def save(self, *args, **kwargs):
+        if self.is_primary:
+            # Set all other images of this room to not primary
+            RoomImage.objects.filter(room=self.room).update(is_primary=False)
+        super().save(*args, **kwargs)
+
+
 class Booking(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         null=True,
         blank=True,
-    )  # Link to the user making the booking
-    room = models.ForeignKey(
-        Room, on_delete=models.CASCADE
-    )  # Link to the room being booked
-    guest_name = models.CharField(max_length=100)  # Name of the guest
-    email = models.EmailField()  # Email of the guest
-    phone_number = models.CharField(
-        max_length=15, blank=True, null=True
-    )  # Optional phone number
-    check_in_date = models.DateField()  # Check-in date for the booking
-    check_out_date = models.DateField()  # Check-out date for the booking
-    total_price = models.DecimalField(
-        max_digits=10, decimal_places=2
-    )  # Total price for the booking
-    # Choices for the status of the booking
+    )
+    room = models.ForeignKey(Room, on_delete=models.CASCADE)
+    guest_name = models.CharField(max_length=100)
+    email = models.EmailField()
+    phone_number = models.CharField(max_length=15, blank=True, null=True)
+    check_in_date = models.DateField()
+    check_out_date = models.DateField()
+    total_price = models.DecimalField(max_digits=10, decimal_places=2)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
     STATUS_CHOICES = [
         ("PENDING", "Pending"),
         ("CONFIRMED", "Confirmed"),
         ("CANCELLED", "Cancelled"),
     ]
     status = models.CharField(
-        max_length=10, choices=STATUS_CHOICES, default="PENDING"
-    )  # Current status of the booking
+        max_length=10,
+        choices=STATUS_CHOICES,
+        default="PENDING"
+    )
+
+    def clean(self):
+        if self.check_out_date <= self.check_in_date:
+            raise ValidationError("Check-out date must be after check-in date")
+        
+        # Check for overlapping bookings
+        overlapping_bookings = Booking.objects.filter(
+            room=self.room,
+            check_in_date__lt=self.check_out_date,
+            check_out_date__gt=self.check_in_date
+        ).exclude(id=self.id)  # Exclude current booking when updating
+        
+        if overlapping_bookings.exists():
+            raise ValidationError("Room is already booked for these dates")
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
 
     def __str__(self):
-        # Return a description of the booking
-        # including the room name and guest name
         return f"Booking for {self.room.name} by {self.guest_name}"
+        
