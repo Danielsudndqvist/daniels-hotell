@@ -20,7 +20,7 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.timezone import make_aware
-
+from .utils import log_storage_diagnostics
 
 def register(request):
     """Handle user registration."""
@@ -78,6 +78,7 @@ def home(request):
 
 
 def room_list(request):
+    log_storage_diagnostics()
     """Display list of available rooms with filtering options."""
     rooms = Room.objects.filter(available=True)
 

@@ -8,9 +8,12 @@ https://docs.djangoproject.com/en/5.1/howto/deployment/wsgi/
 """
 
 import os
-
+from rooms.utils import log_storage_diagnostics
 from django.core.wsgi import get_wsgi_application
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "daniels-hotell.settings")
 
 application = get_wsgi_application()
+
+
+log_storage_diagnostics()
