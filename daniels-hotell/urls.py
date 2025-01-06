@@ -2,14 +2,21 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path
+from django.contrib.auth import views as auth_views
 
 from rooms import views as rooms_views
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", rooms_views.home, name="home"),
-    path("rooms/", rooms_views.room_list, name="rooms"),
-    path("select-room/", rooms_views.select_room, name="select_room"),
+    path(
+        "rooms/",
+        rooms_views.room_list,
+        name="rooms"),
+    path(
+        "select-room/",
+        rooms_views.room_list,
+        name="select_room"),
     path(
         "book-room/<int:room_id>/",
         rooms_views.book_room,
@@ -20,6 +27,11 @@ urlpatterns = [
         rooms_views.booking_confirmation,
         name="booking_confirmation",
     ),
+    path(
+        'accounts/login/',
+        auth_views.LoginView.as_view(template_name='login.html')
+        )
+        ,
     path(
         "check-availability/",
         rooms_views.check_availability,
