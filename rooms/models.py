@@ -4,7 +4,6 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 
-
 class CustomUser(AbstractUser):
     """Custom user model with email as the username field."""
 
@@ -14,7 +13,6 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return self.email
-
 
 class Profile(models.Model):
     """User profile model containing additional user information."""
@@ -28,8 +26,6 @@ class Profile(models.Model):
 
     def __str__(self):
         return f"{self.user.username}'s profile"
-
-
 
 class Room(models.Model):
     """Model representing a hotel room."""
@@ -65,7 +61,6 @@ class Room(models.Model):
         """Get the first image associated with the room."""
         return self.images.first()
 
-
 class RoomImage(models.Model):
     """Model for room images."""
 
@@ -90,31 +85,6 @@ class RoomImage(models.Model):
         except Exception:
             return None
 
-@classmethod
-def update_primary_image(cls, room_id):
-    try:
-        room = Room.objects.get(id=room_id)
-        images = list(room.images.all())
-        
-        if images:
-            # Sort images by order
-            images.sort(key=lambda x: x.order)
-            
-            # Set first image as primary
-            if images[0].order == 0:
-                images[0].order = 1
-                images[0].save()
-            
-            # Set other images as non-primary (or lower order)
-            for img in images[1:]:
-                img.order += 1
-                img.save()
-        else:
-            print(f"No images found for room {room_id}")
-    except Room.DoesNotExist:
-        print(f"Room with id {room_id} does not exist")
-
-
     def delete(self, *args, **kwargs):
         """Override delete method to handle GCS deletion."""
         super().delete(*args, **kwargs)
@@ -129,45 +99,9 @@ def update_primary_image(cls, room_id):
 
     def set_as_primary(self):
         """Set this image as primary for its room."""
-        RoomImage.objects.filter(room=self.room, is_primary=True).update(is_primary=False)
-        self.is_primary = True
+        RoomImage.objects.filter(room=self.room, order=0).update(order=models.F('id') + 1)
+        self.order = 0
         self.save()
-
-
-    @classmethod
-    def update_primary_image(cls, room_id):
-        """Update primary image for a specific room."""
-        try:
-            room = Room.objects.get(id=room_id)
-            images = list(room.images.all())
-            
-            if images:
-                # Sort images by order
-                images.sort(key=lambda x: x.order)
-                
-                # Set all other images as non-primary
-                cls.objects.filter(room=room).exclude(pk=images[0].pk).update(is_primary=False)
-                
-                # Set first image as primary
-                images[0].set_as_primary()
-            else:
-                print(f"No images found for room {room_id}")
-        except Room.DoesNotExist:
-            print(f"Room with id {room_id} does not exist")
-
-    def delete(self, *args, **kwargs):
-        """Override delete method to handle GCS deletion."""
-        super().delete(*args, **kwargs)
-        default_storage.delete(self.image.path)
-
-    def save(self, *args, **kwargs):
-        """Override save method to handle GCS storage."""
-        super().save(*args, **kwargs)
-        
-        # Update order if necessary
-        RoomImage.objects.filter(room=self.room).order_by('order').update(order=models.F('id'))
-
-
 
 class Booking(models.Model):
     """Model for room bookings."""
