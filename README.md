@@ -142,6 +142,12 @@ https://github.com/users/Danielsudndqvist/projects/3/views/1
    python manage.py runserver
    ```
 
+## Testing
+
+### Automatic testing 
+![image](https://github.com/user-attachments/assets/abb7ee60-fece-4dee-bcc5-a6b8985c3a9b)
+
+
 ## Code validation 
 <details>
 <summary>Click to view HTML validation result</summary>
