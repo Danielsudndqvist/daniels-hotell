@@ -20,12 +20,18 @@
                     {% if room.images.all %}
                         {% for image in room.images.all %}
                             <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                                <img src="{{ image.image.url }}" class="d-block w-100 carousel-img" alt="{{ image.caption|default:room.name }}">
+                                <img src="{{ image.image.url }}" 
+                                     class="d-block w-100 carousel-img" 
+                                     alt="{{ image.caption|default:room.name }}"
+                                     style="height: 400px; object-fit: cover;">
                             </div>
                         {% endfor %}
                     {% else %}
                         <div class="carousel-item active">
-                            <img src="{% static 'images/placeholder.jpg' %}" class="d-block w-100 carousel-img" alt="No image available">
+                            <img src="{% static 'images/placeholder.jpg' %}" 
+                                 class="d-block w-100 carousel-img" 
+                                 alt="No image available"
+                                 style="height: 400px; object-fit: cover;">
                         </div>
                     {% endif %}
                 </div>
@@ -119,7 +125,7 @@
                                 <h5 class="card-title">Price Details</h5>
                                 <div class="d-flex justify-content-between mb-2">
                                     <span>Base rate per night</span>
-                                    <span>${{ room.price }}</span>
+                                    <span id="basePrice" data-price="{{ room.price }}">${{ room.price }}</span>
                                 </div>
                                 <div class="d-none justify-content-between mb-2" id="nightsContainer">
                                     <span>Number of nights</span>
@@ -142,49 +148,22 @@
 </div>
 {% endblock %}
 
-{% block extra_js %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const checkInDate = document.querySelector('input[name="check_in_date"]');
-    const checkOutDate = document.querySelector('input[name="check_out_date"]');
-    const nightsContainer = document.getElementById('nightsContainer');
-    const numberOfNights = document.getElementById('numberOfNights');
-    const totalPrice = document.getElementById('totalPrice');
-    const basePrice = {{ room.price }};
+{% block extra_css %}
+<style>
+.carousel-img {
+    height: 400px;
+    object-fit: cover;
+}
 
-    function updatePriceBreakdown() {
-        if (checkInDate?.value && checkOutDate?.value) {
-            const start = new Date(checkInDate.value);
-            const end = new Date(checkOutDate.value);
-            const nights = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
-            
-            if (nights > 0) {
-                nightsContainer.classList.remove('d-none');
-                nightsContainer.classList.add('d-flex');
-                numberOfNights.textContent = nights;
-                totalPrice.textContent = '$' + (nights * basePrice).toFixed(2);
-            } else {
-                nightsContainer.classList.add('d-none');
-                nightsContainer.classList.remove('d-flex');
-                totalPrice.textContent = '$' + basePrice.toFixed(2);
-            }
-        }
-    }
+.booking-form-container {
+    position: sticky;
+    top: 20px;
+}
 
-    if (checkInDate && checkOutDate) {
-        const today = new Date().toISOString().split('T')[0];
-        checkInDate.min = today;
-        
-        checkInDate.addEventListener('change', function() {
-            checkOutDate.min = this.value;
-            if (checkOutDate.value && checkOutDate.value < this.value) {
-                checkOutDate.value = this.value;
-            }
-            updatePriceBreakdown();
-        });
-        
-        checkOutDate.addEventListener('change', updatePriceBreakdown);
+@media (max-width: 991.98px) {
+    .booking-form-container {
+        position: static;
     }
-});
-</script>
+}
+</style>
 {% endblock %}

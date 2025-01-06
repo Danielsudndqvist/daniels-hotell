@@ -1,6 +1,37 @@
-// Main Hotel functionality namespace
 const Hotel = {
-    // Booking related functionality
+    // Room selection and filtering functionality
+    roomSelection: {
+        init: function() {
+            // Date selection handling
+            const checkIn = document.getElementById('check_in');
+            const checkOut = document.getElementById('check_out');
+            
+            if (checkIn) {
+                checkIn.addEventListener('change', function() {
+                    if (checkOut && this.value) {
+                        checkOut.min = this.value;
+                        if (checkOut.value && checkOut.value < this.value) {
+                            checkOut.value = this.value;
+                        }
+                    }
+                });
+            }
+
+            // Price range handling
+            const priceRange = document.getElementById('price_range');
+            const priceDisplay = document.getElementById('price_display');
+
+            if (priceRange && priceDisplay) {
+                const updatePriceDisplay = () => {
+                    priceDisplay.textContent = `$${priceRange.value}`;
+                };
+                priceRange.addEventListener('input', updatePriceDisplay);
+                updatePriceDisplay();
+            }
+        }
+    },
+
+    // Room booking functionality
     booking: {
         init: function() {
             const checkInDate = document.querySelector('input[name="check_in_date"]');
@@ -9,12 +40,12 @@ const Hotel = {
             const numberOfNights = document.getElementById('numberOfNights');
             const totalPrice = document.getElementById('totalPrice');
             const basePriceElement = document.getElementById('basePrice');
-            
+
             if (!basePriceElement) return;
             
             const basePrice = parseFloat(basePriceElement.dataset.price);
 
-            function updatePriceBreakdown() {
+            const updatePriceBreakdown = () => {
                 if (checkInDate?.value && checkOutDate?.value) {
                     const start = new Date(checkInDate.value);
                     const end = new Date(checkOutDate.value);
@@ -31,7 +62,7 @@ const Hotel = {
                         totalPrice.textContent = '$' + basePrice.toFixed(2);
                     }
                 }
-            }
+            };
 
             if (checkInDate && checkOutDate) {
                 const today = new Date().toISOString().split('T')[0];
@@ -50,7 +81,7 @@ const Hotel = {
         }
     },
 
-    // Room details modal functionality
+    // Room modal functionality (from your existing code)
     roomModal: {
         modal: null,
         init: function() {
@@ -94,14 +125,19 @@ const Hotel = {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM fully loaded');
     
-    // Initialize room modal functionality
-    if (document.getElementById('roomInfoModal')) {
-        Hotel.roomModal.init();
+    // Initialize room selection functionality if we're on the room selection page
+    if (document.getElementById('check_in')) {
+        Hotel.roomSelection.init();
     }
     
-    // Initialize booking functionality
+    // Initialize booking functionality if we're on the booking page
     if (document.querySelector('input[name="check_in_date"]')) {
         Hotel.booking.init();
+    }
+    
+    // Initialize room modal if it exists
+    if (document.getElementById('roomInfoModal')) {
+        Hotel.roomModal.init();
     }
     
     // Initialize Bootstrap tooltips

@@ -31,8 +31,14 @@
                </div>
                <div class="col-md-3">
                    <label for="price_range" class="form-label">Max Price</label>
-                   <input type="range" class="form-range" id="price_range" name="max_price"
-                          min="0" max="1000" step="50" value="{{ request.GET.max_price|default:1000 }}">
+                   <input type="range" class="form-range room-price-range" 
+                          id="price_range" 
+                          name="max_price"
+                          min="0" 
+                          max="1000" 
+                          step="50" 
+                          value="{{ request.GET.max_price|default:1000 }}"
+                          data-display-target="price_display">
                    <div class="text-end" id="price_display"></div>
                </div>
                <div class="col-12">
@@ -84,9 +90,15 @@
                    </div>
                    
                    {% if room.images.first %}
-                        <img src="{{ room.images.first.image.url }}" class="card-img-top" alt="{{ room.name }}">
+                        <img src="{{ room.images.first.image.url }}" 
+                             class="card-img-top room-image" 
+                             alt="{{ room.name }}"
+                             style="height: 200px; object-fit: cover;">
                     {% else %}
-                        <img src="{% static 'images/placeholder.jpg' %}" class="card-img-top" alt="No image available">
+                        <img src="{% static 'images/placeholder.jpg' %}" 
+                             class="card-img-top room-image" 
+                             alt="No image available"
+                             style="height: 200px; object-fit: cover;">
                     {% endif %}
                    
                    <div class="card-body d-flex flex-column">
@@ -141,32 +153,20 @@
 </div>
 {% endblock %}
 
-{% block extra_js %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-   const checkIn = document.getElementById('check_in');
-   const checkOut = document.getElementById('check_out');
-   const priceRange = document.getElementById('price_range');
-   const priceDisplay = document.getElementById('price_display');
+{% block extra_css %}
+<style>
+.room-image {
+    height: 200px;
+    object-fit: cover;
+}
 
-   if (checkIn) {
-       checkIn.addEventListener('change', function() {
-           if (checkOut && this.value) {
-               checkOut.min = this.value;
-               if (checkOut.value && checkOut.value < this.value) {
-                   checkOut.value = this.value;
-               }
-           }
-       });
-   }
+.room-card {
+    transition: transform 0.2s ease-in-out;
+}
 
-   if (priceRange && priceDisplay) {
-       function updatePriceDisplay() {
-           priceDisplay.textContent = `$${priceRange.value}`;
-       }
-       priceRange.addEventListener('input', updatePriceDisplay);
-       updatePriceDisplay();
-   }
-});
-</script>
+.room-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+</style>
 {% endblock %}
