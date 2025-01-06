@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 from django.utils import timezone
 from decimal import Decimal
 from datetime import timedelta
-from rooms.models import Room, Booking, Amenity, Profile
+from rooms.models import Room, Booking, Profile
 from rooms.forms import BookingForm
 
 

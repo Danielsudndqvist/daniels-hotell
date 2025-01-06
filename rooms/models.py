@@ -30,20 +30,6 @@ class Profile(models.Model):
         return f"{self.user.username}'s profile"
 
 
-class Amenity(models.Model):
-    """Model for room amenities."""
-
-    name = models.CharField(max_length=50)
-    icon = models.CharField(
-        max_length=50, blank=True, help_text="FontAwesome icon class"
-    )
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        verbose_name_plural = "Amenities"
-
 
 class Room(models.Model):
     """Model representing a hotel room."""
@@ -59,7 +45,6 @@ class Room(models.Model):
     room_type = models.CharField(max_length=3, choices=ROOM_TYPES)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     available = models.BooleanField(default=True)
-    amenities = models.ManyToManyField(Amenity, blank=True)
     max_occupancy = models.IntegerField(default=2)
     size = models.IntegerField(help_text="Size in square feet", default=0)
 

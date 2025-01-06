@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from .models import Amenity, Booking, CustomUser, Profile, Room, RoomImage
+from .models import Booking, CustomUser, Profile, Room, RoomImage
 
 
 @admin.register(CustomUser)
@@ -58,7 +58,6 @@ class RoomAdmin(admin.ModelAdmin):
     list_filter = ("room_type", "available")
     search_fields = ("name", "description")
     inlines = [RoomImageInline]
-    filter_horizontal = ("amenities",)
 
 
 @admin.register(RoomImage)
@@ -81,9 +80,3 @@ class BookingAdmin(admin.ModelAdmin):
     list_filter = ("status", "room", "check_in_date", "check_out_date")
     search_fields = ("guest_name", "room__name", "email")
     date_hierarchy = "check_in_date"
-
-
-@admin.register(Amenity)
-class AmenityAdmin(admin.ModelAdmin):
-    list_display = ("name",)
-    search_fields = ("name",)

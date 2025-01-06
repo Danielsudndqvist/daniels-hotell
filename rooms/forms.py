@@ -283,7 +283,6 @@ class RoomForm(forms.ModelForm):
             "room_type",
             "price",
             "available",
-            "amenities",
             "max_occupancy",
             "size"
         ]

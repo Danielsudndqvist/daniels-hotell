@@ -10,7 +10,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from datetime import datetime, timedelta
 from django.urls import reverse
-from .models import Room, Booking, Amenity
+from .models import Room, Booking
 from .forms import (
     BookingForm,
     BookingEditForm,
@@ -80,32 +80,24 @@ def home(request):
 def room_list(request):
     """Display list of available rooms with filtering options."""
     rooms = Room.objects.filter(available=True)
-    amenities = Amenity.objects.all()
 
     # Filter handling
     room_type = request.GET.get('room_type')
     max_price = request.GET.get('max_price')
-    selected_amenities = request.GET.getlist('amenities')
 
     if room_type:
         rooms = rooms.filter(room_type=room_type)
     if max_price:
         rooms = rooms.filter(price__lte=max_price)
-    if selected_amenities:
-        rooms = rooms.filter(
-            amenities__id__in=selected_amenities
-        ).distinct()
 
     context = {
         'rooms': rooms,
-        'amenities': amenities,
         'MEDIA_URL': settings.MEDIA_URL,
         'STATIC_URL': settings.STATIC_URL,
         'storage_backend': default_storage.__class__.__name__,
         'GS_BUCKET_NAME': getattr(settings, 'GS_BUCKET_NAME', 'Not Set'),
         'selected_room_type': room_type,
         'selected_max_price': max_price,
-        'selected_amenities': selected_amenities,
     }
     return render(request, 'select_room.html', context)
 
@@ -208,7 +200,6 @@ def room_details(request, room_id):
         "room_type": room.get_room_type_display(),
         "price": float(room.price),
         "images": [img.image.url for img in room.images.all()],
-        "amenities": [amenity.name for amenity in room.amenities.all()],
         "max_occupancy": room.max_occupancy,
         "size": room.size
     }
