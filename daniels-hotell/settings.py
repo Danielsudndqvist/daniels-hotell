@@ -105,7 +105,7 @@ if not IS_DEVELOPMENT and GS_BUCKET_NAME:
         # Only set storage if credentials are found
         if GS_CREDENTIALS:
             DEFAULT_FILE_STORAGE = 'rooms.storage.GoogleCloudMediaFileStorage'
-            MEDIA_URL = f"https://storage.googleapis.com/{GS_BUCKET_NAME}"
+            MEDIA_URL = f"https://storage.googleapis.com/{GS_BUCKET_NAME}/"
             STATICFILES_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
             STATIC_URL = f"https://storage.googleapis.com/{GS_BUCKET_NAME}/static/"
             
