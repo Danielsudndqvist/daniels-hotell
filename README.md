@@ -94,6 +94,81 @@ This application aims to provide a robust solution for small to medium-sized hot
 - Booking management (view, edit, cancel bookings)
 - Admin interface for hotel management
 
+## User Guide
+
+### 1. **Guest User Guide**
+The following steps will help you navigate the website as a guest and complete your booking.
+
+#### **Step 1: Browse Available Rooms**
+- Visit the homepage and explore the list of available rooms.
+- You can filter rooms by type (Standard, Deluxe, Suite), price, and availability dates.
+
+#### **Step 2: Select Your Room**
+- After finding a room that suits your preferences, click on the room to view detailed information.
+- The room page includes an image gallery, room details, amenities, and pricing information.
+
+#### **Step 3: Book Your Room**
+- Click the "Book Now" button to begin the booking process.
+- You'll be prompted to select your check-in and check-out dates.
+- Enter your personal details such as your name, email, phone number, and any special requests.
+
+#### **Step 4: Confirm Your Booking**
+- After filling out the booking form, review your details and room choice.
+- Confirm the booking and proceed to the payment page (if enabled).
+- You will receive an email confirmation with your booking details.
+
+#### **Step 5: View or Cancel Your Booking**
+- You can view and manage your bookings from your user dashboard.
+- From the dashboard, you can cancel or edit existing bookings if needed.
+
+---
+
+### 2. **Admin User Guide**
+The following steps will help you manage the hotel operations from the admin panel.
+
+#### **Step 1: Log into the Admin Panel**
+- Log in to the admin panel using your admin credentials.
+- Access the admin dashboard, which allows you to manage users, bookings, and rooms.
+
+#### **Step 2: Manage Rooms**
+- You can add, edit, or delete rooms directly from the admin interface.
+- For each room, you can upload images, specify room types, amenities, and set pricing.
+- You can update room availability to reflect changes in occupancy or maintenance schedules.
+
+#### **Step 3: Manage Bookings**
+- View a list of all bookings made by users.
+- For each booking, you can view the guest’s details, check-in/check-out dates, and booking status.
+- You can update the status of bookings (e.g., Confirmed, Checked-in, Cancelled).
+- Optionally, you can send email notifications to users regarding their booking status.
+
+#### **Step 4: Manage Users**
+- View and manage guest accounts from the user management section.
+- You can edit user details, reset passwords, and deactivate accounts as necessary.
+
+#### **Step 5: Generate Reports**
+- You can generate reports based on bookings, revenue, and room occupancy for tracking and analysis.
+
+---
+
+### 3. **Troubleshooting**
+If you encounter any issues while using the website, consider the following:
+
+- **Issue: Can't log in or register**  
+  - Ensure that you're using the correct credentials. If you're having trouble with your password, use the "Forgot Password" feature.
+  
+- **Issue: Booking dates are unavailable**  
+  - Check the room availability calendar to ensure your selected dates are not blocked by other bookings.
+
+- **Issue: Unable to view room images**  
+  - Ensure that your browser settings allow images to load. Clear your cache if images do not appear after reloading the page.
+
+---
+
+### 4. **Feedback**
+If you have any suggestions or feedback about the website, feel free to contact us via the "Contact Us" form on the website or by reaching out to our support email.
+
+
+
 ## User Stories for Daniel's Hotel
 https://github.com/users/Danielsudndqvist/projects/3/views/1
 
