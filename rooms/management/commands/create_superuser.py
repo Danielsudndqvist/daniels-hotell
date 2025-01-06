@@ -8,9 +8,9 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
-username = 'admin10'
-email = 'admin10@example.com'
-password = 'admin10admin'
+username = 'qwe'
+email = 'qwe@gmail.com'
+password = 'qweqwe'
 
 try:
     user = User.objects.get(username=username)
