@@ -69,7 +69,7 @@ class RoomImage(models.Model):
     )
     image = models.ImageField(upload_to="room_images/")
     caption = models.CharField(max_length=100, blank=True)
-    order = models.IntegerField(default=0)
+    order = models.PositiveIntegerField(default=0)
 
     class Meta:
         ordering = ['order', 'id']
