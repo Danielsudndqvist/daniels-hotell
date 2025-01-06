@@ -1,2 +1,2 @@
 release: python manage.py migrate
-web: gunicorn your_project_name.wsgi
+web: gunicorn daniels-hotell.wsgi
