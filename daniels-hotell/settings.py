@@ -29,7 +29,7 @@ ALLOWED_HOSTS = [
     "127.0.0.1",
     ".gitpod.io",
     "daniels-hotel-64602c2a7743.herokuapp.com",
-    "8000-danielsudnd-danielshote-yxqlj3w7p5e.ws.codeinstitute-ide.net"
+    "8000-danielsudnd-danielshote-x2q1hcp7p8g.ws.codeinstitute-ide.net"
 ]
 
 # Installed apps
@@ -62,9 +62,11 @@ WSGI_APPLICATION = "daniels-hotell.wsgi.application"
 
 # Database configuration
 DATABASES = {
-    "default": dj_database_url.config(default=f"sqlite:///{os.path.join(BASE_DIR, 'db.sqlite3')}", conn_max_age=600),
+    "default": dj_database_url.config(
+        default=f"sqlite:///{os.path.join(BASE_DIR, 'db.sqlite3')}",
+        conn_max_age=600,
+    ),
 }
-
 # Testing database
 if "test" in sys.argv:
     DATABASES["default"] = {
@@ -121,6 +123,7 @@ AUTH_USER_MODEL = "rooms.CustomUser"
 CSRF_TRUSTED_ORIGINS = [
     "https://*.herokuapp.com",
     "https://*.gitpod.io",
+    "https://*.ws.codeinstitute-ide.net",
 ]
 
 # Default primary key field type

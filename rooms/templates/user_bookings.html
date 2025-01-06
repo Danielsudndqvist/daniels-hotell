@@ -8,43 +8,28 @@
     <!-- Page heading -->
     <h1 class="mb-4">Your Bookings</h1>
     
-    <!-- Check if there are any bookings -->
-    {% if bookings %}
-        <!-- Display bookings in a grid layout -->
+    <!-- Upcoming Bookings -->
+    <h2>Upcoming Bookings</h2>
+    {% if upcoming_bookings %}
         <div class="row">
-            {% for booking in bookings %}
+            {% for booking in upcoming_bookings %}
                 <div class="col-md-6 col-lg-4 mb-4">
                     <div class="card h-100 shadow-sm">
-                        
-                        <!-- Card body containing booking details -->
                         <div class="card-body">
                             <h2 class="card-title h5">{{ booking.room.name }}</h2>
                             <p class="card-text">{{ booking.room.description|truncatewords:20 }}</p>
                             <ul class="list-unstyled">
-                                <!-- Check-in date -->
                                 <li><i class="fas fa-calendar-check text-primary me-2"></i> <strong>Check-in:</strong> {{ booking.check_in_date|date:"F d, Y" }}</li>
-                                
-                                <!-- Check-out date -->
                                 <li><i class="fas fa-calendar-times text-primary me-2"></i> <strong>Check-out:</strong> {{ booking.check_out_date|date:"F d, Y" }}</li>
-                                
-                                <!-- Number of guests if available -->
                                 {% if booking.num_guests %}
                                     <li><i class="fas fa-users text-primary me-2"></i> <strong>Guests:</strong> {{ booking.num_guests }}</li>
                                 {% endif %}
-                                
-                                <!-- Total price of booking -->
                                 <li><i class="fas fa-money-bill-wave text-primary me-2"></i> <strong>Total Price:</strong> ${{ booking.total_price|floatformat:2 }}</li>
                             </ul>
                         </div>
-                        
-                        <!-- Card footer containing actions (Edit and Cancel booking) -->
                         <div class="card-footer bg-transparent border-top-0">
                             <div class="d-grid gap-2">
-                                
-                                <!-- Link to edit booking -->
                                 <a href="{% url 'edit_booking' booking.id %}" class="btn btn-primary">Edit Booking</a>
-                                
-                                <!-- Form to cancel booking with a confirmation dialog -->
                                 <form method="post" action="{% url 'cancel_booking' booking.id %}">
                                     {% csrf_token %}
                                     <button type="submit" class="btn btn-danger w-100" onclick="return confirm('Are you sure you want to cancel this booking?');">
@@ -58,9 +43,37 @@
             {% endfor %}
         </div>
     {% else %}
-        <!-- Message shown if no bookings exist -->
         <div class="alert alert-info" role="alert">
-            <i class="fas fa-info-circle me-2"></i> You have no bookings at the moment. <a href="{% url 'rooms' %}" class="alert-link">Browse our rooms</a> to make a reservation.
+            <i class="fas fa-info-circle me-2"></i> You have no upcoming bookings at the moment. <a href="{% url 'rooms' %}" class="alert-link">Browse our rooms</a> to make a reservation.
+        </div>
+    {% endif %}
+
+    <!-- Past Bookings -->
+    <h2 class="mt-5">Past Bookings</h2>
+    {% if past_bookings %}
+        <div class="row">
+            {% for booking in past_bookings %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body">
+                            <h2 class="card-title h5">{{ booking.room.name }}</h2>
+                            <p class="card-text">{{ booking.room.description|truncatewords:20 }}</p>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-calendar-check text-primary me-2"></i> <strong>Check-in:</strong> {{ booking.check_in_date|date:"F d, Y" }}</li>
+                                <li><i class="fas fa-calendar-times text-primary me-2"></i> <strong>Check-out:</strong> {{ booking.check_out_date|date:"F d, Y" }}</li>
+                                {% if booking.num_guests %}
+                                    <li><i class="fas fa-users text-primary me-2"></i> <strong>Guests:</strong> {{ booking.num_guests }}</li>
+                                {% endif %}
+                                <li><i class="fas fa-money-bill-wave text-primary me-2"></i> <strong>Total Price:</strong> ${{ booking.total_price|floatformat:2 }}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info" role="alert">
+            <i class="fas fa-info-circle me-2"></i> You have no past bookings.
         </div>
     {% endif %}
 </div>

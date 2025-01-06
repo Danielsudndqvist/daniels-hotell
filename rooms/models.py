@@ -20,14 +20,9 @@ class Profile(models.Model):
     """User profile model containing additional user information."""
 
     user = models.OneToOneField(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE
     )
-    phone_number = models.CharField(
-        max_length=15,
-        blank=True,
-        null=True
-    )
+    phone_number = models.CharField(max_length=15, blank=True, null=True)
     address = models.TextField(blank=True, null=True)
     date_of_birth = models.DateField(blank=True, null=True)
 
@@ -40,9 +35,7 @@ class Amenity(models.Model):
 
     name = models.CharField(max_length=50)
     icon = models.CharField(
-        max_length=50,
-        blank=True,
-        help_text="FontAwesome icon class"
+        max_length=50, blank=True, help_text="FontAwesome icon class"
     )
 
     def __str__(self):
@@ -68,10 +61,7 @@ class Room(models.Model):
     available = models.BooleanField(default=True)
     amenities = models.ManyToManyField(Amenity, blank=True)
     max_occupancy = models.IntegerField(default=2)
-    size = models.IntegerField(
-        help_text="Size in square feet",
-        default=0
-    )
+    size = models.IntegerField(help_text="Size in square feet", default=0)
 
     def clean(self):
         """Validate room attributes."""
@@ -95,9 +85,7 @@ class RoomImage(models.Model):
     """Model for room images."""
 
     room = models.ForeignKey(
-        Room,
-        related_name="images",
-        on_delete=models.CASCADE
+        Room, related_name="images", on_delete=models.CASCADE
     )
     image = models.ImageField(upload_to="room_images/")
     caption = models.CharField(max_length=100, blank=True)
@@ -139,43 +127,36 @@ class Booking(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         null=True,
-        blank=True,
+        blank=True
     )
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
     guest_name = models.CharField(max_length=100)
     email = models.EmailField()
-    phone_number = models.CharField(
-        max_length=15,
-        blank=True,
-        null=True
-    )
+    phone_number = models.CharField(max_length=15, blank=True, null=True)
     check_in_date = models.DateField()
     check_out_date = models.DateField()
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     status = models.CharField(
-        max_length=10,
-        choices=STATUS_CHOICES,
-        default="PENDING"
+        max_length=10, choices=STATUS_CHOICES, default="PENDING"
     )
 
     def clean(self):
         """Validate booking dates and availability."""
         super().clean()
 
-        if not all([self.check_in_date, self.check_out_date, self.room]):
-            raise ValidationError('All fields must be complete.')
+        if not all([self.check_in_date, self.check_out_date]):
+            raise ValidationError('Check-in and check-out dates must be complete.')
 
         if self.check_in_date and self.check_out_date:
             if self.check_in_date >= self.check_out_date:
-                raise ValidationError(
-                    'Check-out date must be after check-in date'
-                )
+                raise ValidationError('Check-out date must be after check-in date')
 
             if self.check_in_date < timezone.now().date():
                 raise ValidationError('Check-in date cannot be in the past')
 
+        if hasattr(self, 'room') and self.room is not None:
             overlapping_bookings = Booking.objects.filter(
                 room=self.room,
                 check_in_date__lt=self.check_out_date,
@@ -183,9 +164,7 @@ class Booking(models.Model):
             )
 
             if self.pk:
-                overlapping_bookings = overlapping_bookings.exclude(
-                    pk=self.pk
-                )
+                overlapping_bookings = overlapping_bookings.exclude(pk=self.pk)
 
             if overlapping_bookings.exists():
                 raise ValidationError('Room is already booked for these dates')

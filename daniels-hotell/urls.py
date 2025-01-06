@@ -30,8 +30,7 @@ urlpatterns = [
     path(
         'accounts/login/',
         auth_views.LoginView.as_view(template_name='login.html')
-        )
-        ,
+        ),
     path(
         "check-availability/",
         rooms_views.check_availability,

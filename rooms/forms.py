@@ -3,6 +3,8 @@ from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.utils import timezone
+import re
+
 
 from .models import Booking, CustomUser, Profile, Room
 
@@ -101,22 +103,35 @@ class ProfileForm(forms.ModelForm):
 
 
 class BookingForm(forms.ModelForm):
-    """Form for creating and managing bookings."""
+    class Meta:
+        model = Booking
+        fields = ['guest_name', 'email', 'phone_number', 'check_in_date', 'check_out_date']
+        widgets = {
+            'guest_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'phone_number': forms.TextInput(attrs={'class': 'form-control'}),
+            'check_in_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'check_out_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+        }
 
-    phone_regex = RegexValidator(
-        regex=r'^\+?1?\d{9,15}$', 
-        message="Please enter a valid phone number"
-    )
+    def clean_phone_number(self):
+        phone_number = self.cleaned_data.get('phone_number')
+        if phone_number:
+            # Remove any non-digit characters
+            phone_number = ''.join(filter(str.isdigit, phone_number))
+            # Check if the phone number has a valid length (adjust as needed)
+            if len(phone_number) < 10 or len(phone_number) > 15:
+                raise forms.ValidationError("Please enter a valid phone number.")
+        return phone_number
 
-    phone_number = forms.CharField(
-        validators=[phone_regex],
-        max_length=17,
-        widget=forms.TextInput(attrs={
-            "class": "form-control",
-            "placeholder": "Enter phone number (e.g., +46701234567)"
-        }),
-        help_text="Include country code (e.g., +46701234567)"
-    )
+class BookingEditForm(forms.ModelForm):
+    class Meta:
+        model = Booking
+        fields = ['check_in_date', 'check_out_date']
+        widgets = {
+            'check_in_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'check_out_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+        }
 
     check_in_date = forms.DateField(
         widget=forms.DateInput(attrs={
@@ -181,12 +196,14 @@ class BookingForm(forms.ModelForm):
         if check_in_date and check_out_date:
             if check_in_date >= check_out_date:
                 raise ValidationError({
-                    "check_out_date": "Check-out date must be after check-in date"
+                    "check_out_date":
+                    f"Check-out date must be after check-in date"
                 })
 
             if check_in_date < timezone.now().date():
                 raise ValidationError({
-                    "check_in_date": "Check-in date cannot be in the past"
+                    "check_in_date":
+                    f"Check-in date cannot be in the past"
                 })
 
             min_stay = 1

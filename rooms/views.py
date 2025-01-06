@@ -112,14 +112,10 @@ def room_list(request):
 
 @login_required
 def book_room(request, room_id):
-    """Handle room booking process."""
     room = get_object_or_404(Room, id=room_id)
 
     if not room.available:
-        messages.error(
-            request,
-            "This room is currently not available for booking."
-        )
+        messages.error(request, "This room is currently not available for booking.")
         return redirect('room_list')
 
     if request.method == 'POST':
@@ -130,50 +126,28 @@ def book_room(request, room_id):
                     booking = form.save(commit=False)
                     booking.room = room
                     booking.user = request.user
-                    days = (
-                        booking.check_out_date - booking.check_in_date
-                    ).days
+                    days = (booking.check_out_date - booking.check_in_date).days
                     booking.total_price = room.price * days
                     booking.status = 'CONFIRMED'
 
-                    if not is_room_available(
-                        room,
-                        booking.check_in_date,
-                        booking.check_out_date,
-                        None
-                    ):
-                        raise ValidationError(
-                            "Room not available for selected dates"
-                        )
+                    if not is_room_available(room, booking.check_in_date, booking.check_out_date, None):
+                        form.add_error(None, "Room not available for selected dates")
+                        raise ValidationError("Room not available for selected dates")
 
+                    booking.full_clean()
                     booking.save()
                     send_booking_confirmation_email(booking)
-                    messages.success(
-                        request,
-                        'Booking confirmed successfully!'
-                    )
-                    return redirect(
-                        reverse('booking_confirmation', args=[booking.id])
-                    )
+                    messages.success(request, 'Booking confirmed successfully!')
+                    return redirect(reverse('booking_confirmation', args=[booking.id]))
             except ValidationError as e:
-                messages.error(request, str(e))
-            except Exception:
-                messages.error(
-                    request,
-                    "An error occurred while processing your booking."
-                )
-        else:
-            for field, errors in form.errors.items():
-                for error in errors:
-                    messages.error(
-                        request,
-                        f"{field.replace('_', ' ').title()}: {error}"
-                    )
+                if hasattr(e, 'message_dict'):
+                    for field, errors in e.message_dict.items():
+                        form.add_error(field, errors)
+                else:
+                    form.add_error(None, e.messages)
     else:
         initial_data = {
-            'guest_name': (
-                request.user.get_full_name() or request.user.username
-            ),
+            'guest_name': request.user.get_full_name() or request.user.username,
             'email': request.user.email
         }
         form = BookingForm(initial=initial_data)
@@ -304,12 +278,15 @@ def user_bookings(request):
         user=request.user,
         check_in_date__gte=timezone.now().date()
     ).order_by('check_in_date')
-
+    
     past_bookings = Booking.objects.filter(
         user=request.user,
         check_in_date__lt=timezone.now().date()
     ).order_by('-check_in_date')
-
+    
+    print(f"Upcoming bookings: {upcoming_bookings.count()}")
+    print(f"Past bookings: {past_bookings.count()}")
+    
     context = {
         'upcoming_bookings': upcoming_bookings,
         'past_bookings': past_bookings
@@ -383,7 +360,7 @@ def cancel_booking(request, booking_id):
     print(f"User authenticated: {request.user.is_authenticated}")
     print(f"Username: {request.user.username}")
     print(f"Booking ID: {booking_id}")
-    
+
     booking = get_object_or_404(Booking, id=booking_id, user=request.user)
     print(f"Found booking: {booking}")
 
@@ -393,16 +370,16 @@ def cancel_booking(request, booking_id):
             current_time = timezone.now()  # This is already timezone-aware
             print(f"Current time: {current_time}")
             print(f"Current time tzinfo: {current_time.tzinfo}")
-            
+
             # Convert check-in date to timezone-aware datetime
             check_in_datetime = timezone.make_aware(
                 datetime.combine(booking.check_in_date, datetime.min.time())
             )
-            
+
             # Convert both to UTC for comparison
             current_time_utc = current_time.astimezone(timezone.utc)
             check_in_utc = check_in_datetime.astimezone(timezone.utc)
-            
+
             print(f"Current time UTC: {current_time_utc}")
             print(f"Check-in time UTC: {check_in_utc}")
 
