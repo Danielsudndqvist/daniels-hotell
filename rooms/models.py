@@ -91,12 +91,45 @@ class RoomImage(models.Model):
         except Exception:
             return None
 
+    def set_as_primary(self):
+        """Set this image as primary for its room."""
+        RoomImage.objects.filter(room=self.room, is_primary=True).update(is_primary=False)
+        self.is_primary = True
+        self.save()
+
+    @classmethod
+    def update_primary_image(cls, room_id):
+        """Update primary image for a specific room."""
+        try:
+            room = Room.objects.get(id=room_id)
+            images = list(room.images.all())
+            
+            if images:
+                # Sort images by order
+                images.sort(key=lambda x: x.order)
+                
+                # Set all other images as non-primary
+                cls.objects.filter(room=room).exclude(pk=images[0].pk).update(is_primary=False)
+                
+                # Set first image as primary
+                images[0].set_as_primary()
+            else:
+                print(f"No images found for room {room_id}")
+        except Room.DoesNotExist:
+            print(f"Room with id {room_id} does not exist")
+
+    def delete(self, *args, **kwargs):
+        """Override delete method to handle GCS deletion."""
+        super().delete(*args, **kwargs)
+        default_storage.delete(self.image.path)
+
     def save(self, *args, **kwargs):
-        """Override save to handle primary image logic."""
-        if self.is_primary:
-            # Set all other images of this room to not primary
-            RoomImage.objects.filter(room=self.room).update(is_primary=False)
+        """Override save method to handle GCS storage."""
         super().save(*args, **kwargs)
+        
+        # Update order if necessary
+        RoomImage.objects.filter(room=self.room).order_by('order').update(order=models.F('id'))
+        
 
 
 class Booking(models.Model):
