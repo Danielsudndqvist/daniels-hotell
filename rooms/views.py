@@ -131,20 +131,22 @@ def book_room(request, room_id):
                     booking.status = 'CONFIRMED'
 
                     if not is_room_available(room, booking.check_in_date, booking.check_out_date, None):
-                        form.add_error(None, "Room not available for selected dates")
                         raise ValidationError("Room not available for selected dates")
 
-                    booking.full_clean()
+                    booking.full_clean()  # This will validate the model
                     booking.save()
                     send_booking_confirmation_email(booking)
                     messages.success(request, 'Booking confirmed successfully!')
                     return redirect(reverse('booking_confirmation', args=[booking.id]))
             except ValidationError as e:
-                if hasattr(e, 'message_dict'):
-                    for field, errors in e.message_dict.items():
-                        form.add_error(field, errors)
-                else:
-                    form.add_error(None, e.messages)
+                # Add form errors for any validation errors
+                for field, error in e.message_dict.items():
+                    form.add_error(field, error)
+        
+        # If the form is not valid or there were validation errors, display them
+        for field, errors in form.errors.items():
+            for error in errors:
+                messages.error(request, f"{field.replace('_', ' ').title()}: {error}")
     else:
         initial_data = {
             'guest_name': request.user.get_full_name() or request.user.username,
