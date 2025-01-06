@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils import timezone
+from django.core.files.storage import default_storage
 
 class CustomUser(AbstractUser):
     """Custom user model with email as the username field."""

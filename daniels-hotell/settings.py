@@ -97,11 +97,13 @@ if not IS_DEVELOPMENT and GS_BUCKET_NAME:
             json.loads(os.environ["GOOGLE_CREDENTIALS"])
         )
 
+if not IS_DEVELOPMENT and GS_BUCKET_NAME:
+    # Google Cloud Storage settings
     DEFAULT_FILE_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
     MEDIA_URL = f"https://storage.googleapis.com/{GS_BUCKET_NAME}/media/"
     STATICFILES_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
     STATIC_URL = f"https://storage.googleapis.com/{GS_BUCKET_NAME}/static/"
-
+    
     GS_DEFAULT_ACL = None
     GS_FILE_OVERWRITE = False
 
