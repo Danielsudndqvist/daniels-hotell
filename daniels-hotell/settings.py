@@ -29,7 +29,7 @@ ALLOWED_HOSTS = [
     "127.0.0.1",
     ".gitpod.io",
     "daniels-hotel-64602c2a7743.herokuapp.com",
-    "8000-danielsudnd-danielshote-x2q1hcp7p8g.ws.codeinstitute-ide.net"
+    "8000-danielsudnd-danielshote-6uv7tjrhsr1.ws.codeinstitute-ide.net"
 ]
 
 # Installed apps
