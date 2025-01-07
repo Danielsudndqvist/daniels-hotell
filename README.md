@@ -115,11 +115,6 @@ Daniel's Hotel is a comprehensive Django web application designed to streamline 
 4. **User Management**: Handle user accounts
 5. **Generate Reports**: Analyze bookings and revenue
 
-## 🐞 Troubleshooting
-
-- **Login Issues**: Use "Forgot Password" feature
-- **Booking Problems**: Check room availability
-- **Image Loading**: Clear browser cache
 
 ## 📬 Feedback
 We welcome your suggestions! Contact us through the website's "Contact Us" form.
