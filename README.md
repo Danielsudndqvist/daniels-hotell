@@ -6,10 +6,6 @@
 
 **Live Demo**: [Daniel's Hotel Website](https://pp4-daniels-hotel-d50d43bb18a9.herokuapp.com/)
 
-**Superuser Credentials**:
-- **Email**: hej123@gmail.com
-- **Password**: h123
-
 ## 🌟 Project Overview
 
 Daniel's Hotel is a comprehensive Django web application designed to streamline the hotel room booking process. It provides an intuitive, user-friendly interface for both guests and hotel management, ensuring a seamless experience from room browsing to booking confirmation.
