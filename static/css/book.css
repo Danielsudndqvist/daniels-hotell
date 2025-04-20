@@ -1,0 +1,191 @@
+/* Step transition */
+.booking-step {
+    transition: opacity 0.3s ease;
+}
+
+/* Progress bar animation */
+.progress-bar {
+    transition: width 0.5s ease;
+    background-color: #0d6efd;
+}
+
+/* Form styling */
+.form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Badge styling for step numbers */
+.booking-step .badge {
+    width: 24px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+/* Step headers */
+.booking-step h5 {
+    padding-bottom: 10px;
+    border-bottom: 1px solid #dee2e6;
+    margin-bottom: 20px;
+}
+
+/* Improve carousel controls */
+#roomImageCarousel .carousel-control-prev,
+#roomImageCarousel .carousel-control-next {
+    width: 40px;
+    height: 40px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 50%;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.7;
+}
+
+#roomImageCarousel .carousel-control-prev {
+    left: 10px;
+}
+
+#roomImageCarousel .carousel-control-next {
+    right: 10px;
+}
+
+#roomImageCarousel .carousel-control-prev:hover,
+#roomImageCarousel .carousel-control-next:hover {
+    opacity: 1;
+}
+
+/* Summary card styling */
+.card.bg-light {
+    background-color: #f8f9fa !important;
+    border: none;
+    border-radius: 8px;
+}
+
+/* Validation styling */
+.is-valid {
+    border-color: #198754;
+    padding-right: calc(1.5em + 0.75rem);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(0.375em + 0.1875rem) center;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
+
+/* Button styles */
+.btn-outline-secondary:hover {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-primary, .btn-success {
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover, .btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Terms checkbox styling */
+.form-check-input:checked {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767.98px) {
+    #bookingCard {
+        margin-top: 2rem;
+    }
+    
+    .booking-step .btn {
+        width: 45%;
+    }
+}
+
+/* Animation for step transitions */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.booking-step:not(.d-none) {
+    animation: fadeIn 0.5s ease forwards;
+}
+
+/* Breadcrumb styling */
+.breadcrumb-item a {
+    color: #0d6efd;
+    text-decoration: none;
+}
+
+.breadcrumb-item a:hover {
+    text-decoration: underline;
+}
+
+/* Room carousel image */
+.carousel-item img {
+    transition: transform 0.3s ease;
+}
+
+.carousel-item:hover img {
+    transform: scale(1.03);
+}
+
+/* Form submit button animation */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.btn-success:hover {
+    animation: pulse 1.5s infinite;
+}
+
+/* Phone input formatting */
+input[type="tel"].form-control {
+    letter-spacing: 0.5px;
+}
+
+/* Amenities list styling */
+.amenity-item {
+    transition: all 0.2s ease;
+}
+
+.amenity-item:hover {
+    transform: translateX(5px);
+}
+
+/* Calendar input styling */
+input[type="date"] {
+    cursor: pointer;
+}
+
+/* Form focus visual indication */
+.form-control:focus, 
+.form-select:focus, 
+.form-check-input:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Smooth scroll behavior */
+html {
+    scroll-behavior: smooth;
+}

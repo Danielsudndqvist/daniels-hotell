@@ -1,70 +1,451 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Booking Confirmation - Daniel's Hotel{% endblock %}
+{% block title %}Booking Confirmed - {{ booking.room.name }}{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="row justify-content-center">
+<div class="container mt-5 mb-5">
+    <!-- Success Alert Banner -->
+    <div class="alert alert-success text-center mb-4 p-4 fade-in-animation">
+        <i class="fas fa-check-circle fa-3x mb-3"></i>
+        <h2 class="alert-heading">Booking Confirmed!</h2>
+        <p class="lead mb-0">Thank you for choosing Daniel's Hotel. Your reservation has been successfully confirmed.</p>
+    </div>
+    
+    <div class="row g-4">
+        <!-- Booking Details Card -->
         <div class="col-lg-8">
-            <!-- Main card container for booking confirmation -->
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <!-- Confirmation header -->
-                    <h1 class="card-title text-center mb-4">Booking Confirmation</h1>
-                    
-                    <!-- Success message -->
-                    <div class="alert alert-success" role="alert">
-                        <i class="fas fa-check-circle me-2"></i> Your booking has been confirmed!
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white p-4 border-bottom">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h3 class="card-title mb-0">Booking Details</h3>
+                        <span class="badge bg-success px-3 py-2">Confirmed</span>
+                    </div>
+                </div>
+                
+                <div class="card-body p-4">
+                    <!-- Booking reference number -->
+                    <div class="text-center mb-4 p-3 bg-light rounded">
+                        <p class="text-muted mb-1">Booking Reference</p>
+                        <h4 class="mb-0">{{ booking.id }}</h4>
                     </div>
                     
-                    <!-- Booking details section -->
-                    <div class="row mb-4">
-                        <!-- Guest information column -->
-                        <div class="col-md-6">
-                            <h5 class="mb-3">Guest Information</h5>
+                    <div class="row">
+                        <!-- Left column with room details -->
+                        <div class="col-md-6 mb-4 mb-md-0">
+                            <div class="d-flex mb-4">
+                                {% if booking.room.images.first %}
+                                    <img src="{{ booking.room.images.first.image.url }}" 
+                                         alt="{{ booking.room.name }}" 
+                                         class="img-fluid rounded me-3"
+                                         style="width: 100px; height: 100px; object-fit: cover;">
+                                {% else %}
+                                    <div class="bg-secondary bg-opacity-10 rounded me-3 d-flex align-items-center justify-content-center"
+                                         style="width: 100px; height: 100px;">
+                                        <i class="fas fa-bed fa-2x text-muted"></i>
+                                    </div>
+                                {% endif %}
+                                
+                                <div>
+                                    <h4 class="h5 mb-1">{{ booking.room.name }}</h4>
+                                    <p class="mb-1">{{ booking.room.get_room_type_display }}</p>
+                                    <span class="badge bg-primary">{{ booking.room.max_occupancy }} guests max</span>
+                                </div>
+                            </div>
+                            
+                            <h5 class="border-bottom pb-2 mb-3">Room Details</h5>
                             <ul class="list-unstyled">
-                                <li><strong>Name:</strong> {{ booking.guest_name }}</li>
-                                <li><strong>Email:</strong> {{ booking.email }}</li>
-                                <li><strong>Phone:</strong> {{ booking.phone }}</li>
+                                <li class="mb-2">
+                                    <i class="fas fa-ruler-combined text-primary me-2"></i> 
+                                    <strong>Size:</strong> {{ booking.room.size }} sq ft
+                                </li>
+                                <li>
+                                    <i class="fas fa-concierge-bell text-primary me-2"></i> 
+                                    <strong>Amenities:</strong>
+                                    <div class="ms-4 mt-2">
+                                        {% if booking.room.amenities.all %}
+                                            {% for amenity in booking.room.amenities.all %}
+                                                <div class="mb-1">
+                                                    <i class="fas fa-check text-success me-2 small"></i> 
+                                                    {{ amenity.name }}
+                                                </div>
+                                            {% endfor %}
+                                        {% else %}
+                                            <div class="text-muted">No amenities listed</div>
+                                        {% endif %}
+                                    </div>
+                                </li>
                             </ul>
                         </div>
-                        <!-- Booking details column -->
+                        
+                        <!-- Right column with stay details -->
                         <div class="col-md-6">
-                            <h5 class="mb-3">Booking Details</h5>
+                            <h5 class="border-bottom pb-2 mb-3">Stay Information</h5>
+                            
+                            <div class="d-flex justify-content-between mb-4">
+                                <!-- Check-in details -->
+                                <div class="text-center p-3 bg-light rounded">
+                                    <p class="mb-1 text-muted small">CHECK-IN</p>
+                                    <h5 class="mb-1">{{ booking.check_in_date|date:"D" }}</h5>
+                                    <h4 class="mb-0">{{ booking.check_in_date|date:"d" }}</h4>
+                                    <p>{{ booking.check_in_date|date:"M Y" }}</p>
+                                    <p class="mb-0 small text-muted">From 3:00 PM</p>
+                                </div>
+                                
+                                <!-- Nights indicator -->
+                                <div class="d-flex flex-column justify-content-center align-items-center">
+                                    <div class="nights-line"></div>
+                                    <div class="bg-white px-2">
+                                        {% with nights=booking.check_in_date|timesince:booking.check_out_date %}
+                                            <span class="badge bg-secondary">{{ nights|default:"1 night" }}</span>
+                                        {% endwith %}
+                                    </div>
+                                </div>
+                                
+                                <!-- Check-out details -->
+                                <div class="text-center p-3 bg-light rounded">
+                                    <p class="mb-1 text-muted small">CHECK-OUT</p>
+                                    <h5 class="mb-1">{{ booking.check_out_date|date:"D" }}</h5>
+                                    <h4 class="mb-0">{{ booking.check_out_date|date:"d" }}</h4>
+                                    <p>{{ booking.check_out_date|date:"M Y" }}</p>
+                                    <p class="mb-0 small text-muted">Until 11:00 AM</p>
+                                </div>
+                            </div>
+                            
+                            <h5 class="border-bottom pb-2 mb-3">Guest Information</h5>
+                            
                             <ul class="list-unstyled">
-                                <!-- Using date filter to format the date -->
-                                <li><strong>Check-in:</strong> {{ booking.check_in_date|date:"F d, Y" }}</li>
-                                <li><strong>Check-out:</strong> {{ booking.check_out_date|date:"F d, Y" }}</li>
-                                <li><strong>Room:</strong> {{ booking.room.name }}</li>
+                                <li class="mb-2">
+                                    <i class="fas fa-user text-primary me-2"></i> 
+                                    <strong>Name:</strong> {{ booking.guest_name }}
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-envelope text-primary me-2"></i> 
+                                    <strong>Email:</strong> {{ booking.email }}
+                                </li>
+                                {% if booking.phone %}
+                                <li class="mb-2">
+                                    <i class="fas fa-phone text-primary me-2"></i> 
+                                    <strong>Phone:</strong> {{ booking.phone }}
+                                </li>
+                                {% endif %}
+                                {% if booking.special_requests %}
+                                <li>
+                                    <i class="fas fa-clipboard-list text-primary me-2"></i> 
+                                    <strong>Special Requests:</strong>
+                                    <div class="mt-2 p-2 bg-light rounded">
+                                        {{ booking.special_requests }}
+                                    </div>
+                                </li>
+                                {% endif %}
                             </ul>
                         </div>
                     </div>
                     
-                    <!-- Total price display -->
-                    <div class="text-center">
-                        <h4 class="mb-3">Total Price</h4>
-                        <p class="display-4 text-primary">${{ booking.total_price }}</p>
+                    <hr class="my-4">
+                    
+                    <!-- Payment summary -->
+                    <h5 class="mb-3">Payment Summary</h5>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <tbody>
+                                <tr>
+                                    <td>Room Rate</td>
+                                    <td class="text-end">${{ booking.room.price }} per night</td>
+                                </tr>
+                                <tr>
+                                    {% with nights=booking.check_in_date|timesince:booking.check_out_date %}
+                                        <td>Duration</td>
+                                        <td class="text-end">{{ nights|default:"1 night" }}</td>
+                                    {% endwith %}
+                                </tr>
+                                <tr>
+                                    <td>Taxes & Fees</td>
+                                    <td class="text-end">Included</td>
+                                </tr>
+                                <tr class="table-active fw-bold">
+                                    <td>Total Amount</td>
+                                    <td class="text-end">${{ booking.total_price }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
-                    
-                    <hr>
-                    
-                    <!-- Thank you message and return to homepage button -->
-                    <div class="text-center mt-4">
-                        <p class="lead">Thank you for choosing Daniel's Hotel!</p>
-                        <p>We look forward to welcoming you.</p>
-                        <a href="{% url 'home' %}" class="btn btn-primary mt-3">
-                            <i class="fas fa-home me-2"></i>Return to Homepage
+                </div>
+                
+                <!-- Booking Actions -->
+                <div class="card-footer bg-white p-4 d-flex flex-wrap justify-content-between gap-2">
+                    <a href="{% url 'user_bookings' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-list me-2"></i> View All Bookings
+                    </a>
+                    <div>
+                        <button type="button" class="btn btn-outline-secondary me-2" onclick="window.print()">
+                            <i class="fas fa-print me-2"></i> Print
+                        </button>
+                        <a href="#" class="btn btn-primary" id="downloadBtn">
+                            <i class="fas fa-download me-2"></i> Download Confirmation
                         </a>
                     </div>
                 </div>
+            </div>
+        </div>
+        
+        <!-- Sidebar with additional information -->
+        <div class="col-lg-4">
+            <!-- Countdown Card -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4 text-center">
+                    <h5 class="card-title">Your Stay Begins In</h5>
+                    <div class="countdown-display my-3" data-check-in="{{ booking.check_in_date|date:'Y-m-d' }}">
+                        <div class="row g-2">
+                            <div class="col">
+                                <div class="countdown-block bg-light rounded p-2">
+                                    <div class="h2 mb-0" id="countdown-days">-</div>
+                                    <small>Days</small>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="countdown-block bg-light rounded p-2">
+                                    <div class="h2 mb-0" id="countdown-hours">-</div>
+                                    <small>Hours</small>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="countdown-block bg-light rounded p-2">
+                                    <div class="h2 mb-0" id="countdown-minutes">-</div>
+                                    <small>Mins</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="#" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#calendarModal">
+                        <i class="fas fa-calendar-plus me-2"></i> Add to Calendar
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Check-in Information Card -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <h5 class="card-title mb-3">Check-in Information</h5>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="flex-shrink-0 me-3">
+                                <div class="rounded-circle bg-primary bg-opacity-10 p-2 text-center" style="width: 40px; height: 40px;">
+                                    <i class="fas fa-clock text-primary"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <h6 class="mb-1">Check-in Time</h6>
+                                <p class="mb-0 text-muted">From 3:00 PM onwards</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="flex-shrink-0 me-3">
+                                <div class="rounded-circle bg-primary bg-opacity-10 p-2 text-center" style="width: 40px; height: 40px;">
+                                    <i class="fas fa-id-card text-primary"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <h6 class="mb-1">Required Documents</h6>
+                                <p class="mb-0 text-muted">Valid ID and credit card</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0 me-3">
+                                <div class="rounded-circle bg-primary bg-opacity-10 p-2 text-center" style="width: 40px; height: 40px;">
+                                    <i class="fas fa-car text-primary"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <h6 class="mb-1">Parking</h6>
+                                <p class="mb-0 text-muted">Complimentary for guests</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Need Help Card -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <h5 class="card-title mb-3">Need Help?</h5>
+                    
+                    <p class="text-muted mb-3">If you have any questions or need to modify your booking, please contact us:</p>
+                    
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <a href="tel:+1234567890" class="text-decoration-none d-flex align-items-center">
+                                <div class="bg-light rounded-circle p-2 me-2" style="width: 36px; height: 36px; text-align: center;">
+                                    <i class="fas fa-phone text-primary"></i>
+                                </div>
+                                <span>+1 (234) 567-8900</span>
+                            </a>
+                        </li>
+                        <li class="mb-3">
+                            <a href="mailto:reservations@danielshotel.com" class="text-decoration-none d-flex align-items-center">
+                                <div class="bg-light rounded-circle p-2 me-2" style="width: 36px; height: 36px; text-align: center;">
+                                    <i class="fas fa-envelope text-primary"></i>
+                                </div>
+                                <span>reservations@danielshotel.com</span>
+                            </a>
+                        </li>
+                    </ul>
+                    
+                    <a href="#" class="btn btn-outline-primary w-100">
+                        <i class="fas fa-comments me-2"></i> Live Chat Support
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add to Calendar Modal -->
+<div class="modal fade" id="calendarModal" tabindex="-1" aria-labelledby="calendarModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="calendarModalLabel">Add to Calendar</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Select your preferred calendar service:</p>
+                <div class="d-grid gap-2">
+                    <a href="#" class="btn btn-outline-primary">
+                        <i class="fab fa-google me-2"></i> Google Calendar
+                    </a>
+                    <a href="#" class="btn btn-outline-primary">
+                        <i class="far fa-calendar-alt me-2"></i> Apple Calendar
+                    </a>
+                    <a href="#" class="btn btn-outline-primary">
+                        <i class="fab fa-microsoft me-2"></i> Outlook Calendar
+                    </a>
+                    <a href="#" class="btn btn-outline-primary">
+                        <i class="fas fa-download me-2"></i> Download .ics File
+                    </a>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
 </div>
 {% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Fade-in animation for success message */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .fade-in-animation {
+        animation: fadeIn 0.6s ease-out;
+    }
+    
+    /* Nights line styling */
+    .nights-line {
+        width: 100%;
+        height: 2px;
+        background-color: #dee2e6;
+        position: relative;
+    }
+    
+    /* Countdown blocks styling */
+    .countdown-block {
+        transition: all 0.3s ease;
+    }
+    
+    .countdown-block:hover {
+        background-color: #e9ecef !important;
+    }
+    
+    /* Print styles */
+    @media print {
+        body {
+            background-color: white;
+        }
+        .container {
+            width: 100%;
+            max-width: 100%;
+        }
+        .col-lg-4, 
+        .card-footer,
+        .alert {
+            display: none !important;
+        }
+        .col-lg-8 {
+            width: 100%;
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block extra_js %}
-<!-- Include any additional JavaScript specific to this page -->
-<script src="{% static 'js/scripts.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Countdown timer functionality
+        function updateCountdown() {
+            const countdownDisplay = document.querySelector('.countdown-display');
+            if (!countdownDisplay) return;
+            
+            const checkInDate = new Date(countdownDisplay.dataset.checkIn + 'T15:00:00'); // 3 PM check-in
+            const now = new Date();
+            
+            // Calculate time difference
+            let diff = checkInDate - now;
+            
+            // If check-in date is in the past, show 0s
+            if (diff < 0) {
+                document.getElementById('countdown-days').textContent = '0';
+                document.getElementById('countdown-hours').textContent = '0';
+                document.getElementById('countdown-minutes').textContent = '0';
+                return;
+            }
+            
+            // Calculate days, hours, minutes
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            diff -= days * (1000 * 60 * 60 * 24);
+            
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            diff -= hours * (1000 * 60 * 60);
+            
+            const minutes = Math.floor(diff / (1000 * 60));
+            
+            // Update the display
+            document.getElementById('countdown-days').textContent = days;
+            document.getElementById('countdown-hours').textContent = hours;
+            document.getElementById('countdown-minutes').textContent = minutes;
+        }
+        
+        // Initial update
+        updateCountdown();
+        
+        // Update every minute
+        setInterval(updateCountdown, 60000);
+        
+        // Handle download button (demo functionality)
+        const downloadBtn = document.getElementById('downloadBtn');
+        if (downloadBtn) {
+            downloadBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // This is a simplified example - in a real implementation,
+                // you would generate a PDF or other document format
+                alert('In a real implementation, this would download a PDF of your booking confirmation.');
+            });
+        }
+    });
+</script>
 {% endblock %}

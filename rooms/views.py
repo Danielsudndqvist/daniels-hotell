@@ -59,8 +59,21 @@ def register(request):
 
 def home(request):
     """Render home page with featured rooms."""
+    # Get today and tomorrow dates for search form
+    today = datetime.now().date()
+    tomorrow = today + timedelta(days=1)
+    
+    # Get featured rooms
     featured_rooms = Room.objects.filter(available=True)[:3]
+    
+    # Use Room.ROOM_TYPES which is defined in your model
+    room_types = Room.ROOM_TYPES
+    
     context = {
+        'today': today,
+        'tomorrow': tomorrow,
+        'room_types': room_types,
+        'featured_rooms': featured_rooms,
         'MEDIA_URL': settings.MEDIA_URL,
         'STATIC_URL': settings.STATIC_URL,
         'DEFAULT_FILE_STORAGE': settings.DEFAULT_FILE_STORAGE,
@@ -72,43 +85,112 @@ def home(request):
             'GS_BUCKET_NAME',
             'Not Set'
         ),
-        'featured_rooms': featured_rooms,
     }
     return render(request, 'home.html', context)
 
 
 def room_list(request):
     """Display list of available rooms with filtering options."""
+    # Get all available rooms
     rooms = Room.objects.filter(available=True)
+
+    # Use Room.ROOM_TYPES from your model
+    room_types = Room.ROOM_TYPES
+    
+    # Get today and tomorrow dates for date inputs
+    today = datetime.now().date()
+    tomorrow = today + timedelta(days=1)
 
     # Filter handling
     room_type = request.GET.get('room_type')
     max_price = request.GET.get('max_price')
+    check_in = request.GET.get('check_in')
+    check_out = request.GET.get('check_out')
 
+    # Apply filters
     if room_type:
         rooms = rooms.filter(room_type=room_type)
     if max_price:
         rooms = rooms.filter(price__lte=max_price)
+    if check_in and check_out:
+        check_in_date = parse_date(check_in)
+        check_out_date = parse_date(check_out)
+        if check_in_date and check_out_date:
+            rooms = rooms.exclude(
+                booking__check_in_date__lt=check_out_date,
+                booking__check_out_date__gt=check_in_date
+            )
 
     context = {
         'rooms': rooms,
+        'room_types': room_types,
+        'today': today,
+        'tomorrow': tomorrow,
         'MEDIA_URL': settings.MEDIA_URL,
         'STATIC_URL': settings.STATIC_URL,
         'storage_backend': default_storage.__class__.__name__,
         'GS_BUCKET_NAME': getattr(settings, 'GS_BUCKET_NAME', 'Not Set'),
         'selected_room_type': room_type,
         'selected_max_price': max_price,
+        'selected_check_in': check_in,
+        'selected_check_out': check_out,
     }
     return render(request, 'select_room.html', context)
 
 
+def room_detail(request, room_id):
+    """Display detailed information about a specific room."""
+    room = get_object_or_404(Room, id=room_id)
+    
+    # Get similar rooms (same type or price range)
+    similar_rooms = Room.objects.filter(
+        Q(room_type=room.room_type) | 
+        Q(price__range=(room.price*0.8, room.price*1.2))
+    ).exclude(id=room.id)[:3]
+    
+    # Get today and tomorrow dates for booking form
+    today = datetime.now().date()
+    tomorrow = today + timedelta(days=1)
+    
+    context = {
+        'room': room,
+        'similar_rooms': similar_rooms,
+        'today': today,
+        'tomorrow': tomorrow,
+        'MEDIA_URL': settings.MEDIA_URL,
+        'STATIC_URL': settings.STATIC_URL,
+    }
+    return render(request, 'room_detail.html', context)
+
+
 @login_required
 def book_room(request, room_id):
+    """Handle room booking."""
     room = get_object_or_404(Room, id=room_id)
+    
+    # Get today and tomorrow dates for form
+    today = datetime.now().date()
+    tomorrow = today + timedelta(days=1)
 
     if not room.available:
         messages.error(request, "This room is currently not available for booking.")
         return redirect('room_list')
+
+    # Get check-in and check-out dates from query params if available
+    initial_check_in = request.GET.get('check_in')
+    initial_check_out = request.GET.get('check_out')
+    
+    if initial_check_in:
+        try:
+            initial_check_in = parse_date(initial_check_in)
+        except:
+            initial_check_in = None
+    
+    if initial_check_out:
+        try:
+            initial_check_out = parse_date(initial_check_out)
+        except:
+            initial_check_out = None
 
     if request.method == 'POST':
         form = BookingForm(request.POST)
@@ -142,13 +224,17 @@ def book_room(request, room_id):
     else:
         initial_data = {
             'guest_name': request.user.get_full_name() or request.user.username,
-            'email': request.user.email
+            'email': request.user.email,
+            'check_in_date': initial_check_in,
+            'check_out_date': initial_check_out,
         }
         form = BookingForm(initial=initial_data)
 
     context = {
         'room': room,
         'form': form,
+        'today': today,
+        'tomorrow': tomorrow,
         'MEDIA_URL': settings.MEDIA_URL,
         'STATIC_URL': settings.STATIC_URL,
         'storage_backend': default_storage.__class__.__name__,
@@ -160,11 +246,15 @@ def book_room(request, room_id):
 def booking_confirmation(request, booking_id):
     """Show booking confirmation page."""
     booking = get_object_or_404(Booking, id=booking_id)
-    return render(
-        request,
-        'booking_confirmation.html',
-        {'booking': booking}
-    )
+    
+    # Get today's date for countdown calculation
+    today = datetime.now().date()
+    
+    context = {
+        'booking': booking,
+        'today': today,
+    }
+    return render(request, 'booking_confirmation.html', context)
 
 
 def check_availability(request):
@@ -172,6 +262,13 @@ def check_availability(request):
     if request.method == 'GET':
         check_in = parse_date(request.GET.get('check_in'))
         check_out = parse_date(request.GET.get('check_out'))
+        
+        # Use Room.ROOM_TYPES from your model
+        room_types = Room.ROOM_TYPES
+        
+        # Get today and tomorrow dates for form
+        today = datetime.now().date()
+        tomorrow = today + timedelta(days=1)
 
         if check_in and check_out:
             available_rooms = Room.objects.filter(
@@ -182,8 +279,13 @@ def check_availability(request):
             )
             context = {
                 'rooms': available_rooms,
+                'room_types': room_types,
+                'today': today,
+                'tomorrow': tomorrow,
                 'check_in': check_in,
-                'check_out': check_out
+                'check_out': check_out,
+                'MEDIA_URL': settings.MEDIA_URL,
+                'STATIC_URL': settings.STATIC_URL,
             }
             return render(request, 'available_rooms.html', context)
 
@@ -193,11 +295,13 @@ def check_availability(request):
 def room_details(request, room_id):
     """Get detailed information about a specific room."""
     room = get_object_or_404(Room, id=room_id)
+    
+    # Your Room model has get_room_type_display method because room_type uses choices
     data = {
         "id": room.id,
         "name": room.name,
         "description": room.description,
-        "room_type": room.get_room_type_display(),
+        "room_type": room.get_room_type_display(),  # This works because you defined choices
         "price": float(room.price),
         "images": [img.image.url for img in room.images.all()],
         "max_occupancy": room.max_occupancy,
@@ -218,15 +322,23 @@ def search_rooms(request):
     room_type = request.GET.get('room_type')
     max_price = request.GET.get('max_price')
 
+    # Use Room.ROOM_TYPES from your model
+    room_types = Room.ROOM_TYPES
+    
+    # Get today and tomorrow dates for form
+    today = datetime.now().date()
+    tomorrow = today + timedelta(days=1)
+
     rooms = Room.objects.filter(available=True)
 
     if check_in and check_out:
-        check_in = parse_date(check_in)
-        check_out = parse_date(check_out)
-        rooms = rooms.exclude(
-            booking__check_in_date__lt=check_out,
-            booking__check_out_date__gt=check_in
-        )
+        check_in_date = parse_date(check_in)
+        check_out_date = parse_date(check_out)
+        if check_in_date and check_out_date:
+            rooms = rooms.exclude(
+                booking__check_in_date__lt=check_out_date,
+                booking__check_out_date__gt=check_in_date
+            )
 
     if room_type:
         rooms = rooms.filter(room_type=room_type)
@@ -236,6 +348,13 @@ def search_rooms(request):
 
     context = {
         'rooms': rooms,
+        'room_types': room_types,
+        'today': today,
+        'tomorrow': tomorrow,
+        'selected_check_in': check_in,
+        'selected_check_out': check_out,
+        'selected_room_type': room_type,
+        'selected_max_price': max_price,
         'MEDIA_URL': settings.MEDIA_URL,
         'STATIC_URL': settings.STATIC_URL,
         'storage_backend': default_storage.__class__.__name__,
@@ -246,6 +365,9 @@ def search_rooms(request):
 
 def login_view(request):
     """Handle user login."""
+    # Add referrer url to context for better redirection
+    next_url = request.GET.get('next', '')
+    
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
@@ -255,34 +377,40 @@ def login_view(request):
             next_url = request.POST.get('next', 'home')
             return redirect(next_url)
         messages.error(request, 'Invalid username or password')
-    return render(request, 'login.html')
+    
+    context = {
+        'next': next_url
+    }
+    return render(request, 'login.html', context)
 
 
 def logout_view(request):
     """Handle user logout."""
     logout(request)
+    messages.success(request, 'You have been successfully logged out.')
     return redirect('home')
 
 
 @login_required
 def user_bookings(request):
     """Display user's bookings."""
+    # Today's date for determining upcoming vs past bookings
+    today = datetime.now().date()
+    
     upcoming_bookings = Booking.objects.filter(
         user=request.user,
-        check_in_date__gte=timezone.now().date()
+        check_in_date__gte=today
     ).order_by('check_in_date')
     
     past_bookings = Booking.objects.filter(
         user=request.user,
-        check_in_date__lt=timezone.now().date()
+        check_in_date__lt=today
     ).order_by('-check_in_date')
-    
-    print(f"Upcoming bookings: {upcoming_bookings.count()}")
-    print(f"Past bookings: {past_bookings.count()}")
     
     context = {
         'upcoming_bookings': upcoming_bookings,
-        'past_bookings': past_bookings
+        'past_bookings': past_bookings,
+        'today': today,
     }
     return render(request, 'user_bookings.html', context)
 
@@ -291,8 +419,11 @@ def user_bookings(request):
 def edit_booking(request, booking_id):
     """Handle editing of existing bookings."""
     booking = get_object_or_404(Booking, id=booking_id, user=request.user)
+    
+    # Today's date for validation
+    today = datetime.now().date()
 
-    if booking.check_in_date < timezone.now().date():
+    if booking.check_in_date < today:
         messages.error(request, "Cannot edit past bookings.")
         return redirect('user_bookings')
 
@@ -340,29 +471,23 @@ def edit_booking(request, booking_id):
     else:
         form = BookingEditForm(instance=booking)
 
-    return render(
-        request,
-        'edit_booking.html',
-        {'form': form, 'booking': booking}
-    )
+    context = {
+        'form': form,
+        'booking': booking,
+        'today': today,
+    }
+    return render(request, 'edit_booking.html', context)
 
 
 @login_required
 def cancel_booking(request, booking_id):
     """Handle booking cancellation."""
-    print(f"User authenticated: {request.user.is_authenticated}")
-    print(f"Username: {request.user.username}")
-    print(f"Booking ID: {booking_id}")
-
     booking = get_object_or_404(Booking, id=booking_id, user=request.user)
-    print(f"Found booking: {booking}")
 
     if request.method == 'POST':
         try:
             # Get current time and ensure it's timezone-aware
             current_time = timezone.now()  # This is already timezone-aware
-            print(f"Current time: {current_time}")
-            print(f"Current time tzinfo: {current_time.tzinfo}")
 
             # Convert check-in date to timezone-aware datetime
             check_in_datetime = timezone.make_aware(
@@ -373,25 +498,20 @@ def cancel_booking(request, booking_id):
             current_time_utc = current_time.astimezone(timezone.utc)
             check_in_utc = check_in_datetime.astimezone(timezone.utc)
 
-            print(f"Current time UTC: {current_time_utc}")
-            print(f"Check-in time UTC: {check_in_utc}")
-
             if check_in_utc <= current_time_utc:
-                print("Cannot cancel: Booking has already started")
                 messages.error(
                     request,
                     'Cannot cancel a booking that has already started.'
                 )
             elif check_in_utc <= current_time_utc + timedelta(days=1):
-                print("Cannot cancel: Less than 24 hours before check-in")
                 messages.error(
                     request,
-                    'Bookings must be cancelled more than 24 hours before.'
+                    'Bookings must be cancelled more than 24 hours before check-in.'
                 )
             else:
-                print("Proceeding with cancellation")
+                # Send cancellation email before deleting
+                send_cancellation_email(booking)
                 booking.delete()
-                print("Booking deleted successfully")
                 messages.success(
                     request,
                     'Your booking has been successfully cancelled.'
@@ -399,11 +519,9 @@ def cancel_booking(request, booking_id):
                 return redirect('user_bookings')
 
         except Exception as e:
-            print(f"Error during cancellation: {str(e)}")
-            print(f"Error type: {type(e)}")
             messages.error(
                 request,
-                'An error occurred while cancelling your booking.'
+                f'An error occurred while cancelling your booking: {str(e)}'
             )
 
     return redirect('user_bookings')
@@ -427,18 +545,30 @@ def is_room_available(room, check_in_date, check_out_date, exclude_booking_id):
 
 def send_booking_confirmation_email(booking):
     """Send confirmation email for new bookings."""
-    subject = 'Booking Confirmation'
+    subject = 'Booking Confirmation - Daniel\'s Hotel'
     message = f'''
     Dear {booking.guest_name},
 
-    Your booking at {booking.room.name} has been confirmed!
+    Your booking at Daniel's Hotel has been confirmed!
 
     Booking Details:
-    Check-in: {booking.check_in_date}
-    Check-out: {booking.check_out_date}
+    Booking Reference: #{booking.id}
+    Room: {booking.room.name}
+    Check-in: {booking.check_in_date.strftime('%A, %B %d, %Y')} (from 3:00 PM)
+    Check-out: {booking.check_out_date.strftime('%A, %B %d, %Y')} (until 11:00 AM)
     Total Price: ${booking.total_price}
 
-    Thank you for choosing our hotel!
+    Guest Information:
+    Name: {booking.guest_name}
+    Email: {booking.email}
+    Phone: {booking.phone_number or 'Not provided'}
+
+    If you need to modify or cancel your booking, please log in to your account or contact us.
+
+    Thank you for choosing Daniel's Hotel. We look forward to welcoming you!
+
+    Best regards,
+    The Daniel's Hotel Team
     '''
 
     send_mail(
@@ -452,17 +582,24 @@ def send_booking_confirmation_email(booking):
 
 def send_cancellation_email(booking):
     """Send confirmation email for cancelled bookings."""
-    subject = 'Booking Cancellation Confirmation'
+    subject = 'Booking Cancellation Confirmation - Daniel\'s Hotel'
     message = f'''
     Dear {booking.guest_name},
 
-    Your booking at {booking.room.name} has been cancelled.
+    Your booking at Daniel's Hotel has been cancelled successfully.
 
-    Booking Details:
-    Check-in: {booking.check_in_date}
-    Check-out: {booking.check_out_date}
+    Cancelled Booking Details:
+    Booking Reference: #{booking.id}
+    Room: {booking.room.name}
+    Check-in: {booking.check_in_date.strftime('%A, %B %d, %Y')}
+    Check-out: {booking.check_out_date.strftime('%A, %B %d, %Y')}
 
-    We hope to see you another time!
+    We hope to have the opportunity to welcome you at Daniel's Hotel in the future.
+
+    If you have any questions, please don't hesitate to contact us.
+
+    Best regards,
+    The Daniel's Hotel Team
     '''
 
     send_mail(

@@ -1,0 +1,378 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Room Details - {{ room.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'room_list' %}">Rooms</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ room.name }}</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+        <!-- Room Gallery Section -->
+        <div class="col-lg-8">
+            <div class="position-relative">
+                <!-- Room Type Badge -->
+                <div class="position-absolute top-0 end-0 m-3 z-1">
+                    <span class="badge bg-primary fs-6 px-3 py-2 rounded-pill">
+                        {{ room.get_room_type_display }}
+                    </span>
+                </div>
+                
+                <!-- Image Gallery -->
+                <div class="card border-0 shadow-sm overflow-hidden mb-4">
+                    <div id="roomGallery" class="carousel slide" data-bs-ride="carousel">
+                        <!-- Indicators -->
+                        <div class="carousel-indicators">
+                            {% for image in room.images.all %}
+                                <button type="button" data-bs-target="#roomGallery" data-bs-slide-to="{{ forloop.counter0 }}"
+                                    {% if forloop.first %}class="active"{% endif %}
+                                    aria-label="Slide {{ forloop.counter }}"></button>
+                            {% endfor %}
+                        </div>
+                        
+                        <!-- Images -->
+                        <div class="carousel-inner">
+                            {% for image in room.images.all %}
+                                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                    <img src="{{ image.image.url }}" 
+                                         class="d-block w-100" 
+                                         alt="{{ image.caption|default:room.name }}"
+                                         style="height: 500px; object-fit: cover;">
+                                </div>
+                            {% empty %}
+                                <div class="carousel-item active">
+                                    <img src="{% static 'images/placeholder.jpg' %}" 
+                                         class="d-block w-100" 
+                                         alt="No image available"
+                                         style="height: 500px; object-fit: cover;">
+                                </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <!-- Controls -->
+                        {% if room.images.all|length > 1 %}
+                            <button class="carousel-control-prev" type="button" data-bs-target="#roomGallery" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Previous</span>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#roomGallery" data-bs-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Next</span>
+                            </button>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Thumbnail Navigation -->
+                    {% if room.images.all|length > 1 %}
+                        <div class="d-flex overflow-auto p-2 bg-light">
+                            {% for image in room.images.all %}
+                                <div class="thumbnail-wrapper mx-1" data-bs-target="#roomGallery" data-bs-slide-to="{{ forloop.counter0 }}">
+                                    <img src="{{ image.image.url }}" 
+                                         class="img-thumbnail {% if forloop.first %}active{% endif %}" 
+                                         alt="{{ image.caption|default:'Thumbnail' }}"
+                                         width="80" height="60">
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Room Details -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <h1 class="card-title mb-3">{{ room.name }}</h1>
+                    <p class="lead">{{ room.description }}</p>
+                    
+                    <hr class="my-4">
+                    
+                    <!-- Room Features -->
+                    <h5 class="mb-3">Room Features</h5>
+                    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-4">
+                        <div class="col">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0 me-3">
+                                    <div class="feature-icon bg-primary bg-opacity-10 text-primary rounded-circle p-3">
+                                        <i class="fas fa-ruler-combined"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0">Room Size</h6>
+                                    <p class="mb-0 text-muted">{{ room.size }} sq ft</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0 me-3">
+                                    <div class="feature-icon bg-primary bg-opacity-10 text-primary rounded-circle p-3">
+                                        <i class="fas fa-users"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0">Capacity</h6>
+                                    <p class="mb-0 text-muted">{{ room.max_occupancy }} guests</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0 me-3">
+                                    <div class="feature-icon bg-primary bg-opacity-10 text-primary rounded-circle p-3">
+                                        <i class="fas fa-bed"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0">Bed Type</h6>
+                                    <p class="mb-0 text-muted">King Size</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Amenities -->
+                    <h5 class="mb-3">Amenities</h5>
+                    <div class="row mb-4">
+                        {% if room.amenities.all %}
+                            {% for amenity in room.amenities.all %}
+                                <div class="col-md-4 mb-2">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-check text-success me-2"></i>
+                                        <span>{{ amenity.name }}</span>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="col-12">
+                                <p class="text-muted">No amenities listed for this room.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Room Policies -->
+                    <h5 class="mb-3">Room Policies</h5>
+                    <div class="row row-cols-1 row-cols-md-2 g-4">
+                        <div class="col">
+                            <div class="card h-100 border-0 bg-light">
+                                <div class="card-body">
+                                    <h6 class="card-title">Check-in/Check-out</h6>
+                                    <ul class="list-unstyled mb-0">
+                                        <li class="mb-2">
+                                            <i class="fas fa-sign-in-alt text-primary me-2"></i> Check-in: 3:00 PM
+                                        </li>
+                                        <li>
+                                            <i class="fas fa-sign-out-alt text-primary me-2"></i> Check-out: 11:00 AM
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="card h-100 border-0 bg-light">
+                                <div class="card-body">
+                                    <h6 class="card-title">Cancellation Policy</h6>
+                                    <p class="mb-0">
+                                        <i class="fas fa-info-circle text-primary me-2"></i>
+                                        Free cancellation up to 24 hours before check-in.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Similar Rooms -->
+            <div class="similar-rooms mb-4">
+                <h3 class="mb-3">Similar Rooms You Might Like</h3>
+                <div class="row row-cols-1 row-cols-md-3 g-4">
+                    {% for similar_room in similar_rooms|slice:":3" %}
+                        {% if similar_room.id != room.id %}
+                            <div class="col">
+                                <div class="card h-100 border-0 shadow-sm hover-card">
+                                    <!-- Room Image -->
+                                    {% if similar_room.images.first %}
+                                        <img src="{{ similar_room.images.first.image.url }}" 
+                                             class="card-img-top" 
+                                             alt="{{ similar_room.name }}"
+                                             style="height: 150px; object-fit: cover;">
+                                    {% else %}
+                                        <img src="{% static 'images/placeholder.jpg' %}" 
+                                             class="card-img-top" 
+                                             alt="No image available"
+                                             style="height: 150px; object-fit: cover;">
+                                    {% endif %}
+                                    
+                                    <div class="card-body">
+                                        <h5 class="card-title">{{ similar_room.name }}</h5>
+                                        <p class="card-text text-muted small">{{ similar_room.description|truncatewords:10 }}</p>
+                                        <div class="d-flex justify-content-between align-items-center mt-auto">
+                                            <span class="fw-bold">${{ similar_room.price }}/night</span>
+                                            <a href="{% url 'room_detail' similar_room.id %}" class="btn btn-sm btn-outline-primary">
+                                                View Details
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% empty %}
+                        <div class="col-12">
+                            <p class="text-muted">No similar rooms available.</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Booking Section -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm sticky-top" style="top: 20px;">
+                <div class="card-header bg-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h3 class="h5 mb-0">Price Details</h3>
+                        <span class="badge bg-success px-3 py-2">Available</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="price-display mb-4 text-center">
+                        <span class="fs-1 fw-bold">${{ room.price }}</span>
+                        <span class="text-muted">/night</span>
+                    </div>
+                    
+                    <form method="get" action="{% url 'book_room' room.id %}">
+                        <div class="mb-3">
+                            <label for="booking_check_in" class="form-label">Check-in Date</label>
+                            <input type="date" class="form-control" id="booking_check_in" name="check_in" 
+                                  min="{{ today|date:'Y-m-d' }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="booking_check_out" class="form-label">Check-out Date</label>
+                            <input type="date" class="form-control" id="booking_check_out" name="check_out" 
+                                  min="{{ tomorrow|date:'Y-m-d' }}" required>
+                        </div>
+                        
+                        <div class="price-summary card bg-light mb-4">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Room rate</span>
+                                    <span>${{ room.price }}/night</span>
+                                </div>
+                                <div class="d-none justify-content-between mb-2" id="nightsRow">
+                                    <span>Stay duration</span>
+                                    <span id="numNights">0 nights</span>
+                                </div>
+                                <hr>
+                                <div class="d-flex justify-content-between fw-bold">
+                                    <span>Total</span>
+                                    <span id="totalPrice">${{ room.price }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100 btn-lg mb-3">
+                            <i class="fas fa-calendar-check me-2"></i> Book Now
+                        </button>
+                        
+                        <button type="button" class="btn btn-outline-secondary w-100" 
+                               data-bs-toggle="modal" data-bs-target="#shareModal">
+                            <i class="fas fa-share-alt me-2"></i> Share Room
+                        </button>
+                    </form>
+                    
+                    <hr class="my-4">
+                    
+                    <!-- Room Features Summary -->
+                    <div class="room-features-summary">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="flex-shrink-0 me-3">
+                                <div class="rounded-circle bg-light p-2">
+                                    <i class="fas fa-users text-primary"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <p class="mb-0">{{ room.max_occupancy }} guests maximum</p>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="flex-shrink-0 me-3">
+                                <div class="rounded-circle bg-light p-2">
+                                    <i class="fas fa-wifi text-primary"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <p class="mb-0">Free high-speed WiFi</p>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="flex-shrink-0 me-3">
+                                <div class="rounded-circle bg-light p-2">
+                                    <i class="fas fa-ban text-primary"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <p class="mb-0">No smoking</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <!-- Need Help Section -->
+                    <div class="need-help text-center">
+                        <h6>Need help?</h6>
+                        <p class="text-muted small mb-2">Contact our reservation team</p>
+                        <a href="tel:+1234567890" class="btn btn-outline-dark btn-sm w-100 mb-2">
+                            <i class="fas fa-phone me-2"></i> +1 (234) 567-890
+                        </a>
+                        <a href="mailto:reservations@example.com" class="btn btn-outline-dark btn-sm w-100">
+                            <i class="fas fa-envelope me-2"></i> reservations@example.com
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Share Modal -->
+<div class="modal fade" id="shareModal" tabindex="-1" aria-labelledby="shareModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="shareModalLabel">Share This Room</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Share this amazing room with friends and family:</p>
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" id="shareUrl" value="{{ request.build_absolute_uri }}" readonly>
+                    <button class="btn btn-outline-primary" type="button" id="copyBtn">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                </div>
+                <div class="d-flex justify-content-center gap-3 mt-4">
+                    <a href="#" class="btn btn-outline-primary rounded-circle p-3" title="Share on Facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="#" class="btn btn-outline-info rounded-circle p-3" title="Share on Twitter">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="btn btn-outline-success rounded-circle p-3" title="Share on WhatsApp">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
+                    <a href="#" class="btn btn-outline-danger rounded-circle p-3" title="Share on Pinterest">
+                        <i class="fab fa-pinterest-p"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

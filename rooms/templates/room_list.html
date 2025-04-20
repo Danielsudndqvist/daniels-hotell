@@ -1,68 +1,336 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Available Rooms - Daniel's Hotel{% endblock %}
+{% block title %}Rooms - Daniel's Hotel{% endblock %}
 
 {% block content %}
 <div class="container mt-5">
-    <!-- Page header -->
-    <h1 class="mb-4">Available Rooms</h1>
-    
-    <!-- Check if there are available rooms -->
-    {% if rooms %}
-        <!-- Display the rooms in a grid layout -->
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-            {% for room in rooms %}
-                <!-- Individual room card -->
-                <div class="col">
-                    <div class="card h-100 shadow-sm">
-                        
-                        <!-- Display the room image if available, otherwise show a placeholder -->
+    <!-- Page Header with count -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Our Rooms</h1>
+        {% if rooms %}
+            <span class="badge bg-secondary fs-6">{{ rooms|length }} available</span>
+        {% endif %}
+    </div>
+
+    <!-- Search and Filter Panel -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white">
+            <button class="btn btn-link text-decoration-none p-0" type="button" data-bs-toggle="collapse" 
+                   data-bs-target="#filterCollapse" aria-expanded="true" aria-controls="filterCollapse">
+                <i class="fas fa-sliders-h me-2"></i> Search & Filter Options
+            </button>
+        </div>
+        <div class="collapse show" id="filterCollapse">
+            <div class="card-body">
+                <form method="get" class="row g-3">
+                    <!-- Date Range Selection -->
+                    <div class="col-md-3">
+                        <label for="check_in" class="form-label">Check In</label>
+                        <input type="date" class="form-control" id="check_in" name="check_in" 
+                              min="{{ today|date:'Y-m-d' }}" value="{{ request.GET.check_in }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="check_out" class="form-label">Check Out</label>
+                        <input type="date" class="form-control" id="check_out" name="check_out"
+                              min="{{ today|date:'Y-m-d' }}" value="{{ request.GET.check_out }}">
+                    </div>
+                    
+                    <!-- Room Type Filter -->
+                    <div class="col-md-3">
+                        <label for="room_type" class="form-label">Room Type</label>
+                        <select class="form-select" id="room_type" name="room_type">
+                            <option value="">All Types</option>
+                            {% for type in room_types %}
+                                <option value="{{ type.0 }}" {% if request.GET.room_type == type.0 %}selected{% endif %}>
+                                    {{ type.1 }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- Price Filter -->
+                    <div class="col-md-3">
+                        <label for="price_range" class="form-label">Max Price: $<span id="price_display">{{ request.GET.max_price|default:1000 }}</span></label>
+                        <input type="range" class="form-range" 
+                              id="price_range" 
+                              name="max_price"
+                              min="0" 
+                              max="1000" 
+                              step="50" 
+                              value="{{ request.GET.max_price|default:1000 }}">
+                    </div>
+                    
+                    <!-- Filter Actions -->
+                    <div class="col-12 d-flex justify-content-end">
+                        <a href="{% url 'room_list' %}" class="btn btn-outline-secondary me-2">
+                            <i class="fas fa-undo me-1"></i> Reset
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search me-1"></i> Search Rooms
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert Messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Room Grid -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for room in rooms %}
+            <div class="col">
+                <div class="card h-100 room-card shadow-sm border-0 transition-hover">
+                    <!-- Room Type Badge -->
+                    <div class="position-absolute top-0 end-0 m-2">
+                        <span class="badge bg-primary">{{ room.get_room_type_display }}</span>
+                    </div>
+                    
+                    <!-- Room Image -->
+                    <div class="position-relative">
                         {% if room.images.first %}
-                            <img src="{{ room.images.first.image.url }}" class="card-img-top" alt="{{ room.name }}">
+                            <img src="{{ room.images.first.image.url }}" 
+                                 class="card-img-top room-image" 
+                                 alt="{{ room.name }}"
+                                 height="200">
                         {% else %}
-                            <img src="{% static 'images/room-placeholder.jpg' %}" class="card-img-top" alt="Room placeholder">
+                            <img src="{% static 'images/placeholder.jpg' %}" 
+                                 class="card-img-top room-image" 
+                                 alt="No image available"
+                                 height="200">
                         {% endif %}
                         
-                        <!-- Room details -->
-                        <div class="card-body">
-                            <h2 class="card-title h5">{{ room.name }}</h2>
-                            <p class="card-text">{{ room.description|truncatewords:20 }}</p>
-                            <ul class="list-unstyled">
-                                <li><strong>Type:</strong> {{ room.get_room_type_display }}</li>
-                                <li><strong>Price:</strong> ${{ room.price }} per night</li>
-                                <li><strong>Max Occupancy:</strong> {{ room.max_occupancy }} guests</li>
-                            </ul>
+                    </div>
+                    
+                    <!-- Room Info -->
+                    <div class="card-body d-flex flex-column">
+                        <h2 class="card-title h5">{{ room.name }}</h2>
+                        <p class="card-text text-muted small mb-2">{{ room.description|truncatewords:15 }}</p>
+                        
+                        <!-- Room Features -->
+                        <div class="my-2">
+                            <span class="badge bg-light text-dark me-1">
+                                <i class="fas fa-user-friends"></i> {{ room.max_occupancy }} guests
+                            </span>
+                            <span class="badge bg-light text-dark me-1">
+                                <i class="fas fa-ruler-combined"></i> {{ room.size }} sq ft
+                            </span>
                         </div>
                         
-                        <!-- Booking button -->
-                        <div class="card-footer bg-transparent border-top-0">
-                            <a href="{% url 'book_room' room.id %}" class="btn btn-primary w-100">Book Now</a>
+                        <hr class="my-2">
+                        
+                        <!-- Price and Book Now -->
+                        <div class="d-flex justify-content-between align-items-center mt-auto">
+                            <div>
+                                <span class="fs-4 fw-bold">${{ room.price }}</span>
+                                <span class="text-muted">/night</span>
+                            </div>
+                            {% if user.is_authenticated %}
+                                <a href="{% url 'book_room' room.id %}" class="btn btn-primary">
+                                    <i class="fas fa-calendar-check me-1"></i> Book
+                                </a>
+                            {% else %}
+                                <a href="{% url 'login' %}?next={% url 'book_room' room.id %}" class="btn btn-primary">
+                                    <i class="fas fa-sign-in-alt me-1"></i> Login to Book
+                                </a>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
-            {% endfor %}
+            </div>
+        {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info" role="alert">
+                    <i class="fas fa-info-circle me-2"></i> No rooms available matching your criteria. Try adjusting your filters.
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Room Quick View Modal -->
+<div class="modal fade" id="roomModal" tabindex="-1" aria-labelledby="roomModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="roomModalLabel">Room Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-3">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+                <div id="modalContent" class="d-none">
+                    <!-- Content will be loaded via JavaScript -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a href="#" id="bookNowBtn" class="btn btn-primary">Book Now</a>
+            </div>
         </div>
-    {% else %}
-        <!-- Message displayed when no rooms are available -->
-        <div class="alert alert-info" role="alert">
-            <i class="fas fa-info-circle me-2"></i> No rooms are available at the moment. Please check back later or contact us for assistance.
-        </div>
-    {% endif %}
+    </div>
 </div>
 {% endblock %}
 
 {% block extra_css %}
-<!-- Custom styling for room images -->
 <style>
-    .card-img-top {
+    /* Room card styling */
+    .room-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .room-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    }
+    
+    .room-image {
+        object-fit: cover;
         height: 200px;
+    }
+    
+    /* Price range slider styling */
+    .form-range::-webkit-slider-thumb {
+        background: #0d6efd;
+    }
+    
+    .form-range::-moz-range-thumb {
+        background: #0d6efd;
+    }
+    
+    /* Modal content styling */
+    #modalContent img {
+        max-height: 300px;
         object-fit: cover;
     }
 </style>
 {% endblock %}
 
 {% block extra_js %}
-<!-- Load custom JavaScript -->
-<script src="{% static 'js/scripts.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Price range display update
+        const priceRange = document.getElementById('price_range');
+        const priceDisplay = document.getElementById('price_display');
+        
+        if (priceRange && priceDisplay) {
+            priceRange.addEventListener('input', function() {
+                priceDisplay.textContent = this.value;
+            });
+        }
+        
+        // Quick view modal functionality
+        const roomModal = document.getElementById('roomModal');
+        const modalContent = document.getElementById('modalContent');
+        const bookNowBtn = document.getElementById('bookNowBtn');
+        
+        if (roomModal) {
+            roomModal.addEventListener('show.bs.modal', function(event) {
+                const button = event.relatedTarget;
+                const roomId = button.getAttribute('data-room-id');
+                const roomName = button.getAttribute('data-room-name');
+                
+                // Update modal title
+                const modalTitle = roomModal.querySelector('.modal-title');
+                modalTitle.textContent = roomName;
+                
+                // Update book now button href
+                bookNowBtn.href = `/book/${roomId}/`;
+                
+                // Show loading spinner, hide content
+                modalContent.classList.add('d-none');
+                const spinner = roomModal.querySelector('.spinner-border').parentElement;
+                spinner.classList.remove('d-none');
+                
+                // Fetch room details
+                fetch(`/api/rooms/${roomId}/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Create content HTML
+                        let html = `
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <img src="${data.images[0] || '/static/images/placeholder.jpg'}" 
+                                         class="img-fluid rounded" alt="${data.name}">
+                                </div>
+                                <div class="col-md-6">
+                                    <h4>${data.name}</h4>
+                                    <p>${data.description}</p>
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item d-flex justify-content-between">
+                                            <span>Room Type:</span>
+                                            <span>${data.room_type}</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between">
+                                            <span>Max Occupancy:</span>
+                                            <span>${data.max_occupancy} guests</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between">
+                                            <span>Size:</span>
+                                            <span>${data.size} sq ft</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between">
+                                            <span>Price:</span>
+                                            <span class="fw-bold">$${data.price}/night</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        `;
+                        
+                        // Update modal content
+                        modalContent.innerHTML = html;
+                        modalContent.classList.remove('d-none');
+                        spinner.classList.add('d-none');
+                    })
+                    .catch(error => {
+                        console.error('Error fetching room details:', error);
+                        modalContent.innerHTML = `<div class="alert alert-danger">
+                            Error loading room details. Please try again.
+                        </div>`;
+                        modalContent.classList.remove('d-none');
+                        spinner.classList.add('d-none');
+                    });
+            });
+        }
+        
+        // Date validation
+        const checkInDate = document.getElementById('check_in');
+        const checkOutDate = document.getElementById('check_out');
+        
+        if (checkInDate && checkOutDate) {
+            checkInDate.addEventListener('change', function() {
+                // Set minimum check-out date to day after check-in
+                if (this.value) {
+                    const nextDay = new Date(this.value);
+                    nextDay.setDate(nextDay.getDate() + 1);
+                    
+                    // Format as YYYY-MM-DD
+                    const year = nextDay.getFullYear();
+                    const month = String(nextDay.getMonth() + 1).padStart(2, '0');
+                    const day = String(nextDay.getDate()).padStart(2, '0');
+                    
+                    checkOutDate.min = `${year}-${month}-${day}`;
+                    
+                    // If current check-out date is earlier than check-in, update it
+                    if (checkOutDate.value && new Date(checkOutDate.value) <= new Date(this.value)) {
+                        checkOutDate.value = `${year}-${month}-${day}`;
+                    }
+                }
+            });
+        }
+    });
+</script>
 {% endblock %}

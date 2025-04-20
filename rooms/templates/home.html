@@ -1,133 +1,205 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Welcome to Daniel's Hotel{% endblock %}
+{% block title %}Welcome to Daniel's Hotel - Your Perfect Stay{% endblock %}
 
 {% block content %}
+<!-- Hero Section with Search -->
+<section class="hero-section position-relative">
+    <!-- Full-width hero image -->
+    <div class="hero-image">
+        <img src="{% static 'images/hotel-hero.jpg' %}" alt="Welcome to Daniel's Hotel" class="w-100 object-fit-cover" style="height: 600px;">
+        <div class="overlay position-absolute top-0 start-0 w-100 h-100 bg-dark opacity-50"></div>
+    </div>
+    
+    <!-- Hero content -->
+    <div class="container position-relative">
+        <div class="hero-content position-absolute top-50 start-50 translate-middle text-center text-white w-100">
+        </div>
+    </div>
+    
+</section>
 
-<!-- Hero Section: A carousel showing different hotel images -->
-<section class="hero-section">
-    <div class="container-fluid px-0">
-        <div id="heroCarousel" class="carousel slide" data-bs-ride="carousel">
-            <div class="carousel-inner">
-                <!-- Carousel item: Hotel Exterior -->
-                <div class="carousel-item active">
-                    <img src="{% static 'images/hotel-outside.jpg' %}" class="d-block w-100" alt="Hotel Exterior">
-                </div>
-                <!-- Carousel item: Luxurious Suite -->
-                <div class="carousel-item">
-                    <img src="{% static 'images/hotel-1-1.jpg' %}" class="d-block w-100" alt="Luxurious Suite">
-                </div>
-                <!-- Carousel item: Hotel Pool -->
-                <div class="carousel-item">
-                    <img src="{% static 'images/hotel-pool.jpg' %}" class="d-block w-100" alt="Hotel Pool">
-                </div>
-                <!-- Carousel item: Hotel Lounge -->
-                <div class="carousel-item">
-                    <img src="{% static 'images/hotel-lounge.jpg' %}" class="d-block w-100" alt="Hotel Lounge">
-                </div>
-                <!-- Carousel item: Hotel Reception -->
-                <div class="carousel-item">
-                    <img src="{% static 'images/hotel-reception.jpg' %}" class="d-block w-100" alt="Hotel Reception">
+<!-- Hotel Amenities Section -->
+<section class="amenities-section py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5">Hotel Amenities</h2>
+            <p class="lead text-muted">Enhancing your stay with exceptional services and facilities</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm text-center p-4 amenity-card">
+                    <div class="amenity-icon mx-auto mb-3">
+                        <i class="fas fa-swimming-pool fa-3x text-primary"></i>
+                    </div>
+                    <h3 class="h5">Swimming Pool</h3>
+                    <p class="text-muted">Enjoy our refreshing outdoor pool with sun loungers and poolside service.</p>
                 </div>
             </div>
-            <!-- Previous and Next buttons for the carousel -->
-            <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Previous</span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
-                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Next</span>
-            </button>
+            
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm text-center p-4 amenity-card">
+                    <div class="amenity-icon mx-auto mb-3">
+                        <i class="fas fa-utensils fa-3x text-primary"></i>
+                    </div>
+                    <h3 class="h5">Restaurant & Bar</h3>
+                    <p class="text-muted">Savor delicious cuisine at our in-house restaurant and enjoy drinks at the bar.</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm text-center p-4 amenity-card">
+                    <div class="amenity-icon mx-auto mb-3">
+                        <i class="fas fa-spa fa-3x text-primary"></i>
+                    </div>
+                    <h3 class="h5">Spa & Wellness</h3>
+                    <p class="text-muted">Relax and rejuvenate with our spa treatments and wellness facilities.</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm text-center p-4 amenity-card">
+                    <div class="amenity-icon mx-auto mb-3">
+                        <i class="fas fa-dumbbell fa-3x text-primary"></i>
+                    </div>
+                    <h3 class="h5">Fitness Center</h3>
+                    <p class="text-muted">Stay fit during your stay with our fully-equipped fitness center.</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm text-center p-4 amenity-card">
+                    <div class="amenity-icon mx-auto mb-3">
+                        <i class="fas fa-wifi fa-3x text-primary"></i>
+                    </div>
+                    <h3 class="h5">Free Wi-Fi</h3>
+                    <p class="text-muted">Stay connected with complimentary high-speed internet throughout the hotel.</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm text-center p-4 amenity-card">
+                    <div class="amenity-icon mx-auto mb-3">
+                        <i class="fas fa-car fa-3x text-primary"></i>
+                    </div>
+                    <h3 class="h5">Free Parking</h3>
+                    <p class="text-muted">Enjoy convenient and secure parking facilities during your stay.</p>
+                </div>
+            </div>
         </div>
     </div>
 </section>
 
-<!-- Welcome Section: Brief intro to the hotel and booking button -->
-<section class="welcome-section py-5 bg-light">
+<!-- Testimonials Section -->
+<section class="testimonials-section py-5">
     <div class="container">
-        <div class="row">
-            <div class="col-lg-8 offset-lg-2 text-center">
-                <h1 class="display-4 mb-3">Welcome to Daniel's Hotel</h1>
-                <p class="lead mb-4">Experience comfort and hospitality at its finest.</p>
-                <hr class="my-4">
-                <p class="mb-4">Welcome to Daniel's Hotel, where warm hospitality meets modern comfort in the heart of the city. Our thoughtfully designed accommodations and attentive service are crafted to ensure a memorable stay. Whether you're here for business or leisure, our dedicated team is committed to making your experience exceptional.</p>
-                <!-- Button to select rooms -->
-                <a href="{% url 'select_room' %}" class="btn btn-primary btn-lg">Book Now</a>
-            </div>
+        <div class="text-center mb-5">
+            <h2 class="display-5">Guest Experiences</h2>
+            <p class="lead text-muted">What our guests say about their stay with us</p>
         </div>
-    </div>
-</section>
-
-<!-- Amenities Section: Features of the hotel (dining, fitness, location) -->
-<section id="amenities" class="py-5">
-    <div class="container">
-        <h2 class="text-center mb-5">Our Amenities</h2>
+        
         <div class="row">
-            <!-- Amenity 1: Dining -->
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 text-center">
-                    <div class="card-body">
-                        <i class="fas fa-utensils fa-3x mb-3 text-primary"></i>
-                        <h3 class="card-title">Delightful Dining</h3>
-                        <p class="card-text">Savor our delicious dining options, featuring a blend of local favorites and international dishes.</p>
+            <div class="col-lg-8 mx-auto">
+                <div id="testimonialCarousel" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                        <div class="carousel-item active">
+                            <div class="testimonial-card text-center p-4">
+                                <div class="testimonial-avatar mb-3">
+                                    <img src="{% static 'images/avatar1.jpg' %}" alt="Guest" class="rounded-circle" width="80" height="80">
+                                </div>
+                                <div class="testimonial-rating mb-2">
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                </div>
+                                <p class="testimonial-text fs-5 mb-3">"Absolutely wonderful experience! The room was immaculate, staff was friendly and attentive, and the amenities were top-notch. Will definitely be returning for another stay."</p>
+                                <h5 class="testimonial-name mb-0">Sarah Johnson</h5>
+                                <p class="text-muted">New York, USA</p>
+                            </div>
+                        </div>
+                        
+                        <div class="carousel-item">
+                            <div class="testimonial-card text-center p-4">
+                                <div class="testimonial-avatar mb-3">
+                                    <img src="{% static 'images/avatar2.jpg' %}" alt="Guest" class="rounded-circle" width="80" height="80">
+                                </div>
+                                <div class="testimonial-rating mb-2">
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                </div>
+                                <p class="testimonial-text fs-5 mb-3">"The attention to detail at this hotel is impressive. From the moment we checked in until our departure, every aspect of our stay was perfect. The room view was breathtaking!"</p>
+                                <h5 class="testimonial-name mb-0">Michael Davis</h5>
+                                <p class="text-muted">London, UK</p>
+                            </div>
+                        </div>
+                        
+                        <div class="carousel-item">
+                            <div class="testimonial-card text-center p-4">
+                                <div class="testimonial-avatar mb-3">
+                                    <img src="{% static 'images/avatar3.jpg' %}" alt="Guest" class="rounded-circle" width="80" height="80">
+                                </div>
+                                <div class="testimonial-rating mb-2">
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star-half-alt text-warning"></i>
+                                </div>
+                                <p class="testimonial-text fs-5 mb-3">"We celebrated our anniversary here and the staff went above and beyond to make it special. The restaurant's cuisine was exceptional and the spa treatments were so relaxing!"</p>
+                                <h5 class="testimonial-name mb-0">Emily & Robert Wilson</h5>
+                                <p class="text-muted">Toronto, Canada</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="carousel-control-prev" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                    
+                    <div class="carousel-indicators position-relative mt-4">
+                        <button type="button" data-bs-target="#testimonialCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Testimonial 1"></button>
+                        <button type="button" data-bs-target="#testimonialCarousel" data-bs-slide-to="1" aria-label="Testimonial 2"></button>
+                        <button type="button" data-bs-target="#testimonialCarousel" data-bs-slide-to="2" aria-label="Testimonial 3"></button>
                     </div>
                 </div>
             </div>
-            <!-- Amenity 2: Fitness -->
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 text-center">
-                    <div class="card-body">
-                        <i class="fas fa-dumbbell fa-3x mb-3 text-primary"></i>
-                        <h3 class="card-title">Fitness & Relaxation</h3>
-                        <p class="card-text">Stay active in our modern fitness center or unwind in our comfortable relaxation areas.</p>
-                    </div>
-                </div>
-            </div>
-            <!-- Amenity 3: Location -->
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 text-center">
-                    <div class="card-body">
-                        <i class="fas fa-map-marker-alt fa-3x mb-3 text-primary"></i>
-                        <h3 class="card-title">Ideal Location</h3>
-                        <p class="card-text">Perfectly situated for easy access to local attractions and business districts.</p>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 </section>
 
-<!-- Experience Section: Highlighting the hotel's unique experience -->
-<section id="experience" class="py-5 bg-light">
+<!-- Location & Contact Section -->
+<section class="location-section py-5 bg-light">
     <div class="container">
-        <div class="row">
-            <div class="col-lg-8 offset-lg-2 text-center">
-                <h2 class="mb-4">The Daniel's Hotel Experience</h2>
-                <p class="lead">At Daniel's Hotel, we pride ourselves on creating a home away from home for our guests. From our friendly staff to our comfortable amenities, every aspect of your stay is designed with your satisfaction in mind. Experience the perfect balance of attentive service and relaxed comfort that makes us a favorite among travelers.</p>
+        <div class="row g-4 align-items-center">
+            <div class="col-lg-6">
+                          
+                <div class="mb-4">
+                    <h5 class="mb-3">Address</h5>
+                    <p class="mb-0"><i class="fas fa-map-marker-alt text-primary me-2"></i> 123 Hotel Street, Downtown</p>
+                    <p class="mb-0"><i class="fas fa-city text-primary me-2"></i> New York, NY 10001</p>
+                </div>
+                
+                <div class="mb-4">
+                    <h5 class="mb-3">Contact</h5>
+                    <p class="mb-0"><i class="fas fa-phone text-primary me-2"></i> +1 (234) 567-8900</p>
+                    <p class="mb-0"><i class="fas fa-envelope text-primary me-2"></i> info@danielshotel.com</p>
+                </div>
+                
             </div>
         </div>
     </div>
 </section>
 
-<!-- Call to Action Section: Encouraging guests to book -->
-<section id="cta" class="py-5">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-8 offset-lg-2 text-center">
-                <h2 class="mb-4">Book Your Stay Today</h2>
-                <p class="lead mb-4">Ready for a comfortable and memorable stay? Explore our range of well-appointed rooms, each designed to provide you with a restful retreat. Book your reservation now and discover why Daniel's Hotel is the smart choice for discerning travelers visiting our city.</p>
-                <!-- Another button for booking rooms -->
-                <a class="btn btn-primary btn-lg" href="{% url 'select_room' %}" role="button">Reserve Now</a>
-            </div>
-        </div>
-    </div>
-</section>
-
-{% endblock %}
-
-<!-- Additional JavaScript file -->
-{% block extra_js %}
-<script src="{% static 'js/scripts.js' %}"></script>
 {% endblock %}

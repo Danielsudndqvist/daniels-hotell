@@ -22,47 +22,10 @@
 
     <!-- Custom CSS file for site-wide styles -->
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/book.css' %}">
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <link rel="stylesheet" href="{% static 'css/accessibility.css' %}">
 
-    <!-- Custom navbar styles -->
-    <style>
-        /* Navbar styling */
-        .navbar {
-            background-color: #1a1a1a;
-            padding: 15px 0;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
-        }
-
-        /* Brand/logo styling */
-        .navbar-brand {
-            font-size: 24px;
-            font-weight: bold;
-            color: #fff !important;
-        }
-
-        /* Navigation links styling */
-        .navbar-nav .nav-link {
-            color: #fff !important;
-            font-size: 16px;
-            margin-left: 20px;
-            transition: color 0.3s ease;
-        }
-
-        /* Hover and active state for nav links */
-        .navbar-nav .nav-link:hover,
-        .navbar-nav .nav-link.active {
-            color: #ffc107 !important;
-        }
-
-        /* Mobile menu button styling */
-        .navbar-toggler {
-            border-color: #fff;
-        }
-
-        /* Mobile menu icon styling */
-        .navbar-toggler-icon {
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(255, 255, 255, 1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
-        }
-    </style>
 
     {% block extra_css %}{% endblock %}
 </head>
@@ -80,7 +43,7 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item"><a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">Home</a></li>
-                        <li class="nav-item"><a class="nav-link {% if request.resolver_match.url_name == 'rooms' %}active{% endif %}" href="{% url 'rooms' %}">Rooms</a></li>
+                        <li class="nav-item"><a class="nav-link {% if request.resolver_match.url_name == 'rooms' %}active{% endif %}" href="{% url 'room_list' %}">Rooms</a></li>
                         {% if user.is_authenticated %}
                             <li class="nav-item"><a class="nav-link {% if request.resolver_match.url_name == 'user_bookings' %}active{% endif %}" href="{% url 'user_bookings' %}">My Bookings</a></li>
                             <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
@@ -124,6 +87,9 @@
             integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
             crossorigin="anonymous"></script>
     <script src="{% static 'js/scripts.js' %}"></script>
+    <script src="{% static 'your_app/js/book.js' %}"></script>
+    <script src="{% static 'your_app/js/accessibility.js' %}"></script>
+    <script src="{% static 'your_app/js/main.js' %}"></script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

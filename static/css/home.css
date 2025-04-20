@@ -1,0 +1,109 @@
+/* Hero section styling */
+.hero-section {
+    margin-bottom: 3rem;
+    height: 600px;
+    overflow: hidden;
+}
+
+.hero-image img {
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
+}
+
+.search-card {
+    transform: translateY(50%);
+    border-radius: 10px;
+    z-index: 10;
+}
+
+/* Featured rooms styling */
+.featured-img {
+    height: 250px;
+    object-fit: cover;
+}
+
+.featured-room-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.featured-room-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important;
+}
+
+.quick-actions {
+    background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.featured-room-card:hover .quick-actions {
+    opacity: 1;
+}
+
+/* Amenity cards styling */
+.amenity-card {
+    transition: transform 0.3s ease;
+    border-radius: 10px;
+}
+
+.amenity-card:hover {
+    transform: translateY(-5px);
+}
+
+.amenity-icon {
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(13, 110, 253, 0.1);
+    border-radius: 50%;
+    margin-bottom: 1rem;
+}
+
+/* Testimonial styling */
+.testimonial-card {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+.testimonial-avatar img {
+    object-fit: cover;
+    border: 3px solid #f8f9fa;
+}
+
+.carousel-indicators [data-bs-target] {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #dee2e6;
+    border: none;
+    margin: 0 4px;
+}
+
+.carousel-indicators .active {
+    background-color: #0d6efd;
+}
+
+/* Custom control styling */
+.carousel-control-prev, .carousel-control-next {
+    width: 40px;
+    height: 40px;
+    background-color: rgba(0,0,0,0.2);
+    border-radius: 50%;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.carousel-control-prev {
+    left: -50px;
+}
+
+.carousel-control-next {
+    right: -50px;
+}
