@@ -3,7 +3,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.utils import timezone
-import re
+# Removed unused import: re
 
 
 from .models import Booking, CustomUser, Profile, Room
@@ -105,13 +105,23 @@ class ProfileForm(forms.ModelForm):
 class BookingForm(forms.ModelForm):
     class Meta:
         model = Booking
-        fields = ['guest_name', 'email', 'phone_number', 'check_in_date', 'check_out_date']
+        fields = [
+            'guest_name',
+            'email',
+            'phone_number',
+            'check_in_date',
+            'check_out_date'
+        ]
         widgets = {
             'guest_name': forms.TextInput(attrs={'class': 'form-control'}),
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
             'phone_number': forms.TextInput(attrs={'class': 'form-control'}),
-            'check_in_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'check_out_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'check_in_date': forms.DateInput(
+                attrs={'class': 'form-control', 'type': 'date'}
+            ),
+            'check_out_date': forms.DateInput(
+                attrs={'class': 'form-control', 'type': 'date'}
+            ),
         }
 
     def clean_phone_number(self):
@@ -121,98 +131,10 @@ class BookingForm(forms.ModelForm):
             phone_number = ''.join(filter(str.isdigit, phone_number))
             # Check if the phone number has a valid length (adjust as needed)
             if len(phone_number) < 10 or len(phone_number) > 15:
-                raise forms.ValidationError("Please enter a valid phone number.")
+                raise forms.ValidationError(
+                    "Please enter a valid phone number."
+                )
         return phone_number
-
-class BookingEditForm(forms.ModelForm):
-    class Meta:
-        model = Booking
-        fields = ['check_in_date', 'check_out_date']
-        widgets = {
-            'check_in_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'check_out_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-        }
-
-    check_in_date = forms.DateField(
-        widget=forms.DateInput(attrs={
-            "type": "date",
-            "class": "form-control"
-        })
-    )
-
-    check_out_date = forms.DateField(
-        widget=forms.DateInput(attrs={
-            "type": "date",
-            "class": "form-control"
-        })
-    )
-
-    class Meta:
-        model = Booking
-        fields = [
-            "guest_name",
-            "email",
-            "phone_number",
-            "check_in_date",
-            "check_out_date"
-        ]
-        widgets = {
-            "guest_name": forms.TextInput(attrs={
-                "class": "form-control",
-                "placeholder": "Enter guest name"
-            }),
-            "email": forms.EmailInput(attrs={
-                "class": "form-control",
-                "placeholder": "Enter email"
-            })
-        }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Add help text and error messages
-        self.fields["guest_name"].error_messages = {
-            "required": "Please enter the guest name"
-        }
-        self.fields["email"].error_messages = {
-            "required": "Please enter an email address",
-            "invalid": "Please enter a valid email address"
-        }
-        self.fields['phone_number'].error_messages.update({
-            'required': 'Phone number is required',
-            'invalid': 'Please enter a valid phone number'
-        })
-        self.fields["check_in_date"].error_messages = {
-            "required": "Please select a check-in date"
-        }
-        self.fields["check_out_date"].error_messages = {
-            "required": "Please select a check-out date"
-        }
-
-    def clean(self):
-        cleaned_data = super().clean()
-        check_in_date = cleaned_data.get("check_in_date")
-        check_out_date = cleaned_data.get("check_out_date")
-
-        if check_in_date and check_out_date:
-            if check_in_date >= check_out_date:
-                raise ValidationError({
-                    "check_out_date":
-                    f"Check-out date must be after check-in date"
-                })
-
-            if check_in_date < timezone.now().date():
-                raise ValidationError({
-                    "check_in_date":
-                    f"Check-in date cannot be in the past"
-                })
-
-            min_stay = 1
-            if (check_out_date - check_in_date).days < min_stay:
-                raise ValidationError({
-                    "check_out_date": f"Minimum stay is {min_stay} night(s)"
-                })
-
-        return cleaned_data
 
 
 class BookingEditForm(forms.ModelForm):
@@ -261,7 +183,7 @@ class BookingEditForm(forms.ModelForm):
             if check_in_date >= check_out_date:
                 raise ValidationError({
                     "check_out_date":
-                    f"Check-out date must be after check-in date"
+                    "Check-out date must be after check-in date"
                     })
 
             if check_in_date < timezone.now().date():

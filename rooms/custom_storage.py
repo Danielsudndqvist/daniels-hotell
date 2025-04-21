@@ -3,6 +3,7 @@ from django.conf import settings
 from storages.backends.gcloud import GoogleCloudStorage
 from storages.utils import setting
 
+
 class GoogleCloudMediaFileStorage(GoogleCloudStorage):
     """
     Google file storage class which gives a media

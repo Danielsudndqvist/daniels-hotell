@@ -1,11 +1,10 @@
-import pytest
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from decimal import Decimal
 from datetime import timedelta
-from rooms.models import Room, Booking, Profile
+from rooms.models import Room, Booking
 from rooms.forms import BookingForm
 
 
@@ -45,7 +44,6 @@ class ViewTests(TestCase):
     def test_book_room_view_unauthenticated(self):
         """Test booking room view for unauthenticated users."""
         response = self.client.get(reverse('book_room', args=[self.room.id]))
-        login_url = reverse('login')
         self.assertRedirects(
             response,
             f'/accounts/login/?next=/book-room/{self.room.id}/',

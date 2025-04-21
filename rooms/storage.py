@@ -3,6 +3,7 @@ from storages.utils import setting
 from urllib.parse import urljoin
 from django.conf import settings
 
+
 class GoogleCloudMediaFileStorage(GoogleCloudStorage):
     """Simple Google Cloud Storage media file storage."""
 

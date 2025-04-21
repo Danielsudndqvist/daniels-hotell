@@ -5,11 +5,12 @@ from pathlib import Path
 
 import dj_database_url
 import environ
-from django.core.exceptions import ImproperlyConfigured
 from google.oauth2 import service_account
-from storages.backends.gcloud import GoogleCloudStorage
-from storages.utils import setting
-from urllib.parse import urljoin
+# Removed unused imports:
+# from django.core.exceptions import ImproperlyConfigured
+# from storages.backends.gcloud import GoogleCloudStorage
+# from storages.utils import setting
+# from urllib.parse import urljoin
 
 
 # Environment and Base Configuration
@@ -94,12 +95,16 @@ if not IS_DEVELOPMENT and GS_BUCKET_NAME:
         # Credentials handling
         GS_CREDENTIALS = None
         if "GOOGLE_APPLICATION_CREDENTIALS" in os.environ:
-            GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
-                os.environ["GOOGLE_APPLICATION_CREDENTIALS"]
+            GS_CREDENTIALS = (
+                service_account.Credentials.from_service_account_file(
+                    os.environ["GOOGLE_APPLICATION_CREDENTIALS"]
+                )
             )
         elif "GOOGLE_CREDENTIALS" in os.environ:
-            GS_CREDENTIALS = service_account.Credentials.from_service_account_info(
-                json.loads(os.environ["GOOGLE_CREDENTIALS"])
+            GS_CREDENTIALS = (
+                service_account.Credentials.from_service_account_info(
+                    json.loads(os.environ["GOOGLE_CREDENTIALS"])
+                )
             )
 
         # Only set storage if credentials are found
@@ -107,8 +112,10 @@ if not IS_DEVELOPMENT and GS_BUCKET_NAME:
             DEFAULT_FILE_STORAGE = 'rooms.storage.GoogleCloudMediaFileStorage'
             MEDIA_URL = f"https://storage.googleapis.com/{GS_BUCKET_NAME}/"
             STATICFILES_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
-            STATIC_URL = f"https://storage.googleapis.com/{GS_BUCKET_NAME}/static/"
-            
+            STATIC_URL = (
+                f"https://storage.googleapis.com/{GS_BUCKET_NAME}/static/"
+            )
+
             GS_DEFAULT_ACL = None
             GS_FILE_OVERWRITE = False
     except Exception as e:
