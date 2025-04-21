@@ -1,2 +1,1 @@
-release: ./release-tasks.sh
-web: gunicorn daniels-hotell.wsgi
+web: gunicorn your_project_name.wsgi
