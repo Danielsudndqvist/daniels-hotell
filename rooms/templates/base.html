@@ -24,7 +24,7 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="{% static 'css/book.css' %}">
     <link rel="stylesheet" href="{% static 'css/home.css' %}">
-    <link rel="stylesheet" href="{% static 'css/accessibility.css' %}">
+    <!--<link rel="stylesheet" href="{% static 'css/accessibility.css' %}">-->
 
 
     {% block extra_css %}{% endblock %}
@@ -87,9 +87,9 @@
             integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
             crossorigin="anonymous"></script>
     <script src="{% static 'js/scripts.js' %}"></script>
-    <script src="{% static 'js/book.js' %}"></script>
-    <script src="{% static 'js/accessibility.js' %}"></script>
-    <script src="{% static 'js/main.js' %}"></script>
+    <script src="{% static 'your_app/js/book.js' %}"></script>
+    <!--<script src="{% static 'your_app/js/accessibility.js' %}"></script>-->
+    <script src="{% static 'your_app/js/main.js' %}"></script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>
