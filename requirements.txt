@@ -13,3 +13,4 @@ whitenoise==6.7.0
 django-storages[google]
 google-auth
 google-cloud-storage
+django-storages

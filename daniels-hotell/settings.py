@@ -89,32 +89,24 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 IS_DEVELOPMENT = env("DJANGO_ENV", default="development") == "development"
 GS_BUCKET_NAME = env("GS_BUCKET_NAME", default=None)
 
-# Only configure GCS if not in development and bucket name is set
 if not IS_DEVELOPMENT and GS_BUCKET_NAME:
     try:
         # Credentials handling
         GS_CREDENTIALS = None
         if "GOOGLE_APPLICATION_CREDENTIALS" in os.environ:
-            GS_CREDENTIALS = (
-                service_account.Credentials.from_service_account_file(
-                    os.environ["GOOGLE_APPLICATION_CREDENTIALS"]
-                )
+            GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
+                os.environ["GOOGLE_APPLICATION_CREDENTIALS"]
             )
         elif "GOOGLE_CREDENTIALS" in os.environ:
-            GS_CREDENTIALS = (
-                service_account.Credentials.from_service_account_info(
-                    json.loads(os.environ["GOOGLE_CREDENTIALS"])
-                )
+            GS_CREDENTIALS = service_account.Credentials.from_service_account_info(
+                json.loads(os.environ["GOOGLE_CREDENTIALS"])
             )
 
         # Only set storage if credentials are found
         if GS_CREDENTIALS:
-            DEFAULT_FILE_STORAGE = 'rooms.storage.GoogleCloudMediaFileStorage'
-            MEDIA_URL = f"https://storage.googleapis.com/{GS_BUCKET_NAME}/"
-            STATICFILES_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
-            STATIC_URL = (
-                f"https://storage.googleapis.com/{GS_BUCKET_NAME}/static/"
-            )
+            DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+            STATICFILES_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+            STATIC_URL = f"https://storage.googleapis.com/{GS_BUCKET_NAME}/static/"
 
             GS_DEFAULT_ACL = None
             GS_FILE_OVERWRITE = False
