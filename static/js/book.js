@@ -62,11 +62,21 @@ document.addEventListener('DOMContentLoaded', function() {
             checkOutDate.classList.add('is-valid');
         }
         
-        // Check if check-out date is after check-in date
+        // Check if dates are valid
         if (checkInDate.value && checkOutDate.value) {
             const checkIn = new Date(checkInDate.value);
             const checkOut = new Date(checkOutDate.value);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
             
+            // Check if check-in date is in the past
+            if (checkIn < today) {
+                checkInDate.classList.add('is-invalid');
+                document.getElementById('check_in_date_feedback').textContent = 'Check-in date cannot be in the past';
+                isValid = false;
+            }
+            
+            // Check if check-out date is after check-in date
             if (checkOut <= checkIn) {
                 checkOutDate.classList.add('is-invalid');
                 document.getElementById('check_out_date_feedback').textContent = 'Check-out date must be after check-in date';
@@ -233,7 +243,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Event listeners for next buttons
     nextButtons.forEach(button => {
-        button.addEventListener('click', function() {
+        button.addEventListener('click', function(e) {
+            e.preventDefault(); // Prevent any default button behavior
+            
             const nextStep = parseInt(this.getAttribute('data-next'));
             
             if (currentStep === 1) {
@@ -251,7 +263,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Event listeners for previous buttons
     prevButtons.forEach(button => {
-        button.addEventListener('click', function() {
+        button.addEventListener('click', function(e) {
+            e.preventDefault(); // Prevent any default button behavior
+            
             const prevStep = parseInt(this.getAttribute('data-prev'));
             goToStep(prevStep);
         });
@@ -290,17 +304,23 @@ document.addEventListener('DOMContentLoaded', function() {
         // Validate terms and conditions
         if (!termsCheck.checked) {
             termsCheck.classList.add('is-invalid');
+            
+            // Scroll to terms checkbox
+            termsCheck.scrollIntoView({ behavior: 'smooth', block: 'center' });
             return;
         } else {
             termsCheck.classList.remove('is-invalid');
         }
         
         // Final validation of all steps
-        if (!validateStep1() || !validateStep2()) {
+        let step1Valid = validateStep1();
+        let step2Valid = validateStep2();
+        
+        if (!step1Valid || !step2Valid) {
             // If validation fails, go back to the appropriate step
-            if (!validateStep1()) {
+            if (!step1Valid) {
                 goToStep(1);
-            } else if (!validateStep2()) {
+            } else if (!step2Valid) {
                 goToStep(2);
             }
             return;
@@ -335,46 +355,47 @@ document.addEventListener('DOMContentLoaded', function() {
         
         checkInDate.min = formatDate(today);
         checkOutDate.min = formatDate(tomorrow);
+        
+        // Set default values to today and tomorrow if no values are set
+        if (!checkInDate.value) {
+            checkInDate.value = formatDate(today);
+        }
+        
+        if (!checkOutDate.value) {
+            checkOutDate.value = formatDate(tomorrow);
+        }
     }
     
     // Handle click on terms and conditions link in form
-    document.querySelector('label[for="termsCheck"] a').addEventListener('click', function(e) {
-        e.preventDefault();
-        const termsModal = new bootstrap.Modal(document.getElementById('termsModal'));
-        termsModal.show();
-    });
+    const termsLink = document.querySelector('label[for="termsCheck"] a');
+    if (termsLink) {
+        termsLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            const termsModal = new bootstrap.Modal(document.getElementById('termsModal'));
+            termsModal.show();
+        });
+    }
     
     // Handle "I Understand" button in terms modal
-    document.querySelector('#termsModal .btn-primary').addEventListener('click', function() {
-        termsCheck.checked = true;
-        termsCheck.classList.remove('is-invalid');
-    });
+    const termsModalButton = document.querySelector('#termsModal .btn-primary');
+    if (termsModalButton) {
+        termsModalButton.addEventListener('click', function() {
+            termsCheck.checked = true;
+            termsCheck.classList.remove('is-invalid');
+        });
+    }
     
     // Initialize the form
     initializeDateInputs();
     
     // Add form-control class to all form inputs if missing
-    if (checkInDate && !checkInDate.classList.contains('form-control')) {
-        checkInDate.classList.add('form-control');
-    }
+    const formInputs = [checkInDate, checkOutDate, guestName, email, phone, specialRequests];
+    formInputs.forEach(input => {
+        if (input && !input.classList.contains('form-control')) {
+            input.classList.add('form-control');
+        }
+    });
     
-    if (checkOutDate && !checkOutDate.classList.contains('form-control')) {
-        checkOutDate.classList.add('form-control');
-    }
-    
-    if (guestName && !guestName.classList.contains('form-control')) {
-        guestName.classList.add('form-control');
-    }
-    
-    if (email && !email.classList.contains('form-control')) {
-        email.classList.add('form-control');
-    }
-    
-    if (phone && !phone.classList.contains('form-control')) {
-        phone.classList.add('form-control');
-    }
-    
-    if (specialRequests && !specialRequests.classList.contains('form-control')) {
-        specialRequests.classList.add('form-control');
-    }
+    // Initialize first step
+    goToStep(1);
 });
