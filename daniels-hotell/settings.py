@@ -7,13 +7,6 @@ import dj_database_url
 import environ
 from google.oauth2 import service_account
 
-# Removed unused imports:
-# from django.core.exceptions import ImproperlyConfigured
-# from storages.backends.gcloud import GoogleCloudStorage
-# from storages.utils import setting
-# from urllib.parse import urljoin
-
-
 # Environment and Base Configuration
 env = environ.Env(DEBUG=(bool, False))
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -82,6 +75,7 @@ if "test" in sys.argv:
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
@@ -122,10 +116,14 @@ if not IS_DEVELOPMENT and GS_BUCKET_NAME:
             print("GS_CREDENTIALS found, configuring storage backends")
             DEFAULT_FILE_STORAGE = "rooms.storage.GoogleCloudMediaFileStorage"
             MEDIA_URL = f"https://storage.googleapis.com/{GS_BUCKET_NAME}/media/"
-            STATICFILES_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
-            STATIC_URL = f"https://storage.googleapis.com/{GS_BUCKET_NAME}/static/"
+            
+            # Use Whitenoise for static files instead of GCS
+            # STATICFILES_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
+            # STATIC_URL = f"https://storage.googleapis.com/{GS_BUCKET_NAME}/static/"
 
-            GS_DEFAULT_ACL = "publicRead"
+            # Remove ACL settings that cause errors with uniform bucket-level access
+            # GS_DEFAULT_ACL = "publicRead"  # Removed
+            GS_DEFAULT_ACL = None  # Compatible with uniform bucket-level access
             GS_FILE_OVERWRITE = False
 
             print(f"Storage configuration complete:")
@@ -235,10 +233,14 @@ if "DYNO" in os.environ:
 
             DEFAULT_FILE_STORAGE = "rooms.storage.GoogleCloudMediaFileStorage"
             MEDIA_URL = f"https://storage.googleapis.com/{GS_BUCKET_NAME}/media/"
-            STATICFILES_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
-            STATIC_URL = f"https://storage.googleapis.com/{GS_BUCKET_NAME}/static/"
+            
+            # Use Whitenoise for static files instead of GCS
+            # STATICFILES_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
+            # STATIC_URL = f"https://storage.googleapis.com/{GS_BUCKET_NAME}/static/"
 
-            GS_DEFAULT_ACL = "publicRead"
+            # Remove ACL settings that cause errors with uniform bucket-level access
+            # GS_DEFAULT_ACL = "publicRead"  # Removed
+            GS_DEFAULT_ACL = None  # Compatible with uniform bucket-level access
             GS_FILE_OVERWRITE = False
 
             print("Successfully configured GCS on Heroku!")
