@@ -104,12 +104,14 @@ if not IS_DEVELOPMENT and GS_BUCKET_NAME:
 
         # Only set storage if credentials are found
         if GS_CREDENTIALS:
-            DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
-            STATICFILES_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+            DEFAULT_FILE_STORAGE = 'rooms.storage.GoogleCloudMediaFileStorage'  # Use your custom class
+            MEDIA_URL = f"https://storage.googleapis.com/{GS_BUCKET_NAME}/media/"  # Add this line
+            STATICFILES_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
             STATIC_URL = f"https://storage.googleapis.com/{GS_BUCKET_NAME}/static/"
 
-            GS_DEFAULT_ACL = None
+            GS_DEFAULT_ACL = "publicRead"  # Add this for public access
             GS_FILE_OVERWRITE = False
+
     except Exception as e:
         print(f"Google Cloud Storage configuration error: {e}")
         # Fallback to default storage if GCS setup fails
