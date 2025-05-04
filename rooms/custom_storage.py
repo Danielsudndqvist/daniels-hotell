@@ -11,17 +11,15 @@ class GoogleCloudMediaFileStorage(GoogleCloudStorage):
     """
 
     bucket_name = setting("GS_BUCKET_NAME")
+    location = 'media'  # Add this line to set the subdirectory
 
     def __init__(self, *args, **kwargs):
-        kwargs["default_acl"] = None
+        kwargs["default_acl"] = "publicRead"  # Change to publicRead
         super().__init__(*args, **kwargs)
 
     def url(self, name):
         """
-        Gives correct MEDIA_URL and not google generated url.
+        Returns the full GCS URL for accessing the file.
         """
-        try:
-            return urljoin(settings.MEDIA_URL, name)
-        except Exception as e:
-            print(f"Error generating custom URL: {e}")
-            return super().url(name)
+        # Let the GoogleCloudStorage parent class handle the URL generation
+        return super().url(name)
