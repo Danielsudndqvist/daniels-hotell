@@ -31,18 +31,17 @@ document.addEventListener('DOMContentLoaded', function() {
         firstStepBadge.textContent = '1';
     }
     
-    // Get the room price from the page
-    const priceElement = document.querySelector('.lead');
+    // Get the room price from the page with proper error handling
     let roomPrice = 0; // Default value
-
+    const priceElement = document.querySelector('.lead');
     if (priceElement) {
         const priceText = priceElement.textContent;
         const priceMatch = priceText.match(/\d+(\.\d+)?/);
-        if (priceMatch) {
+        if (priceMatch && priceMatch[0]) {
             roomPrice = parseFloat(priceMatch[0]);
         }
     }
-
+    
     /**
      * Validates the first step (date selection)
      * @returns {boolean} - Whether the step is valid
@@ -150,14 +149,14 @@ document.addEventListener('DOMContentLoaded', function() {
             email.classList.add('is-valid');
         }
         
-        // Validate phone
+        // Enhanced phone validation
         if (!phone.value.trim()) {
             phone.classList.add('is-invalid');
             document.getElementById('phone_number_feedback').textContent = 'Please enter your phone number';
             isValid = false;
         } else if (!validatePhoneNumber(phone.value.trim())) {
             phone.classList.add('is-invalid');
-            document.getElementById('phone_number_feedback').textContent = 'Please enter a valid phone number (10-15 digits, no letters)';
+            document.getElementById('phone_number_feedback').textContent = 'Phone number must have 10-15 digits and no letters';
             isValid = false;
         } else {
             phone.classList.remove('is-invalid');
@@ -178,6 +177,10 @@ document.addEventListener('DOMContentLoaded', function() {
         // If the value changed after removing letters, update the input
         if (input !== e.target.value) {
             e.target.value = input;
+            
+            // Show feedback about invalid characters
+            phone.classList.add('is-invalid');
+            document.getElementById('phone_number_feedback').textContent = 'Letters are not allowed in phone numbers';
             return;
         }
         
@@ -186,11 +189,17 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Make sure we have at least the minimum required digits
         if (digits.length < 10) {
-            // Just keep the input as-is, but add validation feedback
+            // Show invalid feedback if we have some input but not enough digits
             if (digits.length > 0) {
                 phone.classList.add('is-invalid');
-                document.getElementById('phone_number_feedback').textContent = 'Phone number must have at least 10 digits';
+                document.getElementById('phone_number_feedback').textContent = 
+                    `Phone number must have at least 10 digits (currently: ${digits.length})`;
             }
+        } else if (digits.length > 15) {
+            // Too many digits
+            phone.classList.add('is-invalid');
+            document.getElementById('phone_number_feedback').textContent = 
+                `Phone number cannot have more than 15 digits (currently: ${digits.length})`;
         } else {
             // Valid length, remove any error class
             phone.classList.remove('is-invalid');
@@ -251,6 +260,26 @@ document.addEventListener('DOMContentLoaded', function() {
      * @param {number} stepNumber - The step number to navigate to
      */
     function goToStep(stepNumber) {
+        // BLOCK PROGRESSION TO STEP 3 IF PHONE IS INVALID AND CURRENT STEP IS 2
+        if (currentStep === 2 && stepNumber === 3) {
+            // Check phone validation
+            if (phone && (!phone.value.trim() || !validatePhoneNumber(phone.value.trim()))) {
+                // Invalid phone - block progression
+                phone.classList.add('is-invalid');
+                document.getElementById('phone_number_feedback').textContent = 
+                    'You must enter a valid phone number with 10-15 digits to continue';
+                
+                // Focus the phone field
+                phone.focus();
+                
+                // Alert the user
+                alert('Please enter a valid phone number before proceeding.');
+                
+                // Do not proceed to next step
+                return false;
+            }
+        }
+        
         // Hide all steps
         bookingSteps.forEach(step => {
             step.classList.add('d-none');
@@ -272,12 +301,15 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Scroll to top of form
         document.getElementById('bookingCard').scrollIntoView({ behavior: 'smooth' });
+        
+        return true;
     }
     
     // Event listeners for next buttons
     nextButtons.forEach(button => {
         button.addEventListener('click', function(e) {
-            e.preventDefault(); // Prevent any default button behavior
+            e.preventDefault();
+            e.stopPropagation();
             
             const nextStep = parseInt(this.getAttribute('data-next'));
             
@@ -286,7 +318,47 @@ document.addEventListener('DOMContentLoaded', function() {
                     goToStep(nextStep);
                 }
             } else if (currentStep === 2) {
-                if (validateStep2()) {
+                // Check phone number first, before other validations
+                let phoneValid = false;
+                
+                // First, check if phone field exists
+                if (phone) {
+                    // Then make sure it has a value
+                    if (phone.value && phone.value.trim()) {
+                        // Finally check if it's valid
+                        phoneValid = validatePhoneNumber(phone.value.trim());
+                        
+                        // If not valid, show error and prevent continuing
+                        if (!phoneValid) {
+                            phone.classList.add('is-invalid');
+                            
+                            if (document.getElementById('phone_number_feedback')) {
+                                document.getElementById('phone_number_feedback').textContent = 
+                                    'You must enter a valid phone number with 10-15 digits';
+                            }
+                            
+                            // Focus the phone field
+                            phone.focus();
+                            
+                            // Alert the user for added emphasis
+                            alert('Please enter a valid phone number to continue.');
+                            
+                            // Exit early - don't continue
+                            return false;
+                        }
+                    } else {
+                        // No value entered
+                        phone.classList.add('is-invalid');
+                        document.getElementById('phone_number_feedback').textContent = 
+                            'Phone number is required';
+                        phone.focus();
+                        alert('Phone number is required.');
+                        return false;
+                    }
+                }
+                
+                // If phone passed validation, check the rest of the fields
+                if (phoneValid && validateStep2()) {
                     updateSummary();
                     goToStep(nextStep);
                 }
@@ -297,7 +369,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Event listeners for previous buttons
     prevButtons.forEach(button => {
         button.addEventListener('click', function(e) {
-            e.preventDefault(); // Prevent any default button behavior
+            e.preventDefault();
             
             const prevStep = parseInt(this.getAttribute('data-prev'));
             goToStep(prevStep);
@@ -427,6 +499,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 termsCheck.classList.remove('is-invalid');
             }
             
+            // Specific phone validation check
+            if (phone && phone.value.trim()) {
+                if (!validatePhoneNumber(phone.value.trim())) {
+                    // Invalid phone - highlight and focus
+                    phone.classList.add('is-invalid');
+                    document.getElementById('phone_number_feedback').textContent = 
+                        'Please enter a valid phone number before submitting';
+                    
+                    // Go back to step 2 if necessary
+                    if (currentStep !== 2) {
+                        goToStep(2);
+                    }
+                    
+                    phone.focus();
+                    alert('Please correct your phone number before submitting.');
+                    return false;
+                }
+            }
+            
             // Final validation check
             if (!validateStep1() || !validateStep2()) {
                 console.log('Form validation failed');
@@ -441,9 +532,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             console.log('Form is valid, submitting directly...');
-            
-            // Make sure all hidden fields have correct values
-            // This is crucial for multi-step forms
             
             // Submit the form directly - this bypasses any issues with the multi-step setup
             bookingForm.submit();
