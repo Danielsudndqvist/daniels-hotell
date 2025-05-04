@@ -27,7 +27,7 @@ def register(request):
         messages.info(request, "You are already registered and logged in.")
         return redirect("home")
 
-    if request.method == 'POST':
+    if request.method == "POST":
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             try:
@@ -35,8 +35,7 @@ def register(request):
                     user = form.save()
                     login(request, user)
                     messages.success(
-                        request,
-                        "Registration successful! Welcome to our hotel."
+                        request, "Registration successful, Welcome!"
                     )
                     return redirect("home")
             except Exception:
@@ -48,8 +47,7 @@ def register(request):
             for field, errors in form.errors.items():
                 for error in errors:
                     messages.error(
-                        request,
-                        f"{field.replace('_', ' ').title()}: {error}"
+                        request, f"{field.replace('_', ' ').title()}: {error}"
                     )
     else:
         form = CustomUserCreationForm()
@@ -69,22 +67,20 @@ def home(request):
     room_types = Room.ROOM_TYPES
 
     context = {
-        'today': today,
-        'tomorrow': tomorrow,
-        'room_types': room_types,
-        'featured_rooms': featured_rooms,
-        'MEDIA_URL': settings.MEDIA_URL,
-        'STATIC_URL': settings.STATIC_URL,
-        'storage_backend': (
+        "today": today,
+        "tomorrow": tomorrow,
+        "room_types": room_types,
+        "featured_rooms": featured_rooms,
+        "MEDIA_URL": settings.MEDIA_URL,
+        "STATIC_URL": settings.STATIC_URL,
+        "storage_backend": (
             default_storage.__class__.__name__
         ),
-        'GS_BUCKET_NAME': getattr(
-            settings,
-            'GS_BUCKET_NAME',
-            'Not Set'
+        "GS_BUCKET_NAME": getattr(
+            settings, "GS_BUCKET_NAME", "Not Set"
         ),
     }
-    return render(request, 'home.html', context)
+    return render(request, "home.html", context)
 
 
 def room_list(request):
@@ -100,10 +96,10 @@ def room_list(request):
     tomorrow = today + timedelta(days=1)
 
     # Filter handling
-    room_type = request.GET.get('room_type')
-    max_price = request.GET.get('max_price')
-    check_in = request.GET.get('check_in')
-    check_out = request.GET.get('check_out')
+    room_type = request.GET.get("room_type")
+    max_price = request.GET.get("max_price")
+    check_in = request.GET.get("check_in")
+    check_out = request.GET.get("check_out")
 
     # Apply filters
     if room_type:
@@ -116,24 +112,26 @@ def room_list(request):
         if check_in_date and check_out_date:
             rooms = rooms.exclude(
                 booking__check_in_date__lt=check_out_date,
-                booking__check_out_date__gt=check_in_date
+                booking__check_out_date__gt=check_in_date,
             )
 
     context = {
-        'rooms': rooms,
-        'room_types': room_types,
-        'today': today,
-        'tomorrow': tomorrow,
-        'MEDIA_URL': settings.MEDIA_URL,
-        'STATIC_URL': settings.STATIC_URL,
-        'storage_backend': default_storage.__class__.__name__,
-        'GS_BUCKET_NAME': getattr(settings, 'GS_BUCKET_NAME', 'Not Set'),
-        'selected_room_type': room_type,
-        'selected_max_price': max_price,
-        'selected_check_in': check_in,
-        'selected_check_out': check_out,
+        "rooms": rooms,
+        "room_types": room_types,
+        "today": today,
+        "tomorrow": tomorrow,
+        "MEDIA_URL": settings.MEDIA_URL,
+        "STATIC_URL": settings.STATIC_URL,
+        "storage_backend": default_storage.__class__.__name__,
+        "GS_BUCKET_NAME": getattr(
+            settings, "GS_BUCKET_NAME", "Not Set"
+        ),
+        "selected_room_type": room_type,
+        "selected_max_price": max_price,
+        "selected_check_in": check_in,
+        "selected_check_out": check_out,
     }
-    return render(request, 'select_room.html', context)
+    return render(request, "select_room.html", context)
 
 
 def room_detail(request, room_id):
@@ -142,8 +140,8 @@ def room_detail(request, room_id):
 
     # Get similar rooms (same type or price range)
     similar_rooms = Room.objects.filter(
-        Q(room_type=room.room_type) |
-        Q(price__range=(room.price*0.8, room.price*1.2))
+        Q(room_type=room.room_type)
+        | Q(price__range=(room.price * 0.8, room.price * 1.2))
     ).exclude(id=room.id)[:3]
 
     # Get today and tomorrow dates for booking form
@@ -151,14 +149,14 @@ def room_detail(request, room_id):
     tomorrow = today + timedelta(days=1)
 
     context = {
-        'room': room,
-        'similar_rooms': similar_rooms,
-        'today': today,
-        'tomorrow': tomorrow,
-        'MEDIA_URL': settings.MEDIA_URL,
-        'STATIC_URL': settings.STATIC_URL,
+        "room": room,
+        "similar_rooms": similar_rooms,
+        "today": today,
+        "tomorrow": tomorrow,
+        "MEDIA_URL": settings.MEDIA_URL,
+        "STATIC_URL": settings.STATIC_URL,
     }
-    return render(request, 'room_detail.html', context)
+    return render(request, "room_detail.html", context)
 
 
 @login_required
@@ -171,15 +169,12 @@ def book_room(request, room_id):
     tomorrow = today + timedelta(days=1)
 
     if not room.available:
-        messages.error(
-            request,
-            "This room is currently not available for booking."
-        )
-        return redirect('room_list')
+        messages.error(request, "Room is currently not available for booking.")
+        return redirect("room_list")
 
     # Get check-in and check-out dates from query params if available
-    initial_check_in = request.GET.get('check_in')
-    initial_check_out = request.GET.get('check_out')
+    initial_check_in = request.GET.get("check_in")
+    initial_check_out = request.GET.get("check_out")
 
     if initial_check_in:
         try:
@@ -193,7 +188,7 @@ def book_room(request, room_id):
         except ValueError:
             initial_check_out = None
 
-    if request.method == 'POST':
+    if request.method == "POST":
         form = BookingForm(request.POST)
         if form.is_valid():
             try:
@@ -202,15 +197,16 @@ def book_room(request, room_id):
                     booking.room = room
                     booking.user = request.user
                     days = (
-                        booking.check_out_date - booking.check_in_date).days
+                        booking.check_out_date - booking.check_in_date
+                    ).days
                     booking.total_price = room.price * days
-                    booking.status = 'CONFIRMED'
+                    booking.status = "CONFIRMED"
 
                     if not is_room_available(
-                            room,
-                            booking.check_in_date,
-                            booking.check_out_date,
-                            None
+                        room,
+                        booking.check_in_date,
+                        booking.check_out_date,
+                        None
                     ):
                         raise ValidationError(
                             "Room not available for selected dates"
@@ -219,49 +215,59 @@ def book_room(request, room_id):
                     booking.full_clean()  # This will validate the model
                     booking.save()
                     send_booking_confirmation_email(booking)
-                    messages.success(request, 'Booking confirmed!')
+                    messages.success(request, "Booking confirmed!")
                     return redirect(
-                        reverse('booking_confirmation', args=[booking.id])
+                        reverse("booking_confirmation", args=[booking.id])
                     )
             except ValidationError as e:
                 # Check what type of ValidationError we're dealing with
-                if hasattr(e, 'message_dict'):
+                if hasattr(e, "message_dict"):
                     # Field-specific errors
                     for field, error in e.message_dict.items():
                         form.add_error(field, error)
                 else:
                     # Non-field errors - add to the form's non-field errors
-                    form.add_error(None, e.messages[0] if hasattr(e, 'messages') and e.messages else str(e))
+                    form.add_error(
+                        None,
+                        (
+                            e.messages[0]
+                            if hasattr(e, "messages") and e.messages
+                            else str(e)
+                        ),
+                    )
 
         # If form is not valid or there were validation errors, display them
         for field, errors in form.errors.items():
             for error in errors:
                 messages.error(
-                    request,
-                    f"{field.replace('_', ' ').title()}: {error}"
+                    request, f"{field.replace('_', ' ').title()}: {error}"
                 )
     else:
         initial_data = {
-            'guest_name': request.user.get_full_name()
-            or request.user.username,
-            'email': request.user.email,
-            'check_in_date': initial_check_in,
-            'check_out_date': initial_check_out,
+            "guest_name": (
+                request.user.get_full_name() or request.user.username
+            ),
+            "email": request.user.email,
+            "check_in_date": initial_check_in,
+            "check_out_date": initial_check_out,
         }
         form = BookingForm(initial=initial_data)
 
     context = {
-        'room': room,
-        'form': form,
-        'today': today,
-        'tomorrow': tomorrow,
-        'MEDIA_URL': settings.MEDIA_URL,
-        'STATIC_URL': settings.STATIC_URL,
-        'storage_backend': default_storage.__class__.__name__,
-        'GS_BUCKET_NAME': getattr(settings, 'GS_BUCKET_NAME', 'Not Set'),
+        "room": room,
+        "form": form,
+        "today": today,
+        "tomorrow": tomorrow,
+        "MEDIA_URL": settings.MEDIA_URL,
+        "STATIC_URL": settings.STATIC_URL,
+        "storage_backend": default_storage.__class__.__name__,
+        "GS_BUCKET_NAME": getattr(
+            settings, "GS_BUCKET_NAME", "Not Set"
+        ),
     }
-    return render(request, 'book.html', context)
-    
+    return render(request, "book.html", context)
+
+
 def booking_confirmation(request, booking_id):
     """Show booking confirmation page."""
     booking = get_object_or_404(Booking, id=booking_id)
@@ -270,17 +276,17 @@ def booking_confirmation(request, booking_id):
     today = datetime.now().date()
 
     context = {
-        'booking': booking,
-        'today': today,
+        "booking": booking,
+        "today": today,
     }
-    return render(request, 'booking_confirmation.html', context)
+    return render(request, "booking_confirmation.html", context)
 
 
 def check_availability(request):
     """Check room availability for given dates."""
-    if request.method == 'GET':
-        check_in = parse_date(request.GET.get('check_in'))
-        check_out = parse_date(request.GET.get('check_out'))
+    if request.method == "GET":
+        check_in = parse_date(request.GET.get("check_in"))
+        check_out = parse_date(request.GET.get("check_out"))
 
         # Use Room.ROOM_TYPES from your model
         room_types = Room.ROOM_TYPES
@@ -290,25 +296,23 @@ def check_availability(request):
         tomorrow = today + timedelta(days=1)
 
         if check_in and check_out:
-            available_rooms = Room.objects.filter(
-                available=True
-            ).exclude(
+            available_rooms = Room.objects.filter(available=True).exclude(
                 booking__check_in_date__lt=check_out,
-                booking__check_out_date__gt=check_in
+                booking__check_out_date__gt=check_in,
             )
             context = {
-                'rooms': available_rooms,
-                'room_types': room_types,
-                'today': today,
-                'tomorrow': tomorrow,
-                'check_in': check_in,
-                'check_out': check_out,
-                'MEDIA_URL': settings.MEDIA_URL,
-                'STATIC_URL': settings.STATIC_URL,
+                "rooms": available_rooms,
+                "room_types": room_types,
+                "today": today,
+                "tomorrow": tomorrow,
+                "check_in": check_in,
+                "check_out": check_out,
+                "MEDIA_URL": settings.MEDIA_URL,
+                "STATIC_URL": settings.STATIC_URL,
             }
-            return render(request, 'available_rooms.html', context)
+            return render(request, "available_rooms.html", context)
 
-    return redirect('room_list')
+    return redirect("room_list")
 
 
 def room_details(request, room_id):
@@ -325,7 +329,7 @@ def room_details(request, room_id):
         "price": float(room.price),
         "images": [img.image.url for img in room.images.all()],
         "max_occupancy": room.max_occupancy,
-        "size": room.size
+        "size": room.size,
     }
     return JsonResponse(data)
 
@@ -337,10 +341,10 @@ def room_details_json(request, room_id):
 
 def search_rooms(request):
     """Search for rooms based on various criteria."""
-    check_in = request.GET.get('check_in')
-    check_out = request.GET.get('check_out')
-    room_type = request.GET.get('room_type')
-    max_price = request.GET.get('max_price')
+    check_in = request.GET.get("check_in")
+    check_out = request.GET.get("check_out")
+    room_type = request.GET.get("room_type")
+    max_price = request.GET.get("max_price")
 
     # Use Room.ROOM_TYPES from your model
     room_types = Room.ROOM_TYPES
@@ -357,7 +361,7 @@ def search_rooms(request):
         if check_in_date and check_out_date:
             rooms = rooms.exclude(
                 booking__check_in_date__lt=check_out_date,
-                booking__check_out_date__gt=check_in_date
+                booking__check_out_date__gt=check_in_date,
             )
 
     if room_type:
@@ -367,48 +371,50 @@ def search_rooms(request):
         rooms = rooms.filter(price__lte=max_price)
 
     context = {
-        'rooms': rooms,
-        'room_types': room_types,
-        'today': today,
-        'tomorrow': tomorrow,
-        'selected_check_in': check_in,
-        'selected_check_out': check_out,
-        'selected_room_type': room_type,
-        'selected_max_price': max_price,
-        'MEDIA_URL': settings.MEDIA_URL,
-        'STATIC_URL': settings.STATIC_URL,
-        'storage_backend': default_storage.__class__.__name__,
-        'GS_BUCKET_NAME': getattr(settings, 'GS_BUCKET_NAME', 'Not Set'),
+        "rooms": rooms,
+        "room_types": room_types,
+        "today": today,
+        "tomorrow": tomorrow,
+        "selected_check_in": check_in,
+        "selected_check_out": check_out,
+        "selected_room_type": room_type,
+        "selected_max_price": max_price,
+        "MEDIA_URL": settings.MEDIA_URL,
+        "STATIC_URL": settings.STATIC_URL,
+        "storage_backend": default_storage.__class__.__name__,
+        "GS_BUCKET_NAME": getattr(
+            settings,
+            "GS_BUCKET_NAME",
+            "Not Set"
+        ),
     }
-    return render(request, 'search_results.html', context)
+    return render(request, "search_results.html", context)
 
 
 def login_view(request):
     """Handle user login."""
     # Add referrer url to context for better redirection
-    next_url = request.GET.get('next', '')
+    next_url = request.GET.get("next", "")
 
-    if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
+    if request.method == "POST":
+        username = request.POST["username"]
+        password = request.POST["password"]
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            next_url = request.POST.get('next', 'home')
+            next_url = request.POST.get("next", "home")
             return redirect(next_url)
-        messages.error(request, 'Invalid username or password')
+        messages.error(request, "Invalid username or password")
 
-    context = {
-        'next': next_url
-    }
-    return render(request, 'login.html', context)
+    context = {"next": next_url}
+    return render(request, "login.html", context)
 
 
 def logout_view(request):
     """Handle user logout."""
     logout(request)
-    messages.success(request, 'You have been successfully logged out.')
-    return redirect('home')
+    messages.success(request, "You have been successfully logged out.")
+    return redirect("home")
 
 
 @login_required
@@ -418,21 +424,19 @@ def user_bookings(request):
     today = datetime.now().date()
 
     upcoming_bookings = Booking.objects.filter(
-        user=request.user,
-        check_in_date__gte=today
-    ).order_by('check_in_date')
+        user=request.user, check_in_date__gte=today
+    ).order_by("check_in_date")
 
     past_bookings = Booking.objects.filter(
-        user=request.user,
-        check_in_date__lt=today
-    ).order_by('-check_in_date')
+        user=request.user, check_in_date__lt=today
+    ).order_by("-check_in_date")
 
     context = {
-        'upcoming_bookings': upcoming_bookings,
-        'past_bookings': past_bookings,
-        'today': today,
+        "upcoming_bookings": upcoming_bookings,
+        "past_bookings": past_bookings,
+        "today": today,
     }
-    return render(request, 'user_bookings.html', context)
+    return render(request, "user_bookings.html", context)
 
 
 @login_required
@@ -445,18 +449,18 @@ def edit_booking(request, booking_id):
 
     if booking.check_in_date < today:
         messages.error(request, "Cannot edit past bookings.")
-        return redirect('user_bookings')
+        return redirect("user_bookings")
 
-    if request.method == 'POST':
+    if request.method == "POST":
         form = BookingEditForm(request.POST, instance=booking)
         if form.is_valid():
             try:
                 with transaction.atomic():
                     if not is_room_available(
                         booking.room,
-                        form.cleaned_data['check_in_date'],
-                        form.cleaned_data['check_out_date'],
-                        booking.id
+                        form.cleaned_data["check_in_date"],
+                        form.cleaned_data["check_out_date"],
+                        booking.id,
                     ):
                         raise ValidationError(
                             "Room not available for selected dates"
@@ -470,33 +474,30 @@ def edit_booking(request, booking_id):
                     booking.save()
 
                     messages.success(
-                        request,
-                        'Your booking has been successfully updated.'
+                        request, "Your booking has been successfully updated."
                     )
-                    return redirect('user_bookings')
+                    return redirect("user_bookings")
             except ValidationError as e:
                 messages.error(request, str(e))
             except Exception:
                 messages.error(
-                    request,
-                    "An error occurred while updating your booking."
+                    request, "An error occurred while updating your booking."
                 )
         else:
             for field, errors in form.errors.items():
                 for error in errors:
                     messages.error(
-                        request,
-                        f"{field.replace('_', ' ').title()}: {error}"
+                        request, f"{field.replace('_', ' ').title()}: {error}"
                     )
     else:
         form = BookingEditForm(instance=booking)
 
     context = {
-        'form': form,
-        'booking': booking,
-        'today': today,
+        "form": form,
+        "booking": booking,
+        "today": today,
     }
-    return render(request, 'edit_booking.html', context)
+    return render(request, "edit_booking.html", context)
 
 
 @login_required
@@ -504,7 +505,7 @@ def cancel_booking(request, booking_id):
     """Handle booking cancellation."""
     booking = get_object_or_404(Booking, id=booking_id, user=request.user)
 
-    if request.method == 'POST':
+    if request.method == "POST":
         try:
             # Get current time and ensure it's timezone-aware
             current_time = timezone.now()  # This is already timezone-aware
@@ -520,53 +521,49 @@ def cancel_booking(request, booking_id):
 
             if check_in_utc <= current_time_utc:
                 messages.error(
-                    request,
-                    'Cannot cancel a booking that has already started.'
+                    request, "Cannot cancel a booking that has already started"
                 )
             elif check_in_utc <= current_time_utc + timedelta(days=1):
                 messages.error(
                     request,
-                    'Must be cancelled more than 24 hours before check-in.'
+                    "Must be cancelled more than 24 hours before check-in."
                 )
             else:
                 # Send cancellation email before deleting
                 send_cancellation_email(booking)
                 booking.delete()
                 messages.success(
-                    request,
-                    'Your booking has been successfully cancelled.'
+                    request, "Your booking has been successfully cancelled."
                 )
-                return redirect('user_bookings')
+                return redirect("user_bookings")
 
         except Exception as e:
             messages.error(
                 request,
-                f'An error occurred while cancelling your booking: {str(e)}'
+                f"An error occurred while cancelling your booking: {str(e)}"
             )
 
-    return redirect('user_bookings')
+    return redirect("user_bookings")
 
 
-def is_room_available(room, check_in_date, check_out_date, exclude_booking_id):
+def is_room_available(
+    room, check_in_date, check_out_date, exclude_booking_id=None
+):
     """Check if a room is available for given dates."""
-    overlapping_bookings = Booking.objects.filter(
+    overlapping = Booking.objects.filter(
         room=room,
         check_in_date__lt=check_out_date,
         check_out_date__gt=check_in_date
     )
-
     if exclude_booking_id:
-        overlapping_bookings = overlapping_bookings.exclude(
-            id=exclude_booking_id
-        )
-
-    return not overlapping_bookings.exists()
+        overlapping = overlapping.exclude(id=exclude_booking_id)
+    return not overlapping.exists()
 
 
 def send_booking_confirmation_email(booking):
     """Send confirmation email for new bookings."""
-    subject = 'Booking Confirmation - Daniel\'s Hotel'
-    message = f'''
+    subject = "Booking Confirmation - Daniel's Hotel"
+    message = f"""
     Dear {booking.guest_name},
 
     Your booking at Daniel's Hotel has been confirmed!
@@ -591,7 +588,7 @@ def send_booking_confirmation_email(booking):
 
     Best regards,
     The Daniel's Hotel Team
-    '''
+    """
 
     send_mail(
         subject,
@@ -604,8 +601,8 @@ def send_booking_confirmation_email(booking):
 
 def send_cancellation_email(booking):
     """Send confirmation email for cancelled bookings."""
-    subject = 'Booking Cancellation Confirmation - Daniel\'s Hotel'
-    message = f'''
+    subject = "Booking Cancellation Confirmation - Daniel's Hotel"
+    message = f"""
     Dear {booking.guest_name},
 
     Your booking at Daniel's Hotel has been cancelled successfully.
@@ -623,7 +620,7 @@ def send_cancellation_email(booking):
 
     Best regards,
     The Daniel's Hotel Team
-    '''
+    """
 
     send_mail(
         subject,

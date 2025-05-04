@@ -15,39 +15,35 @@ class ViewTests(TestCase):
         """Set up test data."""
         self.client = Client()
         self.user = get_user_model().objects.create_user(
-            username='testuser',
-            email='test@example.com',
-            password='testpass123'
+            username="testuser",
+            email="test@example.com", password="testpass123"
         )
         self.room = Room.objects.create(
-            name='Test Room',
-            price=Decimal('100.00'),
-            room_type='STD',
-            available=True
+            name="Test Room",
+            price=Decimal("100.00"), room_type="STD", available=True
         )
 
     def test_room_list_view(self):
         """Test the room list view."""
-        response = self.client.get(reverse('select_room'))
+        response = self.client.get(reverse("select_room"))
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'select_room.html')
+        self.assertTemplateUsed(response, "select_room.html")
 
     def test_book_room_view_authenticated(self):
         """Test booking room view for authenticated users."""
-        self.client.login(username='testuser', password='testpass123')
+        self.client.login(username="testuser", password="testpass123")
         response = self.client.get(
-            reverse('book_room', args=[self.room.id]),
-            follow=True
+            reverse("book_room", args=[self.room.id]), follow=True
         )
         self.assertEqual(response.status_code, 200)
 
     def test_book_room_view_unauthenticated(self):
         """Test booking room view for unauthenticated users."""
-        response = self.client.get(reverse('book_room', args=[self.room.id]))
+        response = self.client.get(reverse("book_room", args=[self.room.id]))
         self.assertRedirects(
             response,
-            f'/accounts/login/?next=/book-room/{self.room.id}/',
-            fetch_redirect_response=False
+            f"/accounts/login/?next=/book-room/{self.room.id}/",
+            fetch_redirect_response=False,
         )
 
 
@@ -57,22 +53,20 @@ class BookingFormTests(TestCase):
     def setUp(self):
         """Set up test data."""
         self.room = Room.objects.create(
-            name='Test Room',
-            price=Decimal('100.00'),
-            room_type='STD',
-            available=True
+            name="Test Room",
+            price=Decimal("100.00"), room_type="STD", available=True
         )
 
     def test_booking_form_valid(self):
         """Test form validation with valid data."""
         tomorrow = timezone.now().date() + timedelta(days=1)
         data = {
-            'guest_name': 'Test Guest',
-            'email': 'test@example.com',
-            'phone_number': '+1234567890',
-            'check_in_date': tomorrow,
-            'check_out_date': tomorrow + timedelta(days=2),
-            'room': self.room.id,
+            "guest_name": "Test Guest",
+            "email": "test@example.com",
+            "phone_number": "+1234567890",
+            "check_in_date": tomorrow,
+            "check_out_date": tomorrow + timedelta(days=2),
+            "room": self.room.id,
         }
         form = BookingForm(data=data)
         form.instance.room = self.room
@@ -86,12 +80,12 @@ class BookingFormTests(TestCase):
         """Test form validation with invalid dates."""
         tomorrow = timezone.now().date() + timedelta(days=1)
         data = {
-            'guest_name': 'Test Guest',
-            'email': 'test@example.com',
-            'phone_number': '+1234567890',
-            'check_in_date': tomorrow,
-            'check_out_date': tomorrow,  # Same date as check-in
-            'room': self.room.id,
+            "guest_name": "Test Guest",
+            "email": "test@example.com",
+            "phone_number": "+1234567890",
+            "check_in_date": tomorrow,
+            "check_out_date": tomorrow,  # Same date as check-in
+            "room": self.room.id,
         }
         form = BookingForm(data=data)
         form.instance.room = self.room
@@ -105,26 +99,23 @@ class BookingManagementTests(TestCase):
         """Set up test data."""
         self.client = Client()
         self.user = get_user_model().objects.create_user(
-            username='testuser',
-            email='test@example.com',
-            password='testpass123'
+            username="testuser",
+            email="test@example.com", password="testpass123"
         )
         self.room = Room.objects.create(
-            name='Test Room',
-            price=Decimal('100.00'),
-            room_type='STD',
-            available=True
+            name="Test Room", price=Decimal("100.00"),
+            room_type="STD", available=True
         )
         future_date = timezone.now().date() + timedelta(days=5)
         self.booking = Booking.objects.create(
             room=self.room,
             user=self.user,
-            guest_name='Test Guest',
-            email='test@example.com',
+            guest_name="Test Guest",
+            email="test@example.com",
             check_in_date=future_date,
             check_out_date=future_date + timedelta(days=2),
-            total_price=Decimal('200.00'),
-            status='CONFIRMED'
+            total_price=Decimal("200.00"),
+            status="CONFIRMED",
         )
 
     def test_cancel_booking(self):
@@ -138,9 +129,7 @@ class BookingManagementTests(TestCase):
         self.booking.check_in_date = future_date
         self.booking.check_out_date = future_date + timedelta(days=2)
         self.booking.save()
-        print(
-            f"Saved booking with check_in_date: {self.booking.check_in_date}"
-        )
+        print(f"Saved with check_in_date: {self.booking.check_in_date}")
 
         # Verify booking exists before cancellation
         booking_id = self.booking.id
@@ -148,8 +137,7 @@ class BookingManagementTests(TestCase):
         print(f"Booking exists before cancellation: {exists_before}")
 
         response = self.client.post(
-            reverse('cancel_booking', args=[booking_id]),
-            follow=True
+            reverse("cancel_booking", args=[booking_id]), follow=True
         )
 
         # Check response and redirection
@@ -161,12 +149,12 @@ class BookingManagementTests(TestCase):
         print(f"Booking exists after cancellation attempt: {exists_after}")
 
         # Get messages
-        messages = list(response.context['messages'])
+        messages = list(response.context["messages"])
         print(f"Number of messages: {len(messages)}")
         for message in messages:
             print(f"Message: {message}")
             print(f"Message level: {message.level_tag}")
 
         self.assertEqual(response.status_code, 200)
-        self.assertRedirects(response, reverse('user_bookings'))
+        self.assertRedirects(response, reverse("user_bookings"))
         self.assertFalse(Booking.objects.filter(id=booking_id).exists())

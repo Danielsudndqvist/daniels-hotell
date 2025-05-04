@@ -77,7 +77,7 @@ class RoomImage(models.Model):
     order = models.PositiveIntegerField(default=0)
 
     class Meta:
-        ordering = ['order', 'id']
+        ordering = ["order", "id"]
 
     def __str__(self):
         return f"Image for {self.room.name}"
@@ -100,14 +100,14 @@ class RoomImage(models.Model):
         super().save(*args, **kwargs)
 
         # Update order if necessary
-        RoomImage.objects.filter(room=self.room).order_by('order').update(
-            order=models.F('id')
+        RoomImage.objects.filter(room=self.room).order_by("order").update(
+            order=models.F("id")
         )
 
     def set_as_primary(self):
         """Set this image as primary for its room."""
         RoomImage.objects.filter(room=self.room, order=0).update(
-            order=models.F('id') + 1
+            order=models.F("id") + 1
         )
         self.order = 0
         self.save()
@@ -146,27 +146,27 @@ class Booking(models.Model):
         super().clean()
 
         if not all([self.check_in_date, self.check_out_date]):
-            raise ValidationError('Check-in and out dates must be complete.')
+            raise ValidationError("Check-in and out dates must be complete.")
 
         if self.check_in_date and self.check_out_date:
             if self.check_in_date >= self.check_out_date:
-                raise ValidationError('Check-out must be after check-in date')
+                raise ValidationError("Check-out must be after check-in date")
 
             if self.check_in_date < timezone.now().date():
-                raise ValidationError('Check-in date cannot be in the past')
+                raise ValidationError("Check-in date cannot be in the past")
 
-        if hasattr(self, 'room') and self.room is not None:
+        if hasattr(self, "room") and self.room is not None:
             overlapping_bookings = Booking.objects.filter(
                 room=self.room,
                 check_in_date__lt=self.check_out_date,
-                check_out_date__gt=self.check_in_date
+                check_out_date__gt=self.check_in_date,
             )
 
             if self.pk:
                 overlapping_bookings = overlapping_bookings.exclude(pk=self.pk)
 
             if overlapping_bookings.exists():
-                raise ValidationError('Room is already booked for these dates')
+                raise ValidationError("Room is already booked for these dates")
 
     def save(self, *args, **kwargs):
         """Override save to perform full validation."""
