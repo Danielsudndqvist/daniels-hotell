@@ -180,134 +180,135 @@
                                     <label for="id_email" class="form-label">
                                         Email Address
                                         <span class="text-danger">*</span>
-                                    </label><input type="email" name="email" class="form-control" 
-                                    id="id_email" placeholder="Enter your email address" required>
-                             <div class="invalid-feedback" id="email_feedback"></div>
-                         </div>
+                                    </label>
+                                    <input type="email" name="email" class="form-control" 
+                                           id="id_email" placeholder="Enter your email address" required>
+                                    <div class="invalid-feedback" id="email_feedback"></div>
+                                </div>
                          
-                         <div class="mb-3">
-                             <label for="id_phone" class="form-label">
-                                 Phone Number
-                                 <span class="text-danger">*</span>
-                             </label>
-                             <input type="tel" name="phone" class="form-control" 
-                                    id="id_phone" placeholder="(123) 456-7890" required>
-                             <div class="invalid-feedback" id="phone_feedback"></div>
-                         </div>
+                                <div class="mb-3">
+                                    <label for="id_phone_number" class="form-label">
+                                        Phone Number
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="tel" name="phone_number" class="form-control" 
+                                           id="id_phone_number" placeholder="(123) 456-7890" required>
+                                    <div class="invalid-feedback" id="phone_number_feedback"></div>
+                                </div>
                          
-                         <div class="d-flex justify-content-between mt-4">
-                             <button type="button" class="btn btn-outline-secondary prev-step" data-prev="1">
-                                 <i class="fas fa-arrow-left me-1"></i> Back
-                             </button>
-                             <button type="button" class="btn btn-primary next-step" data-next="3">
-                                 Continue <i class="fas fa-arrow-right ms-1"></i>
-                             </button>
-                         </div>
-                     </div>
+                                <div class="d-flex justify-content-between mt-4">
+                                    <button type="button" class="btn btn-outline-secondary prev-step" data-prev="1">
+                                        <i class="fas fa-arrow-left me-1"></i> Back
+                                    </button>
+                                    <button type="button" class="btn btn-primary next-step" data-next="3">
+                                        Continue <i class="fas fa-arrow-right ms-1"></i>
+                                    </button>
+                                </div>
+                            </div>
                      
-                     <!-- Step 3: Review and Confirm -->
-                     <div class="booking-step d-none" data-step="3">
-                         <h5 class="mb-3"><span class="badge bg-primary me-2">3</span>Review and Confirm</h5>
+                            <!-- Step 3: Review and Confirm -->
+                            <div class="booking-step d-none" data-step="3">
+                                <h5 class="mb-3"><span class="badge bg-primary me-2">3</span>Review and Confirm</h5>
                          
-                         <div class="card bg-light mb-4">
-                             <div class="card-body">
-                                 <h6 class="card-title">Booking Summary</h6>
+                                <div class="card bg-light mb-4">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Booking Summary</h6>
                                  
-                                 <div class="mb-3">
-                                     <p class="mb-1"><strong>Room:</strong> <span id="summary-room">{{ room.name }}</span></p>
-                                     <p class="mb-1"><strong>Dates:</strong> <span id="summary-dates"></span></p>
-                                     <p class="mb-0"><strong>Guest:</strong> <span id="summary-guest"></span></p>
-                                 </div>
+                                        <div class="mb-3">
+                                            <p class="mb-1"><strong>Room:</strong> <span id="summary-room">{{ room.name }}</span></p>
+                                            <p class="mb-1"><strong>Dates:</strong> <span id="summary-dates"></span></p>
+                                            <p class="mb-0"><strong>Guest:</strong> <span id="summary-guest"></span></p>
+                                        </div>
                                  
-                                 <hr>
+                                        <hr>
                                  
-                                 <h6>Price Details</h6>
-                                 <div class="d-flex justify-content-between mb-2">
-                                     <span>Room rate:</span>
-                                     <span>${{ room.price }} per night</span>
-                                 </div>
-                                 <div class="d-flex justify-content-between mb-2">
-                                     <span>Number of nights:</span>
-                                     <span id="summary-nights">-</span>
-                                 </div>
-                                 <hr>
-                                 <div class="d-flex justify-content-between">
-                                     <strong>Total:</strong>
-                                     <strong id="summary-total">-</strong>
-                                 </div>
-                             </div>
-                         </div>
+                                        <h6>Price Details</h6>
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span>Room rate:</span>
+                                            <span>${{ room.price }} per night</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span>Number of nights:</span>
+                                            <span id="summary-nights">-</span>
+                                        </div>
+                                        <hr>
+                                        <div class="d-flex justify-content-between">
+                                            <strong>Total:</strong>
+                                            <strong id="summary-total">-</strong>
+                                        </div>
+                                    </div>
+                                </div>
                          
-                         <div class="mb-3">
-                             <label for="id_special_requests" class="form-label">
-                                 Special Requests (Optional)
-                             </label>
-                             <textarea name="special_requests" class="form-control" 
-                                       id="id_special_requests" rows="3" 
-                                       placeholder="Let us know if you have any special requests"></textarea>
-                         </div>
+                                <div class="mb-3">
+                                    <label for="id_special_requests" class="form-label">
+                                        Special Requests (Optional)
+                                    </label>
+                                    <textarea name="special_requests" class="form-control" 
+                                              id="id_special_requests" rows="3" 
+                                              placeholder="Let us know if you have any special requests"></textarea>
+                                </div>
                          
-                         <div class="form-check mb-4">
-                             <input class="form-check-input" type="checkbox" value="" id="termsCheck" required>
-                             <label class="form-check-label" for="termsCheck">
-                                 I agree to the <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">terms and conditions</a>
-                             </label>
-                             <div class="invalid-feedback">
-                                 You must agree to the terms and conditions
-                             </div>
-                         </div>
+                                <div class="form-check mb-4">
+                                    <input class="form-check-input" type="checkbox" value="" id="termsCheck" required>
+                                    <label class="form-check-label" for="termsCheck">
+                                        I agree to the <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">terms and conditions</a>
+                                    </label>
+                                    <div class="invalid-feedback">
+                                        You must agree to the terms and conditions
+                                    </div>
+                                </div>
                          
-                         <div class="d-flex justify-content-between">
-                             <button type="button" class="btn btn-outline-secondary prev-step" data-prev="2">
-                                 <i class="fas fa-arrow-left me-1"></i> Back
-                             </button>
-                             <button type="submit" class="btn btn-success">
-                                 <i class="fas fa-check me-1"></i> Confirm Booking
-                             </button>
-                         </div>
-                     </div>
-                 </div>
-             </form>
-         </div>
-     </div>
- </div>
-</div>
+                                <div class="d-flex justify-content-between">
+                                    <button type="button" class="btn btn-outline-secondary prev-step" data-prev="2">
+                                        <i class="fas fa-arrow-left me-1"></i> Back
+                                    </button>
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-check me-1"></i> Confirm Booking
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Terms and Conditions Modal -->
 <div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
-<div class="modal-dialog">
- <div class="modal-content">
-     <div class="modal-header">
-         <h5 class="modal-title" id="termsModalLabel">Terms and Conditions</h5>
-         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-     </div>
-     <div class="modal-body">
-         <h6>Booking Policy</h6>
-         <ul>
-             <li>Reservations must be guaranteed with a valid credit card.</li>
-             <li>Check-in time is 3:00 PM and check-out time is 11:00 AM.</li>
-             <li>Early check-in and late check-out may be available upon request.</li>
-         </ul>
-         
-         <h6>Cancellation Policy</h6>
-         <ul>
-             <li>Cancellations must be made at least 24 hours prior to arrival.</li>
-             <li>Cancellations made within 24 hours of arrival may result in a charge equal to one night's stay.</li>
-             <li>No-shows will be charged the full amount of the reservation.</li>
-         </ul>
-         
-         <h6>Payment Policy</h6>
-         <ul>
-             <li>Full payment is required at check-in.</li>
-             <li>A security deposit may be required upon check-in.</li>
-         </ul>
-     </div>
-     <div class="modal-footer">
-         <button type="button" class="btn btn-primary" data-bs-dismiss="modal">I Understand</button>
-     </div>
- </div>
-</div>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="termsModalLabel">Terms and Conditions</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h6>Booking Policy</h6>
+                <ul>
+                    <li>Reservations must be guaranteed with a valid credit card.</li>
+                    <li>Check-in time is 3:00 PM and check-out time is 11:00 AM.</li>
+                    <li>Early check-in and late check-out may be available upon request.</li>
+                </ul>
+                
+                <h6>Cancellation Policy</h6>
+                <ul>
+                    <li>Cancellations must be made at least 24 hours prior to arrival.</li>
+                    <li>Cancellations made within 24 hours of arrival may result in a charge equal to one night's stay.</li>
+                    <li>No-shows will be charged the full amount of the reservation.</li>
+                </ul>
+                
+                <h6>Payment Policy</h6>
+                <ul>
+                    <li>Full payment is required at check-in.</li>
+                    <li>A security deposit may be required upon check-in.</li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">I Understand</button>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
 

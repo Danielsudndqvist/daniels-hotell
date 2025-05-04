@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const checkOutDate = document.getElementById('id_check_out_date');
     const guestName = document.getElementById('id_guest_name');
     const email = document.getElementById('id_email');
-    const phone = document.getElementById('id_phone');
+    const phone = document.getElementById('id_phone_number');
     const termsCheck = document.getElementById('termsCheck');
     const specialRequests = document.getElementById('id_special_requests');
     
@@ -93,18 +93,21 @@ document.addEventListener('DOMContentLoaded', function() {
      * @returns {boolean} - Whether the phone number is valid
      */
     function validatePhoneNumber(phoneNumber) {
-        // Remove all non-digit characters
-        const digits = phoneNumber.replace(/\D/g, '');
-        
-        // Check if the phone has at least 10 digits (can be customized based on your needs)
-        if (digits.length < 10) {
+        // First check if the phone number contains any letters
+        if (/[a-zA-Z]/.test(phoneNumber)) {
             return false;
         }
         
-        // International format validation (optional)
-        // This is a basic validation that allows for most international formats
-        const phoneRegex = /^(\+|00)?[1-9]\d{1,14}$/;
-        return phoneRegex.test(digits) || digits.length >= 10;
+        // Check if the phone number contains only allowed characters
+        if (!/^[0-9+\-\s()]+$/.test(phoneNumber)) {
+            return false;
+        }
+        
+        // Remove all non-digit characters
+        const digits = phoneNumber.replace(/\D/g, '');
+        
+        // Check if the phone has at least 10 digits and no more than 15
+        return digits.length >= 10 && digits.length <= 15;
     }
     
     /**
@@ -142,11 +145,11 @@ document.addEventListener('DOMContentLoaded', function() {
         // Validate phone
         if (!phone.value.trim()) {
             phone.classList.add('is-invalid');
-            document.getElementById('phone_feedback').textContent = 'Please enter your phone number';
+            document.getElementById('phone_number_feedback').textContent = 'Please enter your phone number';
             isValid = false;
         } else if (!validatePhoneNumber(phone.value.trim())) {
             phone.classList.add('is-invalid');
-            document.getElementById('phone_feedback').textContent = 'Please enter a valid phone number (at least 10 digits)';
+            document.getElementById('phone_number_feedback').textContent = 'Please enter a valid phone number (10-15 digits, no letters)';
             isValid = false;
         } else {
             phone.classList.remove('is-invalid');
@@ -161,24 +164,46 @@ document.addEventListener('DOMContentLoaded', function() {
      * @param {Event} e - Input event
      */
     function formatPhoneNumber(e) {
-        // Get input value
-        let input = e.target.value.replace(/\D/g, '');
+        // Get input value and remove any letters
+        const input = e.target.value.replace(/[a-zA-Z]/g, '');
         
-        // Auto-format as user types
-        let formattedInput = '';
+        // If the value changed after removing letters, update the input
+        if (input !== e.target.value) {
+            e.target.value = input;
+            return;
+        }
         
-        if (input.length > 0) {
+        // Get just the digits for validation
+        const digits = input.replace(/\D/g, '');
+        
+        // Make sure we have at least the minimum required digits
+        if (digits.length < 10) {
+            // Just keep the input as-is, but add validation feedback
+            if (digits.length > 0) {
+                phone.classList.add('is-invalid');
+                document.getElementById('phone_number_feedback').textContent = 'Phone number must have at least 10 digits';
+            }
+        } else {
+            // Valid length, remove any error class
+            phone.classList.remove('is-invalid');
+            phone.classList.add('is-valid');
+            
+            // Format the phone number
+            let formattedInput = '';
+            
             // Format based on length
-            if (input.length <= 3) {
-                formattedInput = input;
-            } else if (input.length <= 6) {
-                formattedInput = `(${input.substring(0, 3)}) ${input.substring(3)}`;
+            if (digits.length <= 3) {
+                formattedInput = digits;
+            } else if (digits.length <= 6) {
+                formattedInput = `(${digits.substring(0, 3)}) ${digits.substring(3)}`;
             } else {
-                formattedInput = `(${input.substring(0, 3)}) ${input.substring(3, 6)}-${input.substring(6, 10)}`;
+                formattedInput = `(${digits.substring(0, 3)}) ${digits.substring(3, 6)}-${digits.substring(6, Math.min(digits.length, 15))}`;
             }
             
-            // Set the value
-            e.target.value = formattedInput;
+            // Set the formatted value only if it's different (to avoid cursor jumping)
+            if (formattedInput !== e.target.value) {
+                e.target.value = formattedInput;
+            }
         }
     }
     
@@ -291,52 +316,29 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Add phone number formatting
+    // Add phone number formatting and validation
     if (phone) {
         phone.addEventListener('input', formatPhoneNumber);
-    }
-    
-    // Form submission validation
-    bookingForm.addEventListener('submit', function(event) {
-        // Prevent form submission
-        event.preventDefault();
         
-        // Validate terms and conditions
-        if (!termsCheck.checked) {
-            termsCheck.classList.add('is-invalid');
+        // Add HTML5 validation pattern attribute
+        phone.setAttribute('pattern', '[0-9+\\-\\s()]+');
+        phone.setAttribute('title', 'Phone number must contain 10-15 digits (no letters)');
+        
+        // Make sure phone has the correct name attribute
+        phone.name = 'phone_number';
+        
+        // Add an invisible feedback element if it doesn't exist
+        if (!document.getElementById('phone_number_feedback')) {
+            const feedbackDiv = document.createElement('div');
+            feedbackDiv.id = 'phone_number_feedback';
+            feedbackDiv.className = 'invalid-feedback';
+            feedbackDiv.textContent = 'Please enter a valid phone number';
             
-            // Scroll to terms checkbox
-            termsCheck.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            return;
-        } else {
-            termsCheck.classList.remove('is-invalid');
-        }
-        
-        // Final validation of all steps
-        let step1Valid = validateStep1();
-        let step2Valid = validateStep2();
-        
-        if (!step1Valid || !step2Valid) {
-            // If validation fails, go back to the appropriate step
-            if (!step1Valid) {
-                goToStep(1);
-            } else if (!step2Valid) {
-                goToStep(2);
+            if (phone.parentNode) {
+                phone.parentNode.appendChild(feedbackDiv);
             }
-            return;
         }
-        
-        // Show loading state on submit button
-        const submitBtn = this.querySelector('button[type="submit"]');
-        const originalBtnText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Processing...';
-        submitBtn.disabled = true;
-        
-        // If all validations pass, submit the form
-        setTimeout(() => {
-            this.submit();
-        }, 500); // Small delay to show loading state
-    });
+    }
     
     /**
      * Initializes min dates for the date inputs
@@ -398,4 +400,46 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize first step
     goToStep(1);
+    
+    // ENHANCED FORM SUBMISSION HANDLER
+    if (bookingForm) {
+        // Replace the default submit event handler
+        bookingForm.addEventListener('submit', function(e) {
+            // Prevent the default form submission
+            e.preventDefault();
+            
+            console.log('Form submission started...');
+            
+            // Validate terms and conditions
+            if (!termsCheck.checked) {
+                termsCheck.classList.add('is-invalid');
+                console.log('Terms not checked');
+                return false;
+            } else {
+                termsCheck.classList.remove('is-invalid');
+            }
+            
+            // Final validation check
+            if (!validateStep1() || !validateStep2()) {
+                console.log('Form validation failed');
+                return false;
+            }
+            
+            // Show loading indicator on the submit button
+            const submitBtn = document.querySelector('#bookingForm button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
+                submitBtn.disabled = true;
+            }
+            
+            console.log('Form is valid, submitting directly...');
+            
+            // Make sure all hidden fields have correct values
+            // This is crucial for multi-step forms
+            
+            // Submit the form directly - this bypasses any issues with the multi-step setup
+            bookingForm.submit();
+            return true;
+        });
+    }
 });

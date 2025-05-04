@@ -1,6 +1,8 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.core.validators import RegexValidator
+from django.core.exceptions import ValidationError
+from django.utils import timezone
 from .models import Booking, CustomUser, Profile
 
 
@@ -104,6 +106,13 @@ class ProfileForm(forms.ModelForm):
 
 
 class BookingForm(forms.ModelForm):
+    # Explicitly define phone_number field
+    phone_number = forms.CharField(
+        required=True,
+        max_length=20,  # Give some extra space for formatting
+        widget=forms.TextInput(attrs={"class": "form-control"})
+    )
+    
     class Meta:
         model = Booking
         fields = [
@@ -111,4 +120,93 @@ class BookingForm(forms.ModelForm):
             "email",
             "phone_number",
             "check_in_date",
+            "check_out_date",
         ]
+        widgets = {
+            "guest_name": forms.TextInput(attrs={"class": "form-control"}),
+            "email": forms.EmailInput(attrs={"class": "form-control"}),
+            "check_in_date": forms.DateInput(
+                attrs={"class": "form-control", "type": "date"}
+            ),
+            "check_out_date": forms.DateInput(
+                attrs={"class": "form-control", "type": "date"}
+            ),
+        }
+
+    def clean_phone_number(self):
+        phone_number = self.cleaned_data.get("phone_number")
+        if not phone_number:
+            raise forms.ValidationError("Phone number is required.")
+        
+        # Check for letters - they are not allowed
+        import re
+        if re.search(r'[a-zA-Z]', phone_number):
+            raise forms.ValidationError("Phone number cannot contain letters.")
+        
+        # Allow only digits, +, spaces, and hyphens
+        if not re.match(r'^[0-9+\-\s()]+$', phone_number):
+            raise forms.ValidationError(
+                "Phone number can only contain numbers, +, spaces, and hyphens."
+            )
+            
+        # Check digit count
+        digits_only = re.sub(r'\D', '', phone_number)
+        if len(digits_only) < 10 or len(digits_only) > 15:
+            raise forms.ValidationError(
+                "Phone number must contain between 10 and 15 digits."
+            )
+        
+        return phone_number
+
+
+class BookingEditForm(forms.ModelForm):
+    """Form for editing existing bookings."""
+
+    check_in_date = forms.DateField(
+        widget=forms.DateInput(
+            attrs={"type": "date", "class": "form-control"}
+        )
+    )
+
+    check_out_date = forms.DateField(
+        widget=forms.DateInput(
+            attrs={"type": "date", "class": "form-control"}
+        )
+    )
+
+    status = forms.ChoiceField(
+        choices=Booking.STATUS_CHOICES,
+        widget=forms.Select(attrs={"class": "form-control"}),
+    )
+
+    class Meta:
+        model = Booking
+        fields = ["check_in_date", "check_out_date", "status"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance:
+            self.fields["check_in_date"].initial = self.instance.check_in_date
+            self.fields["check_out_date"].initial = self.instance.check_out_date
+            self.fields["status"].initial = self.instance.status
+
+    def clean(self):
+        cleaned_data = super().clean()
+        check_in_date = cleaned_data.get("check_in_date")
+        check_out_date = cleaned_data.get("check_out_date")
+
+        if check_in_date and check_out_date:
+            if check_in_date >= check_out_date:
+                raise ValidationError(
+                    {
+                        "check_out_date":
+                        "Check-out date must be after check-in date"
+                    }
+                )
+
+            if check_in_date < timezone.now().date():
+                raise ValidationError(
+                    {"check_in_date": "Check-in date cannot be in the past"}
+                )
+
+        return cleaned_data
