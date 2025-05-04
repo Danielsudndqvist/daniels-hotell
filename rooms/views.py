@@ -218,16 +218,20 @@ def book_room(request, room_id):
 
                     booking.full_clean()  # This will validate the model
                     booking.save()
-                    send_booking_confirmation_email
-                    (booking)
+                    send_booking_confirmation_email(booking)
                     messages.success(request, 'Booking confirmed!')
                     return redirect(
                         reverse('booking_confirmation', args=[booking.id])
                     )
             except ValidationError as e:
-                # Add form errors for any validation errors
-                for field, error in e.message_dict.items():
-                    form.add_error(field, error)
+                # Check what type of ValidationError we're dealing with
+                if hasattr(e, 'message_dict'):
+                    # Field-specific errors
+                    for field, error in e.message_dict.items():
+                        form.add_error(field, error)
+                else:
+                    # Non-field errors - add to the form's non-field errors
+                    form.add_error(None, e.messages[0] if hasattr(e, 'messages') and e.messages else str(e))
 
         # If form is not valid or there were validation errors, display them
         for field, errors in form.errors.items():
@@ -257,8 +261,7 @@ def book_room(request, room_id):
         'GS_BUCKET_NAME': getattr(settings, 'GS_BUCKET_NAME', 'Not Set'),
     }
     return render(request, 'book.html', context)
-
-
+    
 def booking_confirmation(request, booking_id):
     """Show booking confirmation page."""
     booking = get_object_or_404(Booking, id=booking_id)
