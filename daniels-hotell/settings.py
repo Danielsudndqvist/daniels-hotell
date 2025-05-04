@@ -85,37 +85,59 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
-# Google Cloud Storage Configuration
+# Google Cloud Storage Configuration - with Debug Logging
 IS_DEVELOPMENT = env("DJANGO_ENV", default="development") == "development"
+print(f"DJANGO_ENV from env: {env('DJANGO_ENV', default='development')}")
+print(f"IS_DEVELOPMENT calculated value: {IS_DEVELOPMENT}")
+
 GS_BUCKET_NAME = env("GS_BUCKET_NAME", default=None)
+print(f"GS_BUCKET_NAME from env: {GS_BUCKET_NAME}")
+print(f"GS_BUCKET_NAME from os.environ: {os.environ.get('GS_BUCKET_NAME')}")
+
+# Fallback to os.environ if env() doesn't work
+if GS_BUCKET_NAME is None and 'GS_BUCKET_NAME' in os.environ:
+    GS_BUCKET_NAME = os.environ.get('GS_BUCKET_NAME')
+    print(f"Using GS_BUCKET_NAME from os.environ directly: {GS_BUCKET_NAME}")
+
+print(f"DYNO in os.environ: {'DYNO' in os.environ}")
 
 if not IS_DEVELOPMENT and GS_BUCKET_NAME:
     try:
         # Credentials handling
         GS_CREDENTIALS = None
         if "GOOGLE_APPLICATION_CREDENTIALS" in os.environ:
+            print("Using GOOGLE_APPLICATION_CREDENTIALS")
             GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
                 os.environ["GOOGLE_APPLICATION_CREDENTIALS"]
             )
         elif "GOOGLE_CREDENTIALS" in os.environ:
+            print("Using GOOGLE_CREDENTIALS")
             GS_CREDENTIALS = service_account.Credentials.from_service_account_info(
                 json.loads(os.environ["GOOGLE_CREDENTIALS"])
             )
 
         # Only set storage if credentials are found
         if GS_CREDENTIALS:
-            DEFAULT_FILE_STORAGE = 'rooms.storage.GoogleCloudMediaFileStorage'  # Use your custom class
-            MEDIA_URL = f"https://storage.googleapis.com/{GS_BUCKET_NAME}/media/"  # Add this line
+            print("GS_CREDENTIALS found, configuring storage backends")
+            DEFAULT_FILE_STORAGE = 'rooms.storage.GoogleCloudMediaFileStorage'
+            MEDIA_URL = f"https://storage.googleapis.com/{GS_BUCKET_NAME}/media/"
             STATICFILES_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
             STATIC_URL = f"https://storage.googleapis.com/{GS_BUCKET_NAME}/static/"
 
-            GS_DEFAULT_ACL = "publicRead"  # Add this for public access
+            GS_DEFAULT_ACL = "publicRead"
             GS_FILE_OVERWRITE = False
+
+            print(f"Storage configuration complete:")
+            print(f"DEFAULT_FILE_STORAGE: {DEFAULT_FILE_STORAGE}")
+            print(f"MEDIA_URL: {MEDIA_URL}")
+        else:
+            print("No GS_CREDENTIALS found")
 
     except Exception as e:
         print(f"Google Cloud Storage configuration error: {e}")
         # Fallback to default storage if GCS setup fails
         DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+        print("Falling back to FileSystemStorage")
 
 
 # Production Security Settings
@@ -167,6 +189,10 @@ LOGGING = {
             'handlers': ['console'],
             'level': 'DEBUG',
         },
+        'google.cloud': {  # Add this for GCS debugging
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
     },
 }
 
@@ -190,5 +216,37 @@ TEMPLATES = [
 
 # Heroku-Specific Settings
 if "DYNO" in os.environ:
+    print("Running on Heroku, applying Heroku-specific settings")
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     SECURE_SSL_REDIRECT = True
+
+    # Explicitly check GCS configuration when on Heroku
+    print("Checking GCS configuration on Heroku...")
+    if 'GS_BUCKET_NAME' in os.environ and 'GOOGLE_CREDENTIALS' in os.environ:
+        try:
+            print(f"GS_BUCKET_NAME from os.environ on Heroku: {os.environ.get('GS_BUCKET_NAME')}")
+            GS_BUCKET_NAME = os.environ.get('GS_BUCKET_NAME')
+            GS_CREDENTIALS = service_account.Credentials.from_service_account_info(
+                json.loads(os.environ.get('GOOGLE_CREDENTIALS'))
+            )
+
+            DEFAULT_FILE_STORAGE = 'rooms.storage.GoogleCloudMediaFileStorage'
+            MEDIA_URL = f"https://storage.googleapis.com/{GS_BUCKET_NAME}/media/"
+            STATICFILES_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
+            STATIC_URL = f"https://storage.googleapis.com/{GS_BUCKET_NAME}/static/"
+
+            GS_DEFAULT_ACL = "publicRead"
+            GS_FILE_OVERWRITE = False
+            
+            print("Successfully configured GCS on Heroku!")
+            print(f"DEFAULT_FILE_STORAGE: {DEFAULT_FILE_STORAGE}")
+            print(f"MEDIA_URL: {MEDIA_URL}")
+        except Exception as e:
+            print(f"Error configuring GCS on Heroku: {e}")
+    else:
+        missing = []
+        if 'GS_BUCKET_NAME' not in os.environ:
+            missing.append('GS_BUCKET_NAME')
+        if 'GOOGLE_CREDENTIALS' not in os.environ:
+            missing.append('GOOGLE_CREDENTIALS')
+        print(f"Missing Heroku config vars: {', '.join(missing)}")
