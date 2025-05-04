@@ -5,7 +5,7 @@ class GoogleCloudMediaFileStorage(GoogleCloudStorage):
     
     def __init__(self, *args, **kwargs):
         kwargs.update({"location": "media"})
-        # No predefinedAcl parameter for uniform bucket-level access
+        # Remove default_acl for uniform bucket-level access
         super().__init__(*args, **kwargs)
 
 class GoogleCloudStaticFileStorage(GoogleCloudStorage):
@@ -13,5 +13,5 @@ class GoogleCloudStaticFileStorage(GoogleCloudStorage):
     
     def __init__(self, *args, **kwargs):
         kwargs.update({"location": "static"})
-        # No predefinedAcl parameter for uniform bucket-level access
+        # No default_acl for uniform bucket-level access
         super().__init__(*args, **kwargs)
