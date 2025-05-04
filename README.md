@@ -100,6 +100,23 @@ Daniel's Hotel is a comprehensive Django web application designed to streamline 
    python manage.py runserver
    ```
 
+## Wireframes
+
+<details>
+<summary>Home Page</summary>
+<img src="https://github.com/user-attachments/assets/f3d5e3fb-f0ad-43ee-85d8-16582254c363" alt="Home Page Wireframe">
+</details>
+
+<details>
+<summary>Room Selection</summary>
+<img src="https://github.com/user-attachments/assets/5da9c3cb-3bd4-487d-98ab-757626a23ab9" alt="Room Selection Wireframe">
+</details>
+
+<details>
+<summary>Room Information</summary>
+<img src="https://github.com/user-attachments/assets/3217cc9a-e811-451b-8d19-37402f8b2e9a" alt="Room Information Wireframe">
+</details>
+
 ## 📋 User Guide
 
 ### Guest User Workflow
@@ -135,15 +152,6 @@ We welcome your suggestions! Contact us through the website's "Contact Us" form.
 4. Connect to GitHub repository
 5. Deploy (manual or automatic)
 
-## 📊 Project Statistics
-
-[![Testing Coverage](https://img.shields.io/badge/test%20coverage-100%25-brightgreen)]()
-[![Bugs](https://img.shields.io/badge/open%20bugs-1-yellow)]()
-[![Maintenance](https://img.shields.io/badge/maintained-yes-green.svg)]()
-
-## 📄 License
-
-*Add your license information here*
 
 ---
 
