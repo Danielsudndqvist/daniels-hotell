@@ -32,9 +32,17 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Get the room price from the page
-    const priceText = document.querySelector('.lead').textContent;
-    const roomPrice = parseFloat(priceText.match(/\d+(\.\d+)?/)[0]);
-    
+    const priceElement = document.querySelector('.lead');
+    let roomPrice = 0; // Default value
+
+    if (priceElement) {
+        const priceText = priceElement.textContent;
+        const priceMatch = priceText.match(/\d+(\.\d+)?/);
+        if (priceMatch) {
+            roomPrice = parseFloat(priceMatch[0]);
+        }
+    }
+
     /**
      * Validates the first step (date selection)
      * @returns {boolean} - Whether the step is valid
