@@ -156,7 +156,6 @@ All features of the Daniel's Hotel application have been rigorously tested on mu
 | Login | 1. Navigate to login page<br>2. Enter valid credentials<br>3. Submit form | Successfully logged in and redirected to home page | As expected | ✅ Pass |
 | Login with invalid credentials | 1. Navigate to login page<br>2. Enter incorrect password<br>3. Submit form | Error message displayed | As expected | ✅ Pass |
 | Logout | 1. Click logout button when logged in | User logged out and redirected to home page with confirmation | As expected | ✅ Pass |
-| Password reset | 1. Request password reset<br>2. Follow email link<br>3. Enter new password | Password updated successfully | As expected | ✅ Pass |
 
 </details>
 
@@ -187,7 +186,6 @@ All features of the Daniel's Hotel application have been rigorously tested on mu
 | Guest information form | 1. Enter valid guest details<br>2. Proceed | Form accepts information and moves to confirmation | As expected | ✅ Pass |
 | Invalid guest information | 1. Leave required fields blank<br>2. Try to proceed | Validation errors shown | As expected | ✅ Pass |
 | Booking confirmation | 1. Complete booking process<br>2. Confirm booking | Confirmation page shown with booking details | As expected | ✅ Pass |
-| Email notification | 1. Complete booking | Confirmation email received | As expected | ✅ Pass |
 
 </details>
 
