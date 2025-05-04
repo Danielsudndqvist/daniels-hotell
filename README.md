@@ -99,42 +99,64 @@ Daniel's Hotel is a comprehensive Django web application designed to streamline 
    ```bash
    python manage.py runserver
    ```
-## Screenshots 
+## 📸 Screenshots 
 
-### Home view
-<details><summary>Fullscreen</summary>![image](https://github.com/user-attachments/assets/8446b1a3-a277-4f13-a671-5c9aea45d699)</details>
-
- 
-<details><summary>Mobile</summary>![image](https://github.com/user-attachments/assets/e466e7f3-13e1-4ebc-93f6-4e4d0419d2fa)</details>
-
-### Room selection
-<details><summary>Fullscreen</summary>![image](https://github.com/user-attachments/assets/f0c0e4de-8772-4fac-a8da-fab78e5e5fb1)</details>
-
-
-<details><summary>Mobile</summary>![image](https://github.com/user-attachments/assets/70d222d0-9b6e-4a5a-9a57-7c0cead23b92)</details>
-
-### Booking form
-<details><summary>Fullscreen</summary>![image](https://github.com/user-attachments/assets/7ba3017f-ff2b-45d1-a646-67b8965d92b0)</details>
-
-
-<details><summary>Mobile</summary>![image](https://github.com/user-attachments/assets/e7940d0d-68a1-435b-8563-e73e87dd9f51)</details>
-
-
-## Wireframes
-
+### 🏠 Home View
 <details>
-<summary>Home Page</summary>
-<img src="https://github.com/user-attachments/assets/f3d5e3fb-f0ad-43ee-85d8-16582254c363" alt="Home Page Wireframe">
+  <summary>Fullscreen</summary>
+  
+  ![Home View Fullscreen](https://github.com/user-attachments/assets/8446b1a3-a277-4f13-a671-5c9aea45d699)
 </details>
 
 <details>
-<summary>Room Selection</summary>
-<img src="https://github.com/user-attachments/assets/5da9c3cb-3bd4-487d-98ab-757626a23ab9" alt="Room Selection Wireframe">
+  <summary>Mobile</summary>
+  
+  ![Home View Mobile](https://github.com/user-attachments/assets/e466e7f3-13e1-4ebc-93f6-4e4d0419d2fa)
+</details>
+
+### 🛏️ Room Selection
+<details>
+  <summary>Fullscreen</summary>
+  
+  ![Room Selection Fullscreen](https://github.com/user-attachments/assets/f0c0e4de-8772-4fac-a8da-fab78e5e5fb1)
 </details>
 
 <details>
-<summary>Room Information</summary>
-<img src="https://github.com/user-attachments/assets/3217cc9a-e811-451b-8d19-37402f8b2e9a" alt="Room Information Wireframe">
+  <summary>Mobile</summary>
+  
+  ![Room Selection Mobile](https://github.com/user-attachments/assets/70d222d0-9b6e-4a5a-9a57-7c0cead23b92)
+</details>
+
+### 📝 Booking Form
+<details>
+  <summary>Fullscreen</summary>
+  
+  ![Booking Form Fullscreen](https://github.com/user-attachments/assets/7ba3017f-ff2b-45d1-a646-67b8965d92b0)
+</details>
+
+<details>
+  <summary>Mobile</summary>
+  
+  ![Booking Form Mobile](https://github.com/user-attachments/assets/e7940d0d-68a1-435b-8563-e73e87dd9f51)
+</details>
+
+## 🖼️ Wireframes
+<details>
+  <summary>Home Page</summary>
+  
+  ![Home Page Wireframe](https://github.com/user-attachments/assets/f3d5e3fb-f0ad-43ee-85d8-16582254c363)
+</details>
+
+<details>
+  <summary>Room Selection</summary>
+  
+  ![Room Selection Wireframe](https://github.com/user-attachments/assets/5da9c3cb-3bd4-487d-98ab-757626a23ab9)
+</details>
+
+<details>
+  <summary>Room Information</summary>
+  
+  ![Room Information Wireframe](https://github.com/user-attachments/assets/3217cc9a-e811-451b-8d19-37402f8b2e9a)
 </details>
 
 ## 📋 User Guide
