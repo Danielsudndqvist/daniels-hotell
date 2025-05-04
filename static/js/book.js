@@ -95,75 +95,84 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     /**
-     * Validates a phone number format
-     * @param {string} phoneNumber - The phone number to validate
-     * @returns {boolean} - Whether the phone number is valid
-     */
-    function validatePhoneNumber(phoneNumber) {
-        // First check if the phone number contains any letters
-        if (/[a-zA-Z]/.test(phoneNumber)) {
-            return false;
-        }
-        
-        // Check if the phone number contains only allowed characters
-        if (!/^[0-9+\-\s()]+$/.test(phoneNumber)) {
-            return false;
-        }
-        
-        // Remove all non-digit characters
-        const digits = phoneNumber.replace(/\D/g, '');
-        
-        // Check if the phone has at least 10 digits and no more than 15
-        return digits.length >= 10 && digits.length <= 15;
+ * Validates a phone number format
+ * @param {string} phoneNumber - The phone number to validate
+ * @returns {boolean} - Whether the phone number is valid
+ */
+function validatePhoneNumber(phoneNumber) {
+    // First check if the phone number contains any letters
+    if (/[a-zA-Z]/.test(phoneNumber)) {
+        return false;
     }
     
+    // Check if the phone number contains only allowed characters
+    if (!/^[0-9+\-\s()]+$/.test(phoneNumber)) {
+        return false;
+    }
+    
+    // Remove all non-digit characters
+    const digits = phoneNumber.replace(/\D/g, '');
+    
+    // Check if the phone has at least 8 digits and no more than 14
+    return digits.length >= 8 && digits.length <= 14;
+}
+
     /**
-     * Validates the second step (guest information)
-     * @returns {boolean} - Whether the step is valid
+     * Format a phone number as user types
+     * @param {Event} e - Input event
      */
-    function validateStep2() {
-        let isValid = true;
+    function formatPhoneNumber(e) {
+        // Get input value and remove any letters
+        const input = e.target.value.replace(/[a-zA-Z]/g, '');
         
-        // Validate guest name
-        if (!guestName.value.trim()) {
-            guestName.classList.add('is-invalid');
-            document.getElementById('guest_name_feedback').textContent = 'Please enter your full name';
-            isValid = false;
-        } else {
-            guestName.classList.remove('is-invalid');
-            guestName.classList.add('is-valid');
+        // If the value changed after removing letters, update the input
+        if (input !== e.target.value) {
+            e.target.value = input;
+            
+            // Show feedback about invalid characters
+            phone.classList.add('is-invalid');
+            document.getElementById('phone_number_feedback').textContent = 'Letters are not allowed in phone numbers';
+            return;
         }
         
-        // Validate email
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!email.value.trim()) {
-            email.classList.add('is-invalid');
-            document.getElementById('email_feedback').textContent = 'Please enter your email address';
-            isValid = false;
-        } else if (!emailRegex.test(email.value.trim())) {
-            email.classList.add('is-invalid');
-            document.getElementById('email_feedback').textContent = 'Please enter a valid email address';
-            isValid = false;
-        } else {
-            email.classList.remove('is-invalid');
-            email.classList.add('is-valid');
-        }
+        // Get just the digits for validation
+        const digits = input.replace(/\D/g, '');
         
-        // Enhanced phone validation
-        if (!phone.value.trim()) {
+        // Make sure we have at least the minimum required digits
+        if (digits.length < 8) {
+            // Show invalid feedback if we have some input but not enough digits
+            if (digits.length > 0) {
+                phone.classList.add('is-invalid');
+                document.getElementById('phone_number_feedback').textContent = 
+                    `Phone number must have at least 8 digits (currently: ${digits.length})`;
+            }
+        } else if (digits.length > 14) {
+            // Too many digits
             phone.classList.add('is-invalid');
-            document.getElementById('phone_number_feedback').textContent = 'Please enter your phone number';
-            isValid = false;
-        } else if (!validatePhoneNumber(phone.value.trim())) {
-            phone.classList.add('is-invalid');
-            document.getElementById('phone_number_feedback').textContent = 'Phone number must have 10-15 digits and no letters';
-            isValid = false;
+            document.getElementById('phone_number_feedback').textContent = 
+                `Phone number cannot have more than 14 digits (currently: ${digits.length})`;
         } else {
+            // Valid length, remove any error class
             phone.classList.remove('is-invalid');
             phone.classList.add('is-valid');
+            
+            // Format the phone number
+            let formattedInput = '';
+            
+            // Format based on length
+            if (digits.length <= 3) {
+                formattedInput = digits;
+            } else if (digits.length <= 6) {
+                formattedInput = `(${digits.substring(0, 3)}) ${digits.substring(3)}`;
+            } else {
+                formattedInput = `(${digits.substring(0, 3)}) ${digits.substring(3, 6)}-${digits.substring(6, Math.min(digits.length, 14))}`;
+            }
+            
+            // Set the formatted value only if it's different (to avoid cursor jumping)
+            if (formattedInput !== e.target.value) {
+                e.target.value = formattedInput;
+            }
         }
-        
-        return isValid;
     }
     
     /**

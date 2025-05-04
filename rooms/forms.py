@@ -4,6 +4,7 @@ from django.core.validators import RegexValidator
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 from .models import Booking, CustomUser, Profile
+import re
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -106,7 +107,8 @@ class ProfileForm(forms.ModelForm):
 
 
 class BookingForm(forms.ModelForm):
-    # Explicitly define phone_number field
+    """Form for creating a new booking with enhanced phone number validation."""
+    
     phone_number = forms.CharField(
         required=True,
         max_length=20,  # Give some extra space for formatting
@@ -138,25 +140,41 @@ class BookingForm(forms.ModelForm):
         if not phone_number:
             raise forms.ValidationError("Phone number is required.")
         
+        # Remove all non-digit characters
+        digits_only = re.sub(r'\D', '', phone_number)
+        
         # Check for letters - they are not allowed
-        import re
         if re.search(r'[a-zA-Z]', phone_number):
             raise forms.ValidationError("Phone number cannot contain letters.")
         
-        # Allow only digits, +, spaces, and hyphens
-        if not re.match(r'^[0-9+\-\s()]+$', phone_number):
+        # Check digit count (between 8 and 12 digits)
+        if len(digits_only) < 8 or len(digits_only) > 12:
             raise forms.ValidationError(
-                "Phone number can only contain numbers, +, spaces, and hyphens."
-            )
-            
-        # Check digit count
-        digits_only = re.sub(r'\D', '', phone_number)
-        if len(digits_only) < 10 or len(digits_only) > 15:
-            raise forms.ValidationError(
-                "Phone number must contain between 10 and 15 digits."
+                "Phone number must contain between 8 and 12 digits."
             )
         
         return phone_number
+
+    def clean(self):
+        cleaned_data = super().clean()
+        check_in_date = cleaned_data.get("check_in_date")
+        check_out_date = cleaned_data.get("check_out_date")
+
+        if check_in_date and check_out_date:
+            if check_in_date >= check_out_date:
+                raise ValidationError(
+                    {
+                        "check_out_date":
+                        "Check-out date must be after check-in date"
+                    }
+                )
+
+            if check_in_date < timezone.now().date():
+                raise ValidationError(
+                    {"check_in_date": "Check-in date cannot be in the past"}
+                )
+
+        return cleaned_data
 
 
 class BookingEditForm(forms.ModelForm):
@@ -210,3 +228,4 @@ class BookingEditForm(forms.ModelForm):
                 )
 
         return cleaned_data
+        
